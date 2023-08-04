@@ -1,0 +1,1 @@
+{"config":{"lang":["en"],"separator":"[\\s\\-]+","pipeline":["stopWordFilter"]},"docs":[{"location":"","title":"chain-harvester","text":"<p>A Python library designed to interface with various blockchain networks, enabling the retrieval of data.</p>"},{"location":"modules/","title":"Modules","text":""}]}
