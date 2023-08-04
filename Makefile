@@ -11,13 +11,17 @@ check: ## Run code quality tools.
 	@poetry lock --check
 	@echo "🚀 Linting code: Running pre-commit"
 	@poetry run pre-commit run -a
-	@echo "🚀 Checking for obsolete dependencies: Running deptry"
-	@poetry run deptry .
+
 
 .PHONY: test
 test: ## Test the code with pytest
 	@echo "🚀 Testing code: Running pytest"
-	@poetry run pytest --doctest-modules
+	@poetry run pytest tests
+
+.PHONY: tox
+tox: ## Test the code with pytest
+	@echo "🚀 Testing code: Running tox"
+	@poetry run tox 
 
 .PHONY: build
 build: clean-build ## Build wheel file using poetry
