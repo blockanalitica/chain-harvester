@@ -16,7 +16,12 @@ check: ## Run code quality tools.
 .PHONY: test
 test: ## Test the code with pytest
 	@echo "🚀 Testing code: Running pytest"
-	@poetry run pytest --doctest-modules
+	@poetry run pytest
+
+.PHONY: tox
+tox: ## Test the code with pytest
+	@echo "🚀 Testing code: Running tox"
+	@poetry run tox 
 
 .PHONY: build
 build: clean-build ## Build wheel file using poetry
