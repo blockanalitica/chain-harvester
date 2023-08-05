@@ -1,4 +1,3 @@
-import inspect
 import json
 import logging
 import os
@@ -87,17 +86,12 @@ class Chain:
     def load_abi(self, contract_address):
         contract_address = contract_address.lower()
         if contract_address not in self._abis:
-            if not os.path.exists(self.abis_path):
-                os.makedirs(self.abis_path)
-            current_file_path = inspect.getfile(inspect.currentframe())
-            current_directory = os.path.dirname(os.path.abspath(current_file_path))
-            file_path = os.path.join(current_directory, "abis", f"{contract_address}.json")
+            file_path = os.path.join(self.abis_path, f"{contract_address}.json")
             if os.path.exists(file_path):
                 with open(file_path) as f:
                     self._abis[contract_address] = json.loads(f.read())
             else:
                 abi = self.get_abi_from_etherscan(contract_address)
-
                 with open(file_path, "w") as f:
                     json.dump(abi, f)
                 with open(file_path) as f:
