@@ -235,6 +235,6 @@ class Chain:
         for address, function, response in calls:
             multicalls.append(Call(address, function, [response]))
 
-        multi = Multicall(multicalls, _w3=self.w3, chain_id=self.chain_id, block_identifier=block_identifier)
+        multi = Multicall(multicalls, self.chain_id, _w3=self.w3, block_identifier=block_identifier)
 
         return multi()
