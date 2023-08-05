@@ -45,5 +45,4 @@ def test__multicall():
         )
     )
     result = chain.multicall(calls)
-    print(result)
-    raise AssertionError()
+    assert result[0][0] == "Dai Stablecoin"
