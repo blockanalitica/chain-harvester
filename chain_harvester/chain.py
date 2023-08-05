@@ -8,6 +8,8 @@ from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
+from chain_harvester.multicall import Call, Multicall
+
 log = logging.getLogger(__name__)
 
 
@@ -15,30 +17,31 @@ class Chain:
     def __init__(
         self,
         rpc=None,
-        chain=None,
+        w3=None,
         step=None,
-        etherscan_api_key=None,
-        abis_path=None,
         chain_id=None,
+        rpc_nodes=None,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.rpc = rpc
-        self._chain = chain
+        self._w3 = w3
         self.step = step or 10_000
         self.provider = rpc
-        self.etherscan_api_key = etherscan_api_key
-        self.abis_path = abis_path
+
         self.chain_id = chain_id
+        self.rpc_nodes = rpc_nodes
 
         self._abis = {}
         self.current_block = 0
-        self.retry = 0
+
+        self.chain = None
+        self.network = None
 
     @property
-    def chain(self):
-        if not self._chain:
+    def w3(self):
+        if not self._w3:
             session = requests.Session()
             retries = 3
             retry = Retry(
@@ -53,13 +56,13 @@ class Chain:
             session.mount("http://", adapter)
             session.mount("https://", adapter)
 
-            self._chain = Web3(Web3.HTTPProvider(self.rpc, request_kwargs={"timeout": 60}, session=session))
-            self._chain.middleware_onion.inject(geth_poa_middleware, layer=0)
-        return self._chain
+            self._w3 = Web3(Web3.HTTPProvider(self.rpc, request_kwargs={"timeout": 60}, session=session))
+            self._w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        return self._w3
 
     @property
     def eth(self):
-        return self.chain.eth
+        return self.w3.eth
 
     def get_block_info(self, block_number):
         return self.eth.get_block(block_number)
@@ -67,21 +70,8 @@ class Chain:
     def get_latest_block(self):
         return self.eth.get_block_number()
 
-    def get_abi_from_etherscan(self, contract_address):
-        try:
-            req = requests.get(
-                "https://api.etherscan.io/api?module=contract&action=getabi&address="
-                + contract_address
-                + "&apikey="
-                + self.etherscan_api_key,
-                timeout=5,
-            )
-        except requests.exceptions.Timeout:
-            log.exception("Timeout when get abi from etherscan", extra={"contract_address": contract_address})
-            raise
-        resp = json.loads(req.text)
-        abi = json.loads(resp["result"])
-        return abi
+    def get_abi_from_source(self, contract_address):
+        raise NotImplementedError
 
     def load_abi(self, contract_address):
         contract_address = contract_address.lower()
@@ -91,7 +81,7 @@ class Chain:
                 with open(file_path) as f:
                     self._abis[contract_address] = json.loads(f.read())
             else:
-                abi = self.get_abi_from_etherscan(contract_address)
+                abi = self.get_abi_from_source(contract_address)
                 with open(file_path, "w") as f:
                     json.dump(abi, f)
                 with open(file_path) as f:
@@ -102,7 +92,7 @@ class Chain:
         if Web3.is_address(contract_address):
             contract_address = Web3.to_checksum_address(contract_address)
         abi = self.load_abi(contract_address)
-        return self.chain.eth.contract(address=contract_address, abi=abi)
+        return self.eth.contract(address=contract_address, abi=abi)
 
     def call_contract_function(self, contract_address, function_name, *args, **kwargs):
         contract_address = Web3.to_checksum_address(contract_address)
@@ -239,3 +229,12 @@ class Chain:
             )
 
         return self._yield_events(fetch_events_func, from_block, to_block)
+
+    def multicall(self, calls, block_identifier=None):
+        multicalls = []
+        for address, function, response in calls:
+            multicalls.append(Call(address, function, [response]))
+
+        multi = Multicall(multicalls, self.chain_id, _w3=self.w3, block_identifier=block_identifier)
+
+        return multi()

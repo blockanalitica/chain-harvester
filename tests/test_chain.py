@@ -3,6 +3,7 @@ import os
 import tempfile
 
 from chain_harvester.chain import Chain
+from chain_harvester.networks.ethereum.mainnet import EthereumMainnetChain
 
 
 def test_chain():
@@ -20,9 +21,9 @@ def test_load_abi__abi():
         with open(abi_path, "w") as f:
             json.dump(sample_abi, f)
 
-        chain = Chain(abis_path=temp_dir)
+        chain = EthereumMainnetChain(abis_path=temp_dir)
 
-        chain.get_abi_from_etherscan = lambda address: sample_abi
+        chain.get_abi_from_source = lambda address: sample_abi
 
         loaded_abi = chain.load_abi(contract_address)
         assert loaded_abi == sample_abi
@@ -39,9 +40,9 @@ def test_load_abi__contract():
         with open(abi_path, "w") as f:
             json.dump(sample_abi, f)
 
-        chain = Chain(abis_path=temp_dir)
+        chain = EthereumMainnetChain(abis_path=temp_dir)
 
-        chain.get_abi_from_etherscan = lambda address: sample_abi
+        chain.get_abi_from_source = lambda address: sample_abi
 
         loaded_abi = chain.load_abi(contract_address)
         assert loaded_abi == sample_abi
