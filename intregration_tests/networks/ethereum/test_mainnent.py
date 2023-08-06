@@ -40,9 +40,17 @@ def test__multicall():
     calls.append(
         (
             "0x6b175474e89094c44da98b954eedeac495271d0f",
+            ["symbol()(string)"],
+            ["symbol", None],
+        )
+    )
+    calls.append(
+        (
+            "0x6b175474e89094c44da98b954eedeac495271d0f",
             ["name()(string)"],
             ["name", None],
         )
     )
     result = chain.multicall(calls)
-    assert result[0][0] == "Dai Stablecoin"
+    assert result["symbol"] == "DAI"
+    assert result["name"] == "Dai Stablecoin"

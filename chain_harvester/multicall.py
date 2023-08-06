@@ -57,6 +57,7 @@ class Call:
                 decoded = self.signature.decode_data(output)
             except:  # noqa: E722
                 success, decoded = False, [None] * len(self.returns)
+        else:
             decoded = [None] * len(self.returns)
         if self.returns:
             return {
