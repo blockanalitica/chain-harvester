@@ -11,7 +11,7 @@ def test__call_contract_function():
 
 
 def test__yield_contract_events():
-    chain = EthereumMainnetChain(rpc=RPC_NODES["ethereum"]["mainnet"], api_key=ETHERSCAN_API_KEY, abis_path="abis/")
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_key=ETHERSCAN_API_KEY, abis_path="abis/")
 
     event_chunks = chain.yield_contract_events(
         "0x6b175474e89094c44da98b954eedeac495271d0f", "Transfer", from_block=17850969, to_block=17850974
@@ -21,7 +21,7 @@ def test__yield_contract_events():
 
 
 def test__yield_contract_events_by_topic():
-    chain = EthereumMainnetChain(rpc=RPC_NODES["ethereum"]["mainnet"], api_key=ETHERSCAN_API_KEY, abis_path="abis/")
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_key=ETHERSCAN_API_KEY, abis_path="abis/")
 
     event_chunks = chain.yield_contract_events_by_topic(
         "0x6b175474e89094c44da98b954eedeac495271d0f",
@@ -34,7 +34,7 @@ def test__yield_contract_events_by_topic():
 
 
 def test__multicall():
-    chain = EthereumMainnetChain(rpc=RPC_NODES["ethereum"]["mainnet"])
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES)
 
     calls = []
     calls.append(

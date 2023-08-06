@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 class EthereumMainnetChain(Chain):
     def __init__(self, rpc=None, rpc_nodes=None, api_key=None, abis_path=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        print(rpc_nodes)
         self.chain = "ethereum"
         self.network = "mainnet"
         self.rpc = rpc or rpc_nodes[self.chain][self.network]
