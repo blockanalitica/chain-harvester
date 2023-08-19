@@ -6,4 +6,9 @@ load_dotenv()
 
 ETHERSCAN_API_KEY = os.environ.get("ETHERSCAN_API_KEY")
 
-RPC_NODES = {"ethereum": {"mainnet": os.environ.get("ETHEREUM_MAINNET_RPC")}}
+RPC_NODES = {
+    "ethereum": {
+        "mainnet": os.environ.get("ETHEREUM_MAINNET_RPC"),
+        "goerli": os.environ.get("ETHEREUM_GOERLI_RPC"),
+    }
+}

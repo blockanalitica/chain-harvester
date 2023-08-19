@@ -5,16 +5,22 @@ MULTICALL2_BYTECODE = "0x608060405234801561001057600080fd5b50600436106100b457600
 
 class Network(IntEnum):
     Mainnet = 1
+    Goerli = 2
 
 
 MULTICALL_ADDRESSES = {
     Network.Mainnet: "0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441",
+    Network.Goerli: "0x77dCa2C955b15e9dE4dbBCf1246B4B85b651e50e",
 }
 
 MULTICALL2_ADDRESSES = {
     Network.Mainnet: "0x5ba1e12693dc8f9c48aad8770482f4739beed696",
+    Network.Goerli: "0x5ba1e12693dc8f9c48aad8770482f4739beed696",
 }
 
 CHAINS = {
-    "ethereum": {"mainnet": Network.Mainnet},
+    "ethereum": {
+        "mainnet": Network.Mainnet,
+        "goerli": Network.Goerli,
+    },
 }
