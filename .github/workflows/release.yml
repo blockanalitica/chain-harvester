@@ -22,21 +22,17 @@ jobs:
         with:
           branch: "release/${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}"
         if: ${{ steps.release.outputs.release_created }}
-
-  publish:
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
+      # Logic below handles pypi release
       - name: Check out
         uses: actions/checkout@v3
-
+        if: ${{ steps.release.outputs.release_created }}
       - name: Set up the environment
         uses: ./.github/actions/setup-poetry-env
-
+        if: ${{ steps.release.outputs.release_created }}
       - name: Export tag
         id: vars
         run: echo tag=${GITHUB_REF#refs/*/} >> $GITHUB_OUTPUT
-
+        if: ${{ steps.release.outputs.release_created }}
       - name: Build and publish
         run: |
           source .venv/bin/activate
@@ -45,5 +41,4 @@ jobs:
         env: 
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
           RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
-
-  
+        if: ${{ steps.release.outputs.release_created }}
