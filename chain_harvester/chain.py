@@ -13,6 +13,10 @@ from chain_harvester.multicall import Call, Multicall
 log = logging.getLogger(__name__)
 
 
+class ChainException(Exception):
+    pass
+
+
 class Chain:
     def __init__(
         self,
@@ -81,11 +85,13 @@ class Chain:
                 with open(file_path) as f:
                     self._abis[contract_address] = json.loads(f.read())
             else:
+                if not os.path.isdir(self.abis_path):
+                    os.mkdir(self.abis_path)
+
                 abi = self.get_abi_from_source(contract_address)
                 with open(file_path, "w") as f:
                     json.dump(abi, f)
-                with open(file_path) as f:
-                    self._abis[contract_address] = json.loads(f.read())
+                self._abis[contract_address] = abi
         return self._abis[contract_address]
 
     def get_contract(self, contract_address):
@@ -118,7 +124,7 @@ class Chain:
             if events is None:
                 break
             else:
-                yield events
+                yield from events
             if self.current_block >= to_block:
                 break
             start_block = self.current_block
@@ -187,7 +193,7 @@ class Chain:
                 extra_log={"topics": topics, "contract_address": contract_address},
             )
 
-        return self._yield_events(fetch_events_func, from_block, to_block)
+        yield from self._yield_events(fetch_events_func, from_block, to_block)
 
     ### Event Attr
 
@@ -228,7 +234,7 @@ class Chain:
                 },
             )
 
-        return self._yield_events(fetch_events_func, from_block, to_block)
+        yield from self._yield_events(fetch_events_func, from_block, to_block)
 
     def multicall(self, calls, block_identifier=None):
         multicalls = []
