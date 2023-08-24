@@ -29,10 +29,6 @@ jobs:
       - name: Set up the environment
         uses: ./.github/actions/setup-poetry-env
         if: ${{ steps.release.outputs.release_created }}
-      - name: Export tag
-        id: vars
-        run: echo tag=${GITHUB_REF#refs/*/} >> $GITHUB_OUTPUT
-        if: ${{ steps.release.outputs.release_created }}
       - name: Build and publish
         run: |
           source .venv/bin/activate
@@ -40,5 +36,5 @@ jobs:
           make build-and-publish
         env: 
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.release.outputs.tag_name }}
         if: ${{ steps.release.outputs.release_created }}
