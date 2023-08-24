@@ -22,6 +22,7 @@ jobs:
         with:
           branch: "release/${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}"
         if: ${{ steps.release.outputs.release_created }}
+
       # Logic below handles pypi release
       - name: Check out
         uses: actions/checkout@v3
