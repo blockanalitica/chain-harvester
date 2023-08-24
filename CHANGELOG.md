@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/blockanalitica/chain-harvester/compare/v0.3.0...v0.3.1) (2023-08-24)
+
+
+### Bug Fixes
+
+* pypi publishing ([334b046](https://github.com/blockanalitica/chain-harvester/commit/334b04618767170ce3786ff2fd53d465156c3570))
+
 ## [0.3.0](https://github.com/blockanalitica/chain-harvester/compare/v0.2.0...v0.3.0) (2023-08-24)
 
 
