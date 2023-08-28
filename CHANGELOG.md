@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/blockanalitica/chain-harvester/compare/v0.4.1...v0.4.2) (2023-08-28)
+
+
+### Bug Fixes
+
+* don't specify step size on mainnet and goerli ([#16](https://github.com/blockanalitica/chain-harvester/issues/16)) ([f720ef6](https://github.com/blockanalitica/chain-harvester/commit/f720ef6a31cff43c83eb452c27677dcb615dead9))
+
 ## [0.4.1](https://github.com/blockanalitica/chain-harvester/compare/v0.4.0...v0.4.1) (2023-08-28)
 
 
