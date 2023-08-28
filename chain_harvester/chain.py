@@ -139,7 +139,7 @@ class Chain:
                     if retries > 3:
                         raise
 
-                    step = 2000
+                    step /= 5
                     retries += 1
                     continue
                 else:
