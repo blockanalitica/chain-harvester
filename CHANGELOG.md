@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/blockanalitica/chain-harvester/compare/v0.3.1...v0.4.0) (2023-08-28)
+
+
+### Features
+
+* generic event fetcher and decoder ([#12](https://github.com/blockanalitica/chain-harvester/issues/12)) ([2927abd](https://github.com/blockanalitica/chain-harvester/commit/2927abd6906d7123b5e57a26ef7ed034379e7755))
+
 ## [0.3.1](https://github.com/blockanalitica/chain-harvester/compare/v0.3.0...v0.3.1) (2023-08-24)
 
 
