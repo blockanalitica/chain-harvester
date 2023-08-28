@@ -117,17 +117,40 @@ class Chain:
         if not to_block:
             to_block = self.get_latest_block()
 
+        retries = 0
+        step = self.step
         while True:
-            end_block = min(from_block + self.step - 1, to_block)
+            end_block = min(from_block + step - 1, to_block)
             events = fetch_events_func(from_block, end_block)
             if events is None:
                 break
-            else:
+
+            try:
                 yield from events
+            except ValueError as e:
+                # We're catching ValueError as the limit for each response is either
+                # 2000 blocks or 10k logs. Since our step is bigger than 2k blocks, we
+                # catch the errors, and retry with smaller step (2k blocks)
+                err_code = None
+                if len(e.args) > 0 and isinstance(e.args[0], dict):
+                    err_code = e.args[0]["code"]
+
+                if err_code in [-32602, -32005, -32000]:
+                    if retries > 3:
+                        raise
+
+                    step = 2000
+                    retries += 1
+                    continue
+                else:
+                    raise
+
             if end_block >= to_block:
                 break
 
-            from_block += self.step
+            from_block += step
+            # Reset step back to self.step in case we did a retry
+            step = self.step
 
     def get_events_for_contract(self, contract_address, from_block, to_block=None):
         contract = self.get_contract(contract_address)
@@ -144,6 +167,22 @@ class Chain:
                 yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_contract, from_block, to_block)
+
+    def get_events_for_contract_topics(self, contract_address, topics, from_block, to_block=None):
+        if not isinstance(topics, list):
+            raise TypeError("topics must be a list")
+
+        contract = self.get_contract(contract_address)
+        decoder = EventLogDecoder(contract)
+
+        def fetch_events_for_contract_topics(from_block, to_block):
+            filters = {"fromBlock": from_block, "toBlock": to_block, "address": contract_address, "topics": topics}
+
+            raw_logs = self.eth.get_logs(filters)
+            for raw_log in raw_logs:
+                yield decoder.decode_log(raw_log)
+
+        return self._yield_all_events(fetch_events_for_contract_topics, from_block, to_block)
 
     def multicall(self, calls, block_identifier=None):
         multicalls = []
