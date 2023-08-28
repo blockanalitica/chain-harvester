@@ -8,6 +8,7 @@ from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
+from chain_harvester.decoders import EventLogDecoder
 from chain_harvester.multicall import Call, Multicall
 
 log = logging.getLogger(__name__)
@@ -112,129 +113,76 @@ class Chain:
         content = self.eth.get_storage_at(contract_address, position, block_identifier=block_identifier).hex()
         return content
 
-    def _yield_events(self, fetch_events_func, from_block, to_block=None):
-        self.current_block = 0
+    def _yield_all_events(self, fetch_events_func, from_block, to_block=None):
         if not to_block:
             to_block = self.get_latest_block()
 
-        start_block = from_block
+        retries = 0
+        step = self.step
         while True:
-            end_block = min(start_block + self.step - 1, to_block)
-            events = fetch_events_func(start_block, end_block, self.step)
+            end_block = min(from_block + step - 1, to_block)
+            events = fetch_events_func(from_block, end_block)
             if events is None:
                 break
-            else:
-                yield from events
-            if self.current_block >= to_block:
-                break
-            start_block = self.current_block
 
-    def _return_events_with_retry(self, fetch_events_func, start_block, end_block, step, extra_log):
-        MAX_RETRIES = 3
-        retry = 0
-        while retry <= MAX_RETRIES:
             try:
-                events = fetch_events_func(start_block, end_block, step)
+                yield from events
             except ValueError as e:
-                msg = e.args[0]
-                if isinstance(msg, dict) and msg["code"] in [-32602, -32005, -32000]:
-                    step /= 5
-                    end_block = int(start_block + step - 1)
+                # We're catching ValueError as the limit for each response is either
+                # 2000 blocks or 10k logs. Since our step is bigger than 2k blocks, we
+                # catch the errors, and retry with smaller step (2k blocks)
+                err_code = None
+                if len(e.args) > 0 and isinstance(e.args[0], dict):
+                    err_code = e.args[0]["code"]
+
+                if err_code in [-32602, -32005, -32000]:
+                    if retries > 3:
+                        raise
+
+                    step = 2000
+                    retries += 1
                     continue
                 else:
-                    log_extra = {
-                        "stack": True,
-                        "start_block": start_block,
-                        "end_block": end_block,
-                        "step": step,
-                        "exception": e,
-                        "retry": retry,
-                        **extra_log,
-                    }
-                    if retry == MAX_RETRIES:
-                        log.exception(msg, extra=log_extra)
-                        return None
-                    else:
-                        log.warning(msg, extra=log_extra)
-                        retry += 1
-            else:
-                self.current_block = end_block
-                return events
-        return None
+                    raise
 
-    ### Topics
+            if end_block >= to_block:
+                break
 
-    def _return_events_by_topics(self, contract_address, topics, start_block, end_block, step):
-        filters = {
-            "fromBlock": start_block,
-            "toBlock": end_block,
-            "address": contract_address,
-            "topics": topics,
-        }
-        events = self.eth.get_logs(filters)
-        return events
+            from_block += step
+            # Reset step back to self.step in case we did a retry
+            step = self.step
 
-    def _return_events_by_topic_with_retry(self, contract_address, topics, start_block, end_block, step, extra_log):
-        def fetch_events_func(start_block, end_block, step):
-            return self._return_events_by_topics(contract_address, topics, start_block, end_block, step)
+    def get_events_for_contract(self, contract_address, from_block, to_block=None):
+        contract = self.get_contract(contract_address)
+        decoder = EventLogDecoder(contract)
 
-        return self._return_events_with_retry(fetch_events_func, start_block, end_block, step, extra_log)
+        def fetch_events_for_contract(from_block, to_block):
+            filters = {
+                "fromBlock": from_block,
+                "toBlock": to_block,
+                "address": contract_address,
+            }
+            raw_logs = self.eth.get_logs(filters)
+            for raw_log in raw_logs:
+                yield decoder.decode_log(raw_log)
 
-    def yield_contract_events_by_topic(self, contract_address, topics, from_block, to_block=None):
-        contract_address = Web3.to_checksum_address(contract_address)
+        return self._yield_all_events(fetch_events_for_contract, from_block, to_block)
 
-        def fetch_events_func(start_block, end_block, step):
-            return self._return_events_by_topic_with_retry(
-                contract_address,
-                topics,
-                start_block,
-                end_block,
-                step,
-                extra_log={"topics": topics, "contract_address": contract_address},
-            )
+    def get_events_for_contract_topics(self, contract_address, topics, from_block, to_block=None):
+        if not isinstance(topics, list):
+            raise TypeError("topics must be a list")
 
-        yield from self._yield_events(fetch_events_func, from_block, to_block)
+        contract = self.get_contract(contract_address)
+        decoder = EventLogDecoder(contract)
 
-    ### Event Attr
+        def fetch_events_for_contract_topics(from_block, to_block):
+            filters = {"fromBlock": from_block, "toBlock": to_block, "address": contract_address, "topics": topics}
 
-    def _return_contract_events(self, contract, event_attr, start_block, end_block, step):
-        attr = contract.events
-        cls = getattr(attr, event_attr)
-        caller = cls.create_filter
-        events = caller(fromBlock=start_block, toBlock=end_block)
-        entries = events.get_all_entries()
-        return entries
+            raw_logs = self.eth.get_logs(filters)
+            for raw_log in raw_logs:
+                yield decoder.decode_log(raw_log)
 
-    def _return_contract_events_with_retry(self, contract, event_attr, start_block, end_block, step, extra_log):
-        def fetch_events_func(start_block, end_block, step):
-            return self._return_contract_events(contract, event_attr, start_block, end_block, step)
-
-        return self._return_events_with_retry(
-            fetch_events_func,
-            start_block,
-            end_block,
-            step,
-            extra_log={"contract": contract, "event_attr": event_attr, **extra_log},
-        )
-
-    def yield_contract_events(self, contract_address, event_attr, from_block, to_block=None, **kwargs):
-        abi_address = kwargs.get("abi_type", contract_address)
-        contract = self.get_contract(abi_address)
-
-        def fetch_events_func(start_block, end_block, step):
-            return self._return_contract_events_with_retry(
-                contract,
-                event_attr,
-                start_block,
-                end_block,
-                step,
-                extra_log={
-                    "event_attr": event_attr,
-                    "contract_address": contract.address,
-                },
-            )
-
-        yield from self._yield_events(fetch_events_func, from_block, to_block)
+        return self._yield_all_events(fetch_events_for_contract_topics, from_block, to_block)
 
     def multicall(self, calls, block_identifier=None):
         multicalls = []
