@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/blockanalitica/chain-harvester/compare/v0.4.0...v0.4.1) (2023-08-28)
+
+
+### Bug Fixes
+
+* on retries, step is now devided isntead of static number ([#14](https://github.com/blockanalitica/chain-harvester/issues/14)) ([8dea0c8](https://github.com/blockanalitica/chain-harvester/commit/8dea0c89f4a50366adf4faa831b58c179413b669))
+
 ## [0.4.0](https://github.com/blockanalitica/chain-harvester/compare/v0.3.1...v0.4.0) (2023-08-28)
 
 
