@@ -16,7 +16,6 @@ class EthereumGoerliChain(Chain):
         self.network = "goerli"
         self.rpc = rpc or rpc_nodes[self.chain][self.network]
         self.chain_id = CHAINS[self.chain][self.network]
-        self.step = 10_000
         self.abis_path = abis_path or "abis/"
         self.api_key = api_key
 
