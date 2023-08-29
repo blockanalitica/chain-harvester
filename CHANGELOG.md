@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/blockanalitica/chain-harvester/compare/v0.4.2...v0.5.0) (2023-08-29)
+
+
+### Features
+
+* changed event log decoder output ([#18](https://github.com/blockanalitica/chain-harvester/issues/18)) ([684b463](https://github.com/blockanalitica/chain-harvester/commit/684b463e345f4dc0f3e005bd055c8db9ef6c0fec))
+
 ## [0.4.2](https://github.com/blockanalitica/chain-harvester/compare/v0.4.1...v0.4.2) (2023-08-28)
 
 
