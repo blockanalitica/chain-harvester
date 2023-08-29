@@ -89,7 +89,10 @@ class Chain:
                 if not os.path.isdir(self.abis_path):
                     os.mkdir(self.abis_path)
                 proxy_contract = self.get_implementation_address(contract_address)
-                abi = self.get_abi_from_source(proxy_contract)
+                if proxy_contract != "0x0000000000000000000000000000000000000000":
+                    abi = self.get_abi_from_source(proxy_contract)
+                else:
+                    abi = self.get_abi_from_source(contract_address)
                 with open(file_path, "w") as f:
                     json.dump(abi, f)
                 self._abis[contract_address] = abi
