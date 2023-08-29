@@ -14,7 +14,10 @@ def test__yield_contract_events():
     chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_key=ETHERSCAN_API_KEY)
 
     events = chain.yield_contract_events(
-        "0x6b175474e89094c44da98b954eedeac495271d0f", "Transfer", from_block=17850969, to_block=17850974
+        "0x6b175474e89094c44da98b954eedeac495271d0f",
+        "Transfer",
+        from_block=17850969,
+        to_block=17850974,
     )
 
     assert len(list(events)) == 3

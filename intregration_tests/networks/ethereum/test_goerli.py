@@ -12,7 +12,10 @@ def test__call_contract_function():
 def test__yield_contract_events():
     chain = EthereumGoerliChain(rpc_nodes=RPC_NODES, api_key=ETHERSCAN_API_KEY)
     events = chain.yield_contract_events(
-        "0x11fe4b6ae13d2a6055c8d9cf65c55bac32b5d844", "Transfer", from_block=9544128, to_block=9544600
+        "0x11fe4b6ae13d2a6055c8d9cf65c55bac32b5d844",
+        "Transfer",
+        from_block=9544128,
+        to_block=9544600,
     )
     assert len(list(events)) == 4
 
