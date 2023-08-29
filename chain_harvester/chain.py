@@ -61,7 +61,9 @@ class Chain:
             session.mount("http://", adapter)
             session.mount("https://", adapter)
 
-            self._w3 = Web3(Web3.HTTPProvider(self.rpc, request_kwargs={"timeout": 60}, session=session))
+            self._w3 = Web3(
+                Web3.HTTPProvider(self.rpc, request_kwargs={"timeout": 60}, session=session)
+            )
             self._w3.middleware_onion.inject(geth_poa_middleware, layer=0)
         return self._w3
 
@@ -115,12 +117,16 @@ class Chain:
         contract_address = Web3.to_checksum_address(contract_address)
         contract = self.get_contract(contract_address)
         contract_function = contract.get_function_by_name(function_name)
-        result = contract_function(*args).call(block_identifier=kwargs.get("block_identifier", "latest"))
+        result = contract_function(*args).call(
+            block_identifier=kwargs.get("block_identifier", "latest")
+        )
         return result
 
     def get_storage_at(self, contract_address, position, block_identifier=None):
         contract_address = Web3.to_checksum_address(contract_address)
-        content = self.eth.get_storage_at(contract_address, position, block_identifier=block_identifier).hex()
+        content = self.eth.get_storage_at(
+            contract_address, position, block_identifier=block_identifier
+        ).hex()
         return content
 
     def _yield_all_events(self, fetch_events_func, from_block, to_block=None):
@@ -187,7 +193,12 @@ class Chain:
         decoder = EventLogDecoder(contract)
 
         def fetch_events_for_contract_topics(from_block, to_block):
-            filters = {"fromBlock": from_block, "toBlock": to_block, "address": contract_address, "topics": topics}
+            filters = {
+                "fromBlock": from_block,
+                "toBlock": to_block,
+                "address": contract_address,
+                "topics": topics,
+            }
 
             raw_logs = self.eth.get_logs(filters)
             for raw_log in raw_logs:
@@ -199,7 +210,9 @@ class Chain:
         if not isinstance(contract_addresses, list):
             raise TypeError("contract_addresses must be a list")
 
-        contracts = [Web3.to_checksum_address(contract_address) for contract_address in contract_addresses]
+        contracts = [
+            Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
+        ]
 
         def fetch_events_for_contracts(from_block, to_block):
             filters = {
@@ -214,6 +227,25 @@ class Chain:
                 yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_contracts, from_block, to_block)
+
+    def get_events_for_topics(self, topics, from_block, to_block=None):
+        if not isinstance(topics, list):
+            raise TypeError("topics must be a list")
+
+        def fetch_events_for_topics(from_block, to_block):
+            filters = {
+                "fromBlock": from_block,
+                "toBlock": to_block,
+                "topics": topics,
+            }
+
+            raw_logs = self.eth.get_logs(filters)
+            for raw_log in raw_logs:
+                contract = self.get_contract(raw_log["address"].lower())
+                decoder = EventLogDecoder(contract)
+                yield decoder.decode_log(raw_log)
+
+        return self._yield_all_events(fetch_events_for_topics, from_block, to_block)
 
     def multicall(self, calls, block_identifier=None):
         multicalls = []

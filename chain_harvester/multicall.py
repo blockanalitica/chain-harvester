@@ -96,11 +96,17 @@ class Multicall:
         self.w3 = _w3
         self.chain_id = chain_id
         if require_success is True:
-            multicall_map = MULTICALL_ADDRESSES if self.chain_id in MULTICALL_ADDRESSES else MULTICALL2_ADDRESSES
+            multicall_map = (
+                MULTICALL_ADDRESSES
+                if self.chain_id in MULTICALL_ADDRESSES
+                else MULTICALL2_ADDRESSES
+            )
             self.multicall_sig = "aggregate((address,bytes)[])(uint256,bytes[])"
         else:
             multicall_map = MULTICALL2_ADDRESSES
-            self.multicall_sig = "tryBlockAndAggregate(bool,(address,bytes)[])(uint256,uint256,(bool,bytes)[])"
+            self.multicall_sig = (
+                "tryBlockAndAggregate(bool,(address,bytes)[])(uint256,uint256,(bool,bytes)[])"
+            )
         self.multicall_address = multicall_map[self.chain_id]
 
     def __call__(self):
@@ -132,7 +138,8 @@ class Multicall:
             return outputs
         except requests.ConnectionError as e:
             if (
-                "('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))" not in str(e)
+                "('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
+                not in str(e)
                 or ConnErr_retries > 5
             ):
                 raise
@@ -140,9 +147,9 @@ class Multicall:
             if "request entity too large" not in str(e).lower():
                 raise
         chunk_1, chunk_2 = split_calls(self.calls)
-        return self.fetch_outputs(chunk_1, ConnErr_retries=ConnErr_retries + 1) + self.fetch_outputs(
-            chunk_2, ConnErr_retries=ConnErr_retries + 1
-        )
+        return self.fetch_outputs(
+            chunk_1, ConnErr_retries=ConnErr_retries + 1
+        ) + self.fetch_outputs(chunk_2, ConnErr_retries=ConnErr_retries + 1)
 
     def get_args(self, calls):
         if self.require_success is True:

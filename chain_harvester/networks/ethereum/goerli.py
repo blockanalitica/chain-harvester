@@ -29,7 +29,9 @@ class EthereumGoerliChain(Chain):
                 timeout=5,
             )
         except requests.exceptions.Timeout:
-            log.exception("Timeout when get abi from etherscan", extra={"contract_address": contract_address})
+            log.exception(
+                "Timeout when get abi from etherscan", extra={"contract_address": contract_address}
+            )
             raise
 
         response.raise_for_status()
