@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/blockanalitica/chain-harvester/compare/v0.5.0...v0.6.0) (2023-08-29)
+
+
+### Features
+
+* add get_events_for_contracts + EIP-1967 ABIs check ([#20](https://github.com/blockanalitica/chain-harvester/issues/20)) ([d291e1f](https://github.com/blockanalitica/chain-harvester/commit/d291e1fc5eb9f0251df725c2fbe780ad4ace3979))
+* add get_events_for_topics ([#22](https://github.com/blockanalitica/chain-harvester/issues/22)) ([cb7813e](https://github.com/blockanalitica/chain-harvester/commit/cb7813eaa00a9b8a41da2a76bd8f80a7728dc873))
+
 ## [0.5.0](https://github.com/blockanalitica/chain-harvester/compare/v0.4.2...v0.5.0) (2023-08-29)
 
 
