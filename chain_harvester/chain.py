@@ -88,12 +88,19 @@ class Chain:
             else:
                 if not os.path.isdir(self.abis_path):
                     os.mkdir(self.abis_path)
-
-                abi = self.get_abi_from_source(contract_address)
+                proxy_contract = self.get_implementation_address(contract_address)
+                abi = self.get_abi_from_source(proxy_contract)
                 with open(file_path, "w") as f:
                     json.dump(abi, f)
                 self._abis[contract_address] = abi
         return self._abis[contract_address]
+
+    def get_implementation_address(self, contract_address):
+        # EIP-1967 storage slot
+        contract_address = Web3.to_checksum_address(contract_address)
+        slot = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+        impl_address = self.eth.get_storage_at(contract_address, int(slot, 16)).hex()
+        return Web3.to_checksum_address(impl_address[-40:])
 
     def get_contract(self, contract_address):
         if Web3.is_address(contract_address):
@@ -153,6 +160,7 @@ class Chain:
             step = self.step
 
     def get_events_for_contract(self, contract_address, from_block, to_block=None):
+        contract_address = Web3.to_checksum_address(contract_address)
         contract = self.get_contract(contract_address)
         decoder = EventLogDecoder(contract)
 
@@ -183,6 +191,26 @@ class Chain:
                 yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_contract_topics, from_block, to_block)
+
+    def get_events_for_contracts(self, contract_addresses, from_block, to_block=None):
+        if not isinstance(contract_addresses, list):
+            raise TypeError("contract_addresses must be a list")
+
+        contracts = [Web3.to_checksum_address(contract_address) for contract_address in contract_addresses]
+
+        def fetch_events_for_contracts(from_block, to_block):
+            filters = {
+                "fromBlock": from_block,
+                "toBlock": to_block,
+                "address": contracts,
+            }
+            raw_logs = self.eth.get_logs(filters)
+            for raw_log in raw_logs:
+                contract = self.get_contract(raw_log["address"].lower())
+                decoder = EventLogDecoder(contract)
+                yield decoder.decode_log(raw_log)
+
+        return self._yield_all_events(fetch_events_for_contracts, from_block, to_block)
 
     def multicall(self, calls, block_identifier=None):
         multicalls = []
