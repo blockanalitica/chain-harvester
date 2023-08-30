@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2](https://github.com/blockanalitica/chain-harvester/compare/v0.8.1...v0.8.2) (2023-08-30)
+
+
+### Bug Fixes
+
+* step needs to be integer, remove get_latest_block from _yield_all_events ([#29](https://github.com/blockanalitica/chain-harvester/issues/29)) ([ca5c8ad](https://github.com/blockanalitica/chain-harvester/commit/ca5c8ad5380d3e3d6c46f379e02c61c24e38e7b5))
+
 ## [0.8.1](https://github.com/blockanalitica/chain-harvester/compare/v0.8.0...v0.8.1) (2023-08-30)
 
 
