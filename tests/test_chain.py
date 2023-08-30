@@ -6,6 +6,7 @@ from chain_harvester.chain import Chain
 from chain_harvester.networks.ethereum.mainnet import EthereumMainnetChain
 
 RPC_NODES = {"ethereum": {"mainnet": "http://localhost:8545"}}
+API_KEYS = {"ethereum": {"mainnet": None}}
 
 
 def test_chain():
@@ -15,12 +16,12 @@ def test_chain():
 
 
 def test__rpc():
-    chain = EthereumMainnetChain(rpc="http://localhost:8545")
+    chain = EthereumMainnetChain(rpc="http://localhost:8545", api_keys=API_KEYS)
     assert chain.rpc == "http://localhost:8545"
 
 
 def test__rpc_nodes():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES)
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
     assert chain.rpc == RPC_NODES["ethereum"]["mainnet"]
 
 
@@ -33,7 +34,7 @@ def test__load_abi__abi():
         with open(abi_path, "w") as f:
             json.dump(sample_abi, f)
 
-        chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, abis_path=temp_dir)
+        chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, abis_path=temp_dir, api_keys=API_KEYS)
 
         chain.get_abi_from_source = lambda address: sample_abi
         chain.get_implementation_address = (
@@ -55,7 +56,7 @@ def test__load_abi__contract():
         with open(abi_path, "w") as f:
             json.dump(sample_abi, f)
 
-        chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, abis_path=temp_dir)
+        chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, abis_path=temp_dir, api_keys=API_KEYS)
 
         chain.get_abi_from_source = lambda address: sample_abi
 
