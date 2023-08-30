@@ -176,8 +176,8 @@ class Chain:
 
         def fetch_events_for_contract(from_block, to_block):
             filters = {
-                "fromBlock": from_block,
-                "toBlock": to_block,
+                "fromBlock": hex(from_block),
+                "toBlock": hex(to_block),
                 "address": contract_address,
             }
             raw_logs = self.eth.get_logs(filters)
@@ -196,8 +196,8 @@ class Chain:
 
         def fetch_events_for_contract_topics(from_block, to_block):
             filters = {
-                "fromBlock": from_block,
-                "toBlock": to_block,
+                "fromBlock": hex(from_block),
+                "toBlock": hex(to_block),
                 "address": contract_address,
                 "topics": topics,
             }
@@ -218,8 +218,8 @@ class Chain:
 
         def fetch_events_for_contracts(from_block, to_block):
             filters = {
-                "fromBlock": from_block,
-                "toBlock": to_block,
+                "fromBlock": hex(from_block),
+                "toBlock": hex(to_block),
                 "address": contracts,
             }
             raw_logs = self.eth.get_logs(filters)
@@ -245,8 +245,8 @@ class Chain:
 
         def fetch_events_for_contracts_topics(from_block, to_block):
             filters = {
-                "fromBlock": from_block,
-                "toBlock": to_block,
+                "fromBlock": hex(from_block),
+                "toBlock": hex(to_block),
                 "address": contracts,
                 "topics": topics,
             }
@@ -264,8 +264,8 @@ class Chain:
 
         def fetch_events_for_topics(from_block, to_block):
             filters = {
-                "fromBlock": from_block,
-                "toBlock": to_block,
+                "fromBlock": hex(from_block),
+                "toBlock": hex(to_block),
                 "topics": topics,
             }
 
