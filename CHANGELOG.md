@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/blockanalitica/chain-harvester/compare/v0.7.0...v0.8.0) (2023-08-30)
+
+
+### Features
+
+* add get_events_for_contracts_topics ([#25](https://github.com/blockanalitica/chain-harvester/issues/25)) ([82a6da5](https://github.com/blockanalitica/chain-harvester/commit/82a6da567cd2b3994818fb60c892c82dfc160313))
+
 ## [0.7.0](https://github.com/blockanalitica/chain-harvester/compare/v0.6.0...v0.7.0) (2023-08-30)
 
 
