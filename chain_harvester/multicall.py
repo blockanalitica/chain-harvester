@@ -5,7 +5,12 @@ from eth_abi import decode, encode
 from eth_utils import function_signature_to_4byte_selector
 from web3 import Web3
 
-from chain_harvester.constants import MULTICALL2_ADDRESSES, MULTICALL2_BYTECODE, MULTICALL_ADDRESSES
+from chain_harvester.constants import (
+    MULTICALL2_ADDRESSES,
+    MULTICALL3_ADDRESSES,
+    MULTICALL3_BYTECODE,
+    NO_STATE_OVERRIDE,
+)
 
 
 def split_calls(calls):
@@ -16,6 +21,12 @@ def split_calls(calls):
     chunk_1 = calls[:center]
     chunk_2 = calls[center:]
     return chunk_1, chunk_2
+
+
+def state_override_supported(chain_id):
+    if chain_id in NO_STATE_OVERRIDE:
+        return None
+    return MULTICALL3_BYTECODE
 
 
 class Call:
@@ -97,17 +108,23 @@ class Multicall:
         self.chain_id = chain_id
         if require_success is True:
             multicall_map = (
-                MULTICALL_ADDRESSES
-                if self.chain_id in MULTICALL_ADDRESSES
+                MULTICALL3_ADDRESSES
+                if self.chain_id in MULTICALL3_ADDRESSES
                 else MULTICALL2_ADDRESSES
             )
             self.multicall_sig = "aggregate((address,bytes)[])(uint256,bytes[])"
         else:
-            multicall_map = MULTICALL2_ADDRESSES
+            multicall_map = (
+                MULTICALL3_ADDRESSES
+                if self.chain_id in MULTICALL3_ADDRESSES
+                else MULTICALL2_ADDRESSES
+            )
             self.multicall_sig = (
                 "tryBlockAndAggregate(bool,(address,bytes)[])(uint256,uint256,(bool,bytes)[])"
             )
         self.multicall_address = multicall_map[self.chain_id]
+
+        self.state_override_code = state_override_supported(self.chain_id)
 
     def __call__(self):
         result = {}
@@ -125,7 +142,7 @@ class Multicall:
             returns=None,
             _w3=self.w3,
             block_identifier=self.block_identifier,
-            state_override_code=MULTICALL2_BYTECODE,
+            state_override_code=self.state_override_code,
         )
 
         try:

@@ -10,14 +10,16 @@ log = logging.getLogger(__name__)
 
 
 class EthereumGoerliChain(Chain):
-    def __init__(self, rpc=None, rpc_nodes=None, api_key=None, abis_path=None, *args, **kwargs):
+    def __init__(
+        self, rpc=None, rpc_nodes=None, api_key=None, api_keys=None, abis_path=None, *args, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.chain = "ethereum"
         self.network = "goerli"
         self.rpc = rpc or rpc_nodes[self.chain][self.network]
         self.chain_id = CHAINS[self.chain][self.network]
         self.abis_path = abis_path or "abis/"
-        self.api_key = api_key
+        self.api_key = api_key or api_keys[self.chain][self.network]
 
     def get_abi_from_source(self, contract_address):
         try:

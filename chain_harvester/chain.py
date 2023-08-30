@@ -186,6 +186,7 @@ class Chain:
         return self._yield_all_events(fetch_events_for_contract, from_block, to_block)
 
     def get_events_for_contract_topics(self, contract_address, topics, from_block, to_block=None):
+        contract_address = Web3.to_checksum_address(contract_address)
         if not isinstance(topics, list):
             raise TypeError("topics must be a list")
 
