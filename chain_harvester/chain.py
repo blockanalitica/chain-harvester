@@ -129,10 +129,7 @@ class Chain:
         ).hex()
         return content
 
-    def _yield_all_events(self, fetch_events_func, from_block, to_block=None):
-        if not to_block:
-            to_block = self.get_latest_block()
-
+    def _yield_all_events(self, fetch_events_func, from_block, to_block):
         retries = 0
         step = self.step
         while True:
@@ -157,6 +154,7 @@ class Chain:
                         raise
 
                     step /= 5
+                    step = int(step)
                     retries += 1
                     continue
                 else:
@@ -170,6 +168,8 @@ class Chain:
             step = self.step
 
     def get_events_for_contract(self, contract_address, from_block, to_block=None):
+        if not to_block:
+            to_block = self.get_latest_block()
         contract_address = Web3.to_checksum_address(contract_address)
         contract = self.get_contract(contract_address)
         decoder = EventLogDecoder(contract)
@@ -191,6 +191,9 @@ class Chain:
         if not isinstance(topics, list):
             raise TypeError("topics must be a list")
 
+        if not to_block:
+            to_block = self.get_latest_block()
+
         contract = self.get_contract(contract_address)
         decoder = EventLogDecoder(contract)
 
@@ -211,6 +214,9 @@ class Chain:
     def get_events_for_contracts(self, contract_addresses, from_block, to_block=None):
         if not isinstance(contract_addresses, list):
             raise TypeError("contract_addresses must be a list")
+
+        if not to_block:
+            to_block = self.get_latest_block()
 
         contracts = [
             Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
@@ -239,6 +245,9 @@ class Chain:
         if not isinstance(topics, list):
             raise TypeError("topics must be a list")
 
+        if not to_block:
+            to_block = self.get_latest_block()
+
         contracts = [
             Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
         ]
@@ -261,6 +270,9 @@ class Chain:
     def get_events_for_topics(self, topics, from_block, to_block=None):
         if not isinstance(topics, list):
             raise TypeError("topics must be a list")
+
+        if not to_block:
+            to_block = self.get_latest_block()
 
         def fetch_events_for_topics(from_block, to_block):
             filters = {
