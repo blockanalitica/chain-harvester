@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/blockanalitica/chain-harvester/compare/v0.6.0...v0.7.0) (2023-08-30)
+
+
+### Features
+
+* add gnosis chain ([#23](https://github.com/blockanalitica/chain-harvester/issues/23)) ([4d8da38](https://github.com/blockanalitica/chain-harvester/commit/4d8da38ac91ad602f8b1d75d513f21c79c9be02b))
+
 ## [0.6.0](https://github.com/blockanalitica/chain-harvester/compare/v0.5.0...v0.6.0) (2023-08-29)
 
 
