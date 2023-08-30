@@ -157,6 +157,7 @@ class Chain:
                         raise
 
                     step /= 5
+                    step = int(step)
                     retries += 1
                     continue
                 else:
