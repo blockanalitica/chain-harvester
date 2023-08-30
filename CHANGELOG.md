@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/blockanalitica/chain-harvester/compare/v0.8.0...v0.8.1) (2023-08-30)
+
+
+### Bug Fixes
+
+* fromBlock and toBlock covert to hex ([#27](https://github.com/blockanalitica/chain-harvester/issues/27)) ([bcda62e](https://github.com/blockanalitica/chain-harvester/commit/bcda62eaf9797a7d74b004578c591c4eca2b3d1c))
+
 ## [0.8.0](https://github.com/blockanalitica/chain-harvester/compare/v0.7.0...v0.8.0) (2023-08-30)
 
 
