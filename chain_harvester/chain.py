@@ -136,6 +136,7 @@ class Chain:
         retries = 0
         step = self.step
         while True:
+            log.debug(f"Fetching events from {from_block} to {to_block} with step {step}")
             end_block = min(from_block + step - 1, to_block)
             events = fetch_events_func(from_block, end_block)
             if events is None:
@@ -228,6 +229,34 @@ class Chain:
                 yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_contracts, from_block, to_block)
+
+    def get_events_for_contracts_topics(
+        self, contract_addresses, topics, from_block, to_block=None
+    ):
+        if not isinstance(contract_addresses, list):
+            raise TypeError("contract_addresses must be a list")
+
+        if not isinstance(topics, list):
+            raise TypeError("topics must be a list")
+
+        contracts = [
+            Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
+        ]
+
+        def fetch_events_for_contracts_topics(from_block, to_block):
+            filters = {
+                "fromBlock": from_block,
+                "toBlock": to_block,
+                "address": contracts,
+                "topics": topics,
+            }
+            raw_logs = self.eth.get_logs(filters)
+            for raw_log in raw_logs:
+                contract = self.get_contract(raw_log["address"].lower())
+                decoder = EventLogDecoder(contract)
+                yield decoder.decode_log(raw_log)
+
+        return self._yield_all_events(fetch_events_for_contracts_topics, from_block, to_block)
 
     def get_events_for_topics(self, topics, from_block, to_block=None):
         if not isinstance(topics, list):
