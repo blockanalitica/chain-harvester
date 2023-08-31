@@ -3,6 +3,7 @@ import logging
 import os
 
 import requests
+from eth_utils import event_abi_to_log_topic
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
@@ -297,3 +298,16 @@ class Chain:
         multi = Multicall(multicalls, self.chain_id, _w3=self.w3, block_identifier=block_identifier)
 
         return multi()
+
+    def abi_to_event_topics(self, contract_address, events=None):
+        if events and not isinstance(events, list):
+            raise TypeError("whitelist_events must be a list")
+
+        contract = self.get_contract(contract_address)
+        event_abis = [
+            abi
+            for abi in contract.abi
+            if abi["type"] == "event" and (events is None or abi["name"] in events)
+        ]
+        signed_abis = {event_abi_to_log_topic(abi).hex(): abi for abi in event_abis}
+        return signed_abis
