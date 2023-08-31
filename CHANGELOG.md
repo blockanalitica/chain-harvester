@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/blockanalitica/chain-harvester/compare/v0.8.2...v0.9.0) (2023-08-31)
+
+
+### Features
+
+* abi_to_event_topics ([#31](https://github.com/blockanalitica/chain-harvester/issues/31)) ([4b2d24a](https://github.com/blockanalitica/chain-harvester/commit/4b2d24aedbcc20905e25fc797d1f1d6f541355ce))
+
 ## [0.8.2](https://github.com/blockanalitica/chain-harvester/compare/v0.8.1...v0.8.2) (2023-08-30)
 
 
