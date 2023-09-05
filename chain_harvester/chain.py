@@ -301,7 +301,7 @@ class Chain:
 
     def abi_to_event_topics(self, contract_address, events=None):
         if events and not isinstance(events, list):
-            raise TypeError("whitelist_events must be a list")
+            raise TypeError("events must be a list")
 
         contract = self.get_contract(contract_address)
         event_abis = [
@@ -309,5 +309,5 @@ class Chain:
             for abi in contract.abi
             if abi["type"] == "event" and (events is None or abi["name"] in events)
         ]
-        signed_abis = {event_abi_to_log_topic(abi).hex(): abi for abi in event_abis}
+        signed_abis = {f"0x{event_abi_to_log_topic(abi).hex()}": abi for abi in event_abis}
         return signed_abis
