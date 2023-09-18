@@ -9,7 +9,7 @@ from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
-from chain_harvester.decoders import EventLogDecoder
+from chain_harvester.decoders import AnonymousEventLogDecoder, EventLogDecoder
 from chain_harvester.multicall import Call, Multicall
 
 log = logging.getLogger(__name__)
@@ -168,12 +168,12 @@ class Chain:
             # Reset step back to self.step in case we did a retry
             step = self.step
 
-    def get_events_for_contract(self, contract_address, from_block, to_block=None):
+    def get_events_for_contract(self, contract_address, from_block, to_block=None, anonymous=False):
         if not to_block:
             to_block = self.get_latest_block()
         contract_address = Web3.to_checksum_address(contract_address)
         contract = self.get_contract(contract_address)
-        decoder = EventLogDecoder(contract)
+        decoder = AnonymousEventLogDecoder(contract) if anonymous else EventLogDecoder(contract)
 
         def fetch_events_for_contract(from_block, to_block):
             filters = {
@@ -187,7 +187,9 @@ class Chain:
 
         return self._yield_all_events(fetch_events_for_contract, from_block, to_block)
 
-    def get_events_for_contract_topics(self, contract_address, topics, from_block, to_block=None):
+    def get_events_for_contract_topics(
+        self, contract_address, topics, from_block, to_block=None, anonymous=False
+    ):
         contract_address = Web3.to_checksum_address(contract_address)
         if not isinstance(topics, list):
             raise TypeError("topics must be a list")
@@ -196,7 +198,8 @@ class Chain:
             to_block = self.get_latest_block()
 
         contract = self.get_contract(contract_address)
-        decoder = EventLogDecoder(contract)
+
+        decoder = AnonymousEventLogDecoder(contract) if anonymous else EventLogDecoder(contract)
 
         def fetch_events_for_contract_topics(from_block, to_block):
             filters = {
@@ -212,7 +215,9 @@ class Chain:
 
         return self._yield_all_events(fetch_events_for_contract_topics, from_block, to_block)
 
-    def get_events_for_contracts(self, contract_addresses, from_block, to_block=None):
+    def get_events_for_contracts(
+        self, contract_addresses, from_block, to_block=None, anonymous=False
+    ):
         if not isinstance(contract_addresses, list):
             raise TypeError("contract_addresses must be a list")
 
@@ -232,13 +237,16 @@ class Chain:
             raw_logs = self.eth.get_logs(filters)
             for raw_log in raw_logs:
                 contract = self.get_contract(raw_log["address"].lower())
-                decoder = EventLogDecoder(contract)
+                if anonymous:
+                    decoder = AnonymousEventLogDecoder(contract)
+                else:
+                    decoder = EventLogDecoder(contract)
                 yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_contracts, from_block, to_block)
 
     def get_events_for_contracts_topics(
-        self, contract_addresses, topics, from_block, to_block=None
+        self, contract_addresses, topics, from_block, to_block=None, anonymous=False
     ):
         if not isinstance(contract_addresses, list):
             raise TypeError("contract_addresses must be a list")
@@ -263,12 +271,15 @@ class Chain:
             raw_logs = self.eth.get_logs(filters)
             for raw_log in raw_logs:
                 contract = self.get_contract(raw_log["address"].lower())
-                decoder = EventLogDecoder(contract)
+                if anonymous:
+                    decoder = AnonymousEventLogDecoder(contract)
+                else:
+                    decoder = EventLogDecoder(contract)
                 yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_contracts_topics, from_block, to_block)
 
-    def get_events_for_topics(self, topics, from_block, to_block=None):
+    def get_events_for_topics(self, topics, from_block, to_block=None, anonymous=False):
         if not isinstance(topics, list):
             raise TypeError("topics must be a list")
 
@@ -285,7 +296,10 @@ class Chain:
             raw_logs = self.eth.get_logs(filters)
             for raw_log in raw_logs:
                 contract = self.get_contract(raw_log["address"].lower())
-                decoder = EventLogDecoder(contract)
+                if anonymous:
+                    decoder = AnonymousEventLogDecoder(contract)
+                else:
+                    decoder = EventLogDecoder(contract)
                 yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_topics, from_block, to_block)
