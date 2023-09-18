@@ -80,7 +80,6 @@ class AnonymousEventLogDecoder:
         data = data[DATA_SKIP_BYTES:]
         parse_from = 0
         for arg in self._signed_abis["functions"][topics[0].hex()]["inputs"]:
-            print(data[parse_from : parse_from + 64], arg["type"])
             event_layout.setdefault(
                 arg["name"],
                 decode_value(value=data[parse_from : parse_from + 64], value_type=arg["type"]),
