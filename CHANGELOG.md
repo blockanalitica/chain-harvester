@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.10.0](https://github.com/blockanalitica/chain-harvester/compare/v0.9.0...v0.10.0) (2023-09-18)
+
+
+### Features
+
+* add anonymous_events ([#35](https://github.com/blockanalitica/chain-harvester/issues/35)) ([8c77be3](https://github.com/blockanalitica/chain-harvester/commit/8c77be30246ed1d8607b5b32bbae6f69def4bdaa))
+
+
+### Bug Fixes
+
+* abi_to_event_topics return 0x[topic] ([#33](https://github.com/blockanalitica/chain-harvester/issues/33)) ([58b5edf](https://github.com/blockanalitica/chain-harvester/commit/58b5edf013b90b372459140c6d44641e261fc37c))
+
 ## [0.9.0](https://github.com/blockanalitica/chain-harvester/compare/v0.8.2...v0.9.0) (2023-08-31)
 
 
