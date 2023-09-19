@@ -86,11 +86,14 @@ class AnonymousEventLogDecoder:
             )
             parse_from += 64
 
-        return {
+        item = dict(log_entry)
+
+        item["args"] = {
             "event_name": self._signed_abis["events"]["anonymous"]["name"],
             "event_layout": event_layout,
             "executed_function": self._signed_abis["functions"][topics[0].hex()]["name"],
         }
+        return item
 
 
 def bytes4_to_str(value):
