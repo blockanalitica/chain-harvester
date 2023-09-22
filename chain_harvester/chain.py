@@ -81,10 +81,11 @@ class Chain:
     def get_abi_from_source(self, contract_address):
         raise NotImplementedError
 
-    def load_abi(self, contract_address):
+    def load_abi(self, contract_address, abi_name=None):
         contract_address = contract_address.lower()
+        abi_address = abi_name or contract_address
         if contract_address not in self._abis:
-            file_path = os.path.join(self.abis_path, f"{contract_address}.json")
+            file_path = os.path.join(self.abis_path, f"{abi_address}.json")
             if os.path.exists(file_path):
                 with open(file_path) as f:
                     self._abis[contract_address] = json.loads(f.read())
@@ -151,7 +152,7 @@ class Chain:
                     err_code = e.args[0]["code"]
 
                 if err_code in [-32602, -32005, -32000]:
-                    if retries > 3:
+                    if retries > 5:
                         raise
 
                     step /= 5
