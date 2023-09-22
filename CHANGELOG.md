@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/blockanalitica/chain-harvester/compare/v0.10.1...v0.11.0) (2023-09-22)
+
+
+### Features
+
+* add abi_name to load_abi ([#38](https://github.com/blockanalitica/chain-harvester/issues/38)) ([0534cd5](https://github.com/blockanalitica/chain-harvester/commit/0534cd53f28b0470550bf6a88a0fbfa7602d8d83))
+
 ## [0.10.1](https://github.com/blockanalitica/chain-harvester/compare/v0.10.0...v0.10.1) (2023-09-19)
 
 
