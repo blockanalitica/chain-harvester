@@ -10,6 +10,15 @@ def test__call_contract_function():
     assert name == "Dai Stablecoin"
 
 
+def test__load_abi():
+    chain = EthereumMainnetChain(
+        rpc=RPC_NODES["ethereum"]["mainnet"], api_keys=API_KEYS, abis_path="test-abis/"
+    )
+    abi = chain.load_abi("0x6b175474e89094c44da98b954eedeac495271d0f")
+    abi_name = chain.load_abi("0x6b175474e89094c44da98b954eedeac495271d0f", abi_name="token")
+    assert abi == abi_name
+
+
 def test__get_events_for_contract():
     chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
 
