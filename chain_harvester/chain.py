@@ -327,7 +327,7 @@ class Chain:
         signed_abis = {f"0x{event_abi_to_log_topic(abi).hex()}": abi for abi in event_abis}
         return signed_abis
 
-    def address_to_topic(address):
+    def address_to_topic(self, address):
         stripped_address = address[2:]
         topic_format = "0x" + stripped_address.lower().rjust(64, "0")
         return topic_format
