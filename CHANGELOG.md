@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/blockanalitica/chain-harvester/compare/v0.11.0...v0.12.0) (2023-10-04)
+
+
+### Features
+
+* add address_to_topic ([#40](https://github.com/blockanalitica/chain-harvester/issues/40)) ([2de202e](https://github.com/blockanalitica/chain-harvester/commit/2de202e0a1fffd23b1f8f1143237c255b0700c25))
+
 ## [0.11.0](https://github.com/blockanalitica/chain-harvester/compare/v0.10.1...v0.11.0) (2023-09-22)
 
 
