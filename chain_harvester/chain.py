@@ -331,3 +331,28 @@ class Chain:
         stripped_address = address[2:]
         topic_format = "0x" + stripped_address.lower().rjust(64, "0")
         return topic_format
+
+    def abi_contract_functions(self, contract_address):
+        contract = self.get_contract(contract_address)
+        abi = contract.abi
+        functions = [element["name"] for element in abi if element["type"] == "function"]
+        return functions
+
+    def get_txs_receipts(self, txs_hashes):
+        if not isinstance(txs_hashes, list):
+            raise TypeError("tx_hashes must be a list")
+        data = []
+        for tx_hash in txs_hashes:
+            payload = {
+                "id": 1,
+                "jsonrpc": "2.0",
+                "params": [tx_hash],
+                "method": "eth_getTransactionReceipt"
+            }
+            data.append(payload)
+        headers = {
+            "content-type": "application/json"
+        }
+        response = requests.post(self.rpc, json=data, headers=headers)
+        response.raise_for_status()
+        return json.loads(response.text)

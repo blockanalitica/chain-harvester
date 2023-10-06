@@ -81,3 +81,52 @@ def test__anonymous_events():
     )
 
     assert len(list(events)) == 1
+
+
+def test__abi_contract_functions():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    contract_address = "0x0fC8D4f2151453ca0cA56f07359049c8f07997Bd"
+
+    functions = chain.abi_contract_functions(contract_address=contract_address)
+
+    assert functions == [
+        'TWENTY_YEARS', 
+        'accrued', 
+        'awards', 
+        'bgn', 
+        'cap', 
+        'clf', 
+        'create', 
+        'deny', 
+        'file', 
+        'fin', 
+        'gem', 
+        'ids', 
+        'mgr', 
+        'move', 
+        'rely', 
+        'res', 
+        'restrict', 
+        'rxd', 
+        'tot', 
+        'unpaid', 
+        'unrestrict', 
+        'usr', 
+        'valid', 
+        'vest', 
+        'vest', 
+        'wards', 
+        'yank', 
+        'yank'
+    ]
+
+
+def test__get_txs_receipts():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    tx_hashes = [
+        "0x616e1ba0a77f91e657a0bdc3f8a5796710a1d60341701087bf3b32cd5529f6b2",
+        "0xe688b7bfa9e42e8fa14126cf9b3657022da9c72a82284b1582967ca5c17345a8"
+    ]
+
+    receipts = chain.get_txs_receipts(tx_hashes)
+    assert len(receipts) == 2
