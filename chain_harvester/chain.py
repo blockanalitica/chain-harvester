@@ -347,12 +347,10 @@ class Chain:
                 "id": 1,
                 "jsonrpc": "2.0",
                 "params": [tx_hash],
-                "method": "eth_getTransactionReceipt"
+                "method": "eth_getTransactionReceipt",
             }
             data.append(payload)
-        headers = {
-            "content-type": "application/json"
-        }
+        headers = {"content-type": "application/json"}
         response = requests.post(self.rpc, json=data, headers=headers)
         response.raise_for_status()
         return json.loads(response.text)
