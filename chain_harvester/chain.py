@@ -1,6 +1,9 @@
 import json
 import logging
 import os
+from Crypto.Hash import keccak
+import binascii
+from web3 import Web3
 
 import requests
 from eth_utils import event_abi_to_log_topic
@@ -332,27 +335,52 @@ class Chain:
         topic_format = "0x" + stripped_address.lower().rjust(64, "0")
         return topic_format
 
-    def abi_contract_functions(self, contract_address):
+    def encode_eth_call_payload(
+        self, contract_address, function_name, *args, block_identifier="latest"
+    ):
+        function_arg_types = []
         contract = self.get_contract(contract_address)
         abi = contract.abi
-        functions = [element["name"] for element in abi if element["type"] == "function"]
-        return functions
+        for element in abi:
+            if element["type"] == "function" and element["name"] == function_name:
+                for i in element["inputs"]:
+                    function_arg_types.append(i["type"])
 
-    def get_txs_receipts(self, txs_hashes):
-        if not isinstance(txs_hashes, list):
-            raise TypeError("tx_hashes must be a list")
-        data = []
-        for tx_hash in txs_hashes:
-            payload = {
-                "id": 1,
-                "jsonrpc": "2.0",
-                "params": [tx_hash],
-                "method": "eth_getTransactionReceipt"
-            }
-            data.append(payload)
-        headers = {
-            "content-type": "application/json"
+        function_full_details = f"{function_name}({','.join(function_arg_types)})"
+        function_signature_hash = keccak.new(
+            data=function_full_details.encode("utf-8"), digest_bits=256
+        ).digest()
+        function_signature = ("0x" + binascii.hexlify(function_signature_hash).decode("utf-8"))[:10]
+
+        all_args = []
+        for arg in args:
+            if isinstance(arg, int):
+                all_args.append(hex(arg)[2:].zfill(64))
+            elif isinstance(arg, str):
+                all_args.append(Web3.to_hex(arg.encode("utf-8"))[2:].zfill(64))
+            else:
+                raise TypeError("Unsupported data type")
+
+        if block_identifier != "latest" and isinstance(block_identifier, int):
+            block_identifier = hex(block_identifier)
+
+        payload = {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "params": [
+                {
+                    "to": contract_address,
+                    "data": f"{function_signature}{''.join(all_args)}",
+                },
+                block_identifier,
+            ],
+            "method": "eth_call",
         }
+
+        return payload
+
+    def batch_eth_calls(self, data):
+        headers = {"content-type": "application/json"}
         response = requests.post(self.rpc, json=data, headers=headers)
         response.raise_for_status()
         return json.loads(response.text)
