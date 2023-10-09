@@ -339,7 +339,12 @@ class Chain:
     def encode_eth_call_payload(
         self, contract_address, function_name, *args, block_identifier="latest"
     ):
-        contract = self.get_contract(contract_address)  
+        contract = self.get_contract(contract_address)
+        output_types = []
+        for element in contract.abi:
+            if element["type"] == "function" and element["name"] == function_name:
+                for i in element["outputs"]:
+                    output_types.append(i["type"])
         data = contract.encodeABI(function_name, args)
 
         if block_identifier != "latest" and isinstance(block_identifier, int):
@@ -358,10 +363,14 @@ class Chain:
             "method": "eth_call",
         }
 
-        return payload
+        return payload, output_types
 
     def batch_eth_calls(self, data):
         headers = {"content-type": "application/json"}
         response = requests.post(self.rpc, json=data, headers=headers)
         response.raise_for_status()
-        return json.loads(response.text)
+        return response.json()
+    
+    def decode_eth_call_output(self, contract_address, output, output_types):
+        contract = self.get_contract(contract_address)
+        return contract.abi.decode(output_types, output)
