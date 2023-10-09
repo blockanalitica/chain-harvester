@@ -4,6 +4,7 @@ import os
 from Crypto.Hash import keccak
 import binascii
 from web3 import Web3
+import eth_abi
 
 import requests
 from eth_utils import event_abi_to_log_topic
@@ -338,28 +339,8 @@ class Chain:
     def encode_eth_call_payload(
         self, contract_address, function_name, *args, block_identifier="latest"
     ):
-        function_arg_types = []
-        contract = self.get_contract(contract_address)
-        abi = contract.abi
-        for element in abi:
-            if element["type"] == "function" and element["name"] == function_name:
-                for i in element["inputs"]:
-                    function_arg_types.append(i["type"])
-
-        function_full_details = f"{function_name}({','.join(function_arg_types)})"
-        function_signature_hash = keccak.new(
-            data=function_full_details.encode("utf-8"), digest_bits=256
-        ).digest()
-        function_signature = ("0x" + binascii.hexlify(function_signature_hash).decode("utf-8"))[:10]
-
-        all_args = []
-        for arg in args:
-            if isinstance(arg, int):
-                all_args.append(hex(arg)[2:].zfill(64))
-            elif isinstance(arg, str):
-                all_args.append(Web3.to_hex(arg.encode("utf-8"))[2:].zfill(64))
-            else:
-                raise TypeError("Unsupported data type")
+        contract = self.get_contract(contract_address)  
+        data = contract.encodeABI(function_name, args)
 
         if block_identifier != "latest" and isinstance(block_identifier, int):
             block_identifier = hex(block_identifier)
@@ -370,7 +351,7 @@ class Chain:
             "params": [
                 {
                     "to": contract_address,
-                    "data": f"{function_signature}{''.join(all_args)}",
+                    "data": data,
                 },
                 block_identifier,
             ],
