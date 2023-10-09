@@ -351,6 +351,6 @@ class Chain:
             }
             data.append(payload)
         headers = {"content-type": "application/json"}
-        response = requests.post(self.rpc, json=data, headers=headers)
+        response = requests.post(self.rpc, json=data, headers=headers, timeout=60)
         response.raise_for_status()
         return json.loads(response.text)
