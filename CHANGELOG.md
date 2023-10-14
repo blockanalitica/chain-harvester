@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.2](https://github.com/blockanalitica/chain-harvester/compare/v0.12.1...v0.12.2) (2023-10-14)
+
+
+### Bug Fixes
+
+* uint256_to_int decoding ([#46](https://github.com/blockanalitica/chain-harvester/issues/46)) ([ef644df](https://github.com/blockanalitica/chain-harvester/commit/ef644dfb818bd125af9bdb0486d713e0730c517e))
+
 ## [0.12.1](https://github.com/blockanalitica/chain-harvester/compare/v0.12.0...v0.12.1) (2023-10-04)
 
 
