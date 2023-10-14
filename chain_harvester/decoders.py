@@ -1,7 +1,7 @@
 import binascii
 
 from Crypto.Hash import keccak
-from eth_utils import event_abi_to_log_topic
+from eth_utils import event_abi_to_log_topic, to_int
 from web3 import Web3
 from web3._utils.events import get_event_data
 
@@ -121,7 +121,7 @@ def bytes_to_str(value):
 
 
 def uint256_to_int(value):
-    return int.from_bytes(value, "big")
+    return to_int(hexstr=value)
 
 
 def int256_to_int(value):
@@ -142,6 +142,8 @@ def decode_value(value, value_type):
     elif value_type == "address":
         return address_to_str(value)
     elif value_type == "uint256":
+        print(value_type)
+        print(value)
         return uint256_to_int(value)
     elif value_type == "int256":
         return int256_to_int(value)
