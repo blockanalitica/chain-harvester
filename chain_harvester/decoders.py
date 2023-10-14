@@ -142,8 +142,6 @@ def decode_value(value, value_type):
     elif value_type == "address":
         return address_to_str(value)
     elif value_type == "uint256":
-        print(value_type)
-        print(value)
         return uint256_to_int(value)
     elif value_type == "int256":
         return int256_to_int(value)

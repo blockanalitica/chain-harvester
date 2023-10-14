@@ -98,3 +98,20 @@ def test__anonymous_events_decode():
     )
 
     assert len(list(events)) == 2
+
+
+def test__anonymous_events_fold():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    contract_address = "0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B"
+
+    topics = ["0xb65337df00000000000000000000000000000000000000000000000000000000"]
+
+    events = chain.get_events_for_contract_topics(
+        contract_address,
+        topics,
+        from_block=18349061,
+        to_block=18349063,
+        anonymous=True,
+    )
+
+    assert len(list(events)) == 1
