@@ -334,3 +334,6 @@ class Chain:
         stripped_address = address[2:]
         topic_format = "0x" + stripped_address.lower().rjust(64, "0")
         return topic_format
+
+    def to_hex_topic(self, topic):
+        return Web3.keccak(text=topic).hex()
