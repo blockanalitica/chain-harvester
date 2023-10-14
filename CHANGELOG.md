@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/blockanalitica/chain-harvester/compare/v0.12.2...v0.13.0) (2023-10-14)
+
+
+### Features
+
+* add to_hex_topic ([#48](https://github.com/blockanalitica/chain-harvester/issues/48)) ([879ca3c](https://github.com/blockanalitica/chain-harvester/commit/879ca3c87f684c324fd776f40154ae6f33d64046))
+
 ## [0.12.2](https://github.com/blockanalitica/chain-harvester/compare/v0.12.1...v0.12.2) (2023-10-14)
 
 
