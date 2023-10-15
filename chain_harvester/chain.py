@@ -241,13 +241,18 @@ class Chain:
                 if mixed:
                     try:
                         decoder = EventLogDecoder(contract)
+                        data = decoder.decode_log(raw_log)
+                        yield data
                     except KeyError:
                         decoder = AnonymousEventLogDecoder(contract)
-                if anonymous:
-                    decoder = AnonymousEventLogDecoder(contract)
+                        data = decoder.decode_log(raw_log)
+                        yield data
                 else:
-                    decoder = EventLogDecoder(contract)
-                yield decoder.decode_log(raw_log)
+                    if anonymous:
+                        decoder = AnonymousEventLogDecoder(contract)
+                    else:
+                        decoder = EventLogDecoder(contract)
+                    yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_contracts, from_block, to_block)
 
@@ -280,13 +285,18 @@ class Chain:
                 if mixed:
                     try:
                         decoder = EventLogDecoder(contract)
+                        data = decoder.decode_log(raw_log)
+                        yield data
                     except KeyError:
                         decoder = AnonymousEventLogDecoder(contract)
-                if anonymous:
-                    decoder = AnonymousEventLogDecoder(contract)
+                        data = decoder.decode_log(raw_log)
+                        yield data
                 else:
-                    decoder = EventLogDecoder(contract)
-                yield decoder.decode_log(raw_log)
+                    if anonymous:
+                        decoder = AnonymousEventLogDecoder(contract)
+                    else:
+                        decoder = EventLogDecoder(contract)
+                    yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_contracts_topics, from_block, to_block)
 
