@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/blockanalitica/chain-harvester/compare/v0.13.0...v0.14.0) (2023-10-15)
+
+
+### Features
+
+* add mixed option to get_events_for_contracts ([#50](https://github.com/blockanalitica/chain-harvester/issues/50)) ([1bca236](https://github.com/blockanalitica/chain-harvester/commit/1bca236544ac20561ea54a864cbdea597cd49055))
+
 ## [0.13.0](https://github.com/blockanalitica/chain-harvester/compare/v0.12.2...v0.13.0) (2023-10-14)
 
 
