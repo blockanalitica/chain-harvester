@@ -338,7 +338,7 @@ class Chain:
         return signed_abis
 
     def get_events_topics(self, contract_address, events=None):
-        return self.abi_to_event_topics(contract_address, events=events).keys()
+        return list(self.abi_to_event_topics(contract_address, events=events).keys())
 
     def address_to_topic(self, address):
         stripped_address = address[2:]
