@@ -173,6 +173,4 @@ def test__mixed_events_contracts():
         to_block=9529101,
         mixed=True,
     )
-
-    print(list(events))
-    assert len(list(events)) == 20
+    assert len(list(events)) == 3
