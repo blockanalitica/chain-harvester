@@ -107,7 +107,7 @@ def bytes32_to_str(value):
     try:
         return Web3.to_text(value).strip("\x00")
     except UnicodeDecodeError:
-        int.from_bytes(value, "big")
+        return int.from_bytes(value, "big")
 
 
 def address_to_str(value):
