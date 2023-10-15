@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.3](https://github.com/blockanalitica/chain-harvester/compare/v0.14.2...v0.14.3) (2023-10-15)
+
+
+### Bug Fixes
+
+* decoder for bytes32_to_str ([#56](https://github.com/blockanalitica/chain-harvester/issues/56)) ([d628704](https://github.com/blockanalitica/chain-harvester/commit/d6287049e534e11ce58e78b03a926335690528c6))
+
 ## [0.14.2](https://github.com/blockanalitica/chain-harvester/compare/v0.14.1...v0.14.2) (2023-10-15)
 
 
