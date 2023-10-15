@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.2](https://github.com/blockanalitica/chain-harvester/compare/v0.14.1...v0.14.2) (2023-10-15)
+
+
+### Bug Fixes
+
+* mixed contracts error fetching ([#54](https://github.com/blockanalitica/chain-harvester/issues/54)) ([d27d089](https://github.com/blockanalitica/chain-harvester/commit/d27d089c1712b6684ad6851af6232c28923f5162))
+
 ## [0.14.1](https://github.com/blockanalitica/chain-harvester/compare/v0.14.0...v0.14.1) (2023-10-15)
 
 
