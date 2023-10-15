@@ -169,9 +169,10 @@ def test__mixed_events_contracts():
     events = chain.get_events_for_contracts_topics(
         contracts,
         [topics],
-        from_block=8928160,
-        to_block=8928160 + 1000,
+        from_block=9529100,
+        to_block=9529101,
         mixed=True,
     )
 
+    print(list(events))
     assert len(list(events)) == 20
