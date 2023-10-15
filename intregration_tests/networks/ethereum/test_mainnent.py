@@ -115,3 +115,22 @@ def test__anonymous_events_fold():
     )
 
     assert len(list(events)) == 1
+
+
+def test__mixed_events():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    contract_address = "0x135954d155898D42C90D2a57824C690e0c7BEf1B"
+
+    topics = [
+        "0x54f095dc7308776bf01e8580e4dd40fd959ea4bf50b069975768320ef8d77d8a",
+        "0x851aa1caf4888170ad8875449d18f0f512fd6deb2a6571ea1a41fb9f95acbcd1",
+    ]
+
+    events = chain.get_events_for_contracts_topics(
+        [contract_address],
+        [topics],
+        from_block=17322549,
+        to_block=17322851,
+        mixed=True,
+    )
+    assert len(list(events)) == 14

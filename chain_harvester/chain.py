@@ -217,7 +217,7 @@ class Chain:
         return self._yield_all_events(fetch_events_for_contract_topics, from_block, to_block)
 
     def get_events_for_contracts(
-        self, contract_addresses, from_block, to_block=None, anonymous=False
+        self, contract_addresses, from_block, to_block=None, anonymous=False, mixed=False
     ):
         if not isinstance(contract_addresses, list):
             raise TypeError("contract_addresses must be a list")
@@ -238,6 +238,11 @@ class Chain:
             raw_logs = self.eth.get_logs(filters)
             for raw_log in raw_logs:
                 contract = self.get_contract(raw_log["address"].lower())
+                if mixed:
+                    try:
+                        decoder = EventLogDecoder(contract)
+                    except KeyError:
+                        decoder = AnonymousEventLogDecoder(contract)
                 if anonymous:
                     decoder = AnonymousEventLogDecoder(contract)
                 else:
@@ -247,7 +252,7 @@ class Chain:
         return self._yield_all_events(fetch_events_for_contracts, from_block, to_block)
 
     def get_events_for_contracts_topics(
-        self, contract_addresses, topics, from_block, to_block=None, anonymous=False
+        self, contract_addresses, topics, from_block, to_block=None, anonymous=False, mixed=False
     ):
         if not isinstance(contract_addresses, list):
             raise TypeError("contract_addresses must be a list")
@@ -272,6 +277,11 @@ class Chain:
             raw_logs = self.eth.get_logs(filters)
             for raw_log in raw_logs:
                 contract = self.get_contract(raw_log["address"].lower())
+                if mixed:
+                    try:
+                        decoder = EventLogDecoder(contract)
+                    except KeyError:
+                        decoder = AnonymousEventLogDecoder(contract)
                 if anonymous:
                     decoder = AnonymousEventLogDecoder(contract)
                 else:
@@ -327,7 +337,7 @@ class Chain:
         signed_abis = {f"0x{event_abi_to_log_topic(abi).hex()}": abi for abi in event_abis}
         return signed_abis
 
-    def get_event_topics(self, contract_address, events=None):
+    def get_events_topics(self, contract_address, events=None):
         return self.abi_to_event_topics(contract_address, events=events).keys()
 
     def address_to_topic(self, address):
