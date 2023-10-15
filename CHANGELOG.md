@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.1](https://github.com/blockanalitica/chain-harvester/compare/v0.14.0...v0.14.1) (2023-10-15)
+
+
+### Bug Fixes
+
+* get_events_topics needs to return list not dict keys ([#52](https://github.com/blockanalitica/chain-harvester/issues/52)) ([bc8a787](https://github.com/blockanalitica/chain-harvester/commit/bc8a7879927289155feb73b3f8e386ad0f687331))
+
 ## [0.14.0](https://github.com/blockanalitica/chain-harvester/compare/v0.13.0...v0.14.0) (2023-10-15)
 
 
