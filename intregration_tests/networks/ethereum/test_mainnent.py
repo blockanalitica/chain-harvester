@@ -174,3 +174,9 @@ def test__mixed_events_contracts():
         mixed=True,
     )
     assert len(list(events)) == 3
+
+
+def text__is_eao():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    assert chain.is_eoa("0x7d9f92DAa9254Bbd1f479DBE5058f74C2381A898") is False
+    assert chain.is_eoa("0x5eafe35109ae22c7674c1a30594abe833a9691e8")
