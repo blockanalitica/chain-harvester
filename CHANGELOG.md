@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/blockanalitica/chain-harvester/compare/v0.14.3...v0.15.0) (2023-10-16)
+
+
+### Features
+
+* add get_code and is_eoa ([#58](https://github.com/blockanalitica/chain-harvester/issues/58)) ([facbc05](https://github.com/blockanalitica/chain-harvester/commit/facbc0508d6f825b5123d141665d728217f8df35))
+
 ## [0.14.3](https://github.com/blockanalitica/chain-harvester/compare/v0.14.2...v0.14.3) (2023-10-15)
 
 
