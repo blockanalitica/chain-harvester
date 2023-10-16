@@ -131,6 +131,13 @@ class Chain:
         ).hex()
         return content
 
+    def get_code(self, address):
+        address = Web3.to_checksum_address(address)
+        return self.eth.get_code(address).hex()
+
+    def is_eoa(self, address):
+        return self.eth.get_code(address) == "0x"
+
     def _yield_all_events(self, fetch_events_func, from_block, to_block):
         retries = 0
         step = self.step
