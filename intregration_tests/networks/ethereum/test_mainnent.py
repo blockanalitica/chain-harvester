@@ -180,3 +180,33 @@ def text__is_eao():
     chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
     assert chain.is_eoa("0x7d9f92DAa9254Bbd1f479DBE5058f74C2381A898") is False
     assert chain.is_eoa("0x5eafe35109ae22c7674c1a30594abe833a9691e8")
+
+
+def test__bytes32():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    DSCHIEF_1_0_CONTRACT_ADDRESS = "0x8e2a84d6ade1e7fffee039a35ef5f19f13057152"
+    DSCHIEF_1_1_CONTRACT_ADDRESS = "0x9ef05f7f6deb616fd37ac3c959a2ddd25a54e4f5"
+    DSCHIEF_1_2_CONTRACT_ADDRESS = "0x0a3f6849f78076aefadf113f5bed87720274ddc0"
+    topics = [
+        "0x4d9a807e05ec038d31d248a43818a2234c2a467865e998b3d4da029d9123b5c2",
+        "0x7e816826910b70789c9de9051404b61689ff0e3dcb3e0d73f447b1d797fbdcb0",
+        "0xea66f58e474bc09f580000e81f31b334d171db387d0c6098ba47bd897741679b",
+        "0xf001c2d12c2288935c811b4977748cb3e5e3c485d08a1fb1984023cb2452d463",
+        "0xd8ccd0f300000000000000000000000000000000000000000000000000000000",
+        "0xdd46706400000000000000000000000000000000000000000000000000000000",
+        "0xa69beaba00000000000000000000000000000000000000000000000000000000",
+    ]
+
+    events = chain.get_events_for_contracts_topics(
+        [
+            DSCHIEF_1_0_CONTRACT_ADDRESS,
+            DSCHIEF_1_1_CONTRACT_ADDRESS,
+            DSCHIEF_1_2_CONTRACT_ADDRESS,
+        ],
+        [topics],
+        4749330,
+        4755630,
+        mixed=True,
+    )
+
+    assert len(list(events)) == 9
