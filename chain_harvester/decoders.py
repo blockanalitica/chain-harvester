@@ -87,7 +87,6 @@ class AnonymousEventLogDecoder:
             parse_from += 64
 
         item = dict(log_entry)
-
         item["args"] = {
             "event_name": self._signed_abis["events"]["anonymous"]["name"],
             "event_layout": event_layout,
@@ -105,11 +104,11 @@ def bytes4_to_str(value):
 
 def bytes32_to_str(value):
     try:
-        return Web3.to_text(value).strip("\x00")
-    except UnicodeDecodeError:
+        return int.from_bytes(value, "big")
+    except TypeError:
         try:
-            return int.from_bytes(value, "big")
-        except TypeError:
+            return Web3.to_text(value).strip("\x00")
+        except UnicodeDecodeError:
             return int(value, 16)
 
 
