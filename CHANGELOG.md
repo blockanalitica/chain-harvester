@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.2](https://github.com/blockanalitica/chain-harvester/compare/v0.15.1...v0.15.2) (2023-10-24)
+
+
+### Bug Fixes
+
+* bytes32 decoding, first check for number ([#62](https://github.com/blockanalitica/chain-harvester/issues/62)) ([56364d0](https://github.com/blockanalitica/chain-harvester/commit/56364d0d651684d9fc3acc46186c33f38ffb9f7f))
+
 ## [0.15.1](https://github.com/blockanalitica/chain-harvester/compare/v0.15.0...v0.15.1) (2023-10-24)
 
 
