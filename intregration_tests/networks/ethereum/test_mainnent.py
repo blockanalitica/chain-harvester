@@ -210,3 +210,25 @@ def test__bytes32():
     )
 
     assert len(list(events)) == 9
+
+
+def test__decode_issue():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    topics = [
+        "0x4d9a807e05ec038d31d248a43818a2234c2a467865e998b3d4da029d9123b5c2",
+        "0x7e816826910b70789c9de9051404b61689ff0e3dcb3e0d73f447b1d797fbdcb0",
+        "0xea66f58e474bc09f580000e81f31b334d171db387d0c6098ba47bd897741679b",
+        "0xf001c2d12c2288935c811b4977748cb3e5e3c485d08a1fb1984023cb2452d463",
+        "0xd8ccd0f300000000000000000000000000000000000000000000000000000000",
+        "0xdd46706400000000000000000000000000000000000000000000000000000000",
+        "0xa69beaba00000000000000000000000000000000000000000000000000000000",
+    ]
+
+    events = chain.get_events_for_contracts_topics(
+        ["0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5"],
+        [topics],
+        9761247,
+        9762411,
+        mixed=True,
+    )
+    assert len(list(events)) == 3
