@@ -78,8 +78,32 @@ class Chain:
     def get_latest_block(self):
         return self.eth.get_block_number()
 
-    def get_abi_from_source(self, contract_address):
+    def get_abi_source_url(self, contract_address):
         raise NotImplementedError
+
+    def get_abi_from_source(self, contract_address):
+        try:
+            response = requests.get(
+                self.get_abi_source_url(contract_address),
+                timeout=5,
+            )
+        except requests.exceptions.Timeout:
+            log.exception(
+                "Timeout when get abi from etherscan", extra={"contract_address": contract_address}
+            )
+            raise
+
+        response.raise_for_status()
+        data = response.json()
+
+        response.raise_for_status()
+        data = response.json()
+
+        if data["status"] != "1":
+            raise ChainException("Request to etherscan failed: {}".format(data["result"]))
+
+        abi = json.loads(data["result"])
+        return abi
 
     def load_abi(self, contract_address, abi_name=None):
         contract_address = contract_address.lower()

@@ -6,13 +6,13 @@ from chain_harvester.constants import CHAINS
 log = logging.getLogger(__name__)
 
 
-class EthereumGoerliChain(Chain):
+class EthereumSepoliaChain(Chain):
     def __init__(
         self, rpc=None, rpc_nodes=None, api_key=None, api_keys=None, abis_path=None, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.chain = "ethereum"
-        self.network = "goerli"
+        self.network = "sepolia"
         self.rpc = rpc or rpc_nodes[self.chain][self.network]
         self.chain_id = CHAINS[self.chain][self.network]
         self.abis_path = abis_path or "abis/"
@@ -20,7 +20,7 @@ class EthereumGoerliChain(Chain):
 
     def get_abi_source_url(self, contract_address):
         url = (
-            "https://api-goerli.etherscan.io/api?module=contract&action=getabi&address="
+            "https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address="
             + contract_address
             + "&apikey="
             + self.api_key
