@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0](https://github.com/blockanalitica/chain-harvester/compare/v0.15.2...v0.16.0) (2023-10-26)
+
+
+### Features
+
+* add sepolia ([#64](https://github.com/blockanalitica/chain-harvester/issues/64)) ([b07a5cb](https://github.com/blockanalitica/chain-harvester/commit/b07a5cb77c1c9f59c53b4eb28a78e8d0544d8b0b))
+
 ## [0.15.2](https://github.com/blockanalitica/chain-harvester/compare/v0.15.1...v0.15.2) (2023-10-24)
 
 
