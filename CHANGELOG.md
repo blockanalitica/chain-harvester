@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.0](https://github.com/blockanalitica/chain-harvester/compare/v0.16.0...v0.17.0) (2023-10-27)
+
+
+### Features
+
+* add get_token_info ([#66](https://github.com/blockanalitica/chain-harvester/issues/66)) ([7040768](https://github.com/blockanalitica/chain-harvester/commit/7040768f1a4c7c924978d555f9d61dd1bf1b4cdf))
+
 ## [0.16.0](https://github.com/blockanalitica/chain-harvester/compare/v0.15.2...v0.16.0) (2023-10-26)
 
 
