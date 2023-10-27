@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.1](https://github.com/blockanalitica/chain-harvester/compare/v0.17.0...v0.17.1) (2023-10-27)
+
+
+### Bug Fixes
+
+* add sepolia chain_id ([#68](https://github.com/blockanalitica/chain-harvester/issues/68)) ([921b8a2](https://github.com/blockanalitica/chain-harvester/commit/921b8a2b90268e7e4a61260282588b501bf10b15))
+
 ## [0.17.0](https://github.com/blockanalitica/chain-harvester/compare/v0.16.0...v0.17.0) (2023-10-27)
 
 
