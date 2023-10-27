@@ -388,3 +388,51 @@ class Chain:
 
     def to_hex_topic(self, topic):
         return Web3.keccak(text=topic).hex()
+
+    def get_token_info(self, address, bytes32=False):
+        calls = []
+        calls.append(
+            (
+                address,
+                ["decimals()(uint8)"],
+                ["decimals", None],
+            )
+        )
+        if bytes32:
+            calls.append(
+                (
+                    address,
+                    ["name()(bytes32)"],
+                    ["name", None],
+                )
+            )
+        else:
+            calls.append(
+                (
+                    address,
+                    ["name()(string)"],
+                    ["name", None],
+                )
+            )
+        if bytes32:
+            calls.append(
+                (
+                    address,
+                    ["symbol()(bytes32)"],
+                    ["symbol", None],
+                )
+            )
+        else:
+            calls.append(
+                (
+                    address,
+                    ["symbol()(string)"],
+                    ["symbol", None],
+                )
+            )
+        data = self.multicall(calls)
+        if data["symbol"] is None:
+            data = self.get_token_info(address, bytes32=True)
+            data["symbol"] = data["symbol"].decode("utf-8").rstrip("\x00")
+            data["name"] = data["name"].decode("utf-8").rstrip("\x00")
+        return data
