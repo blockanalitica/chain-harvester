@@ -8,6 +8,7 @@ class Network(IntEnum):
     Mainnet = 1
     Goerli = 5
     Gnosis = 100
+    Sepolia = 11155111
 
 
 MULTICALL_ADDRESSES = {
@@ -26,12 +27,14 @@ MULTICALL3_ADDRESSES = {
     Network.Mainnet: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Goerli: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Gnosis: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Sepolia: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
     "ethereum": {
         "mainnet": Network.Mainnet,
         "goerli": Network.Goerli,
+        "sepolia": Network.Sepolia,
     },
     "gnosis": {
         "mainnet": Network.Gnosis,
