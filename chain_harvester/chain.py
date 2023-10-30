@@ -333,7 +333,7 @@ class Chain:
         topic_format = "0x" + stripped_address.lower().rjust(64, "0")
         return topic_format
 
-    def encode_eth_call_payload(self, contract_address, function_name, block_identifier, *args):
+    def encode_eth_call_payload(self, contract_address, function_name, block_identifier, args):
         contract = self.get_contract(contract_address)
         output_details = {"output_types": [], "output_names": []}
         for element in contract.abi:
@@ -341,7 +341,8 @@ class Chain:
                 for i in element["outputs"]:
                     output_details["output_types"].append(i["type"])
                     output_details["output_names"].append(i["name"])
-        data = contract.encodeABI(function_name, args)
+
+        data = contract.encodeABI(fn_name=function_name, args=args)
 
         if isinstance(block_identifier, int):
             block_identifier = hex(block_identifier)
