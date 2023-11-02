@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/blockanalitica/chain-harvester/compare/v0.17.1...v0.18.0) (2023-11-02)
+
+
+### Features
+
+* add get_multicall_address() ([#70](https://github.com/blockanalitica/chain-harvester/issues/70)) ([b15a6bc](https://github.com/blockanalitica/chain-harvester/commit/b15a6bcac90123e0f5ada5a0a68b7941fae11d26))
+
 ## [0.17.1](https://github.com/blockanalitica/chain-harvester/compare/v0.17.0...v0.17.1) (2023-10-27)
 
 
