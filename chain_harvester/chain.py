@@ -9,6 +9,7 @@ from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
+from chain_harvester.constants import MULTICALL3_ADDRESSES
 from chain_harvester.decoders import AnonymousEventLogDecoder, EventLogDecoder
 from chain_harvester.multicall import Call, Multicall
 
@@ -436,3 +437,6 @@ class Chain:
             data["symbol"] = data["symbol"].decode("utf-8").rstrip("\x00")
             data["name"] = data["name"].decode("utf-8").rstrip("\x00")
         return data
+
+    def get_multicall_address(self):
+        return MULTICALL3_ADDRESSES[self.chain_id] if self.chain_id else None
