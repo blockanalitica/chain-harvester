@@ -67,6 +67,7 @@ select = [
     "RUF",
     # tryceratops
     "TRY",
+    "T201",
 ]
 ignore = [
     # LineTooLong

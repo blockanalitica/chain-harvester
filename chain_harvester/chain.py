@@ -10,6 +10,7 @@ from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
+from chain_harvester.constants import MULTICALL3_ADDRESSES
 from chain_harvester.decoders import AnonymousEventLogDecoder, EventLogDecoder
 from chain_harvester.multicall import Call, Multicall
 
@@ -79,8 +80,32 @@ class Chain:
     def get_latest_block(self):
         return self.eth.get_block_number()
 
-    def get_abi_from_source(self, contract_address):
+    def get_abi_source_url(self, contract_address):
         raise NotImplementedError
+
+    def get_abi_from_source(self, contract_address):
+        try:
+            response = requests.get(
+                self.get_abi_source_url(contract_address),
+                timeout=5,
+            )
+        except requests.exceptions.Timeout:
+            log.exception(
+                "Timeout when get abi from etherscan", extra={"contract_address": contract_address}
+            )
+            raise
+
+        response.raise_for_status()
+        data = response.json()
+
+        response.raise_for_status()
+        data = response.json()
+
+        if data["status"] != "1":
+            raise ChainException("Request to etherscan failed: {}".format(data["result"]))
+
+        abi = json.loads(data["result"])
+        return abi
 
     def load_abi(self, contract_address, abi_name=None):
         contract_address = contract_address.lower()
@@ -131,6 +156,13 @@ class Chain:
             contract_address, position, block_identifier=block_identifier
         ).hex()
         return content
+
+    def get_code(self, address):
+        address = Web3.to_checksum_address(address)
+        return self.eth.get_code(address).hex()
+
+    def is_eoa(self, address):
+        return self.eth.get_code(address) == "0x"
 
     def _yield_all_events(self, fetch_events_func, from_block, to_block):
         retries = 0
@@ -218,7 +250,7 @@ class Chain:
         return self._yield_all_events(fetch_events_for_contract_topics, from_block, to_block)
 
     def get_events_for_contracts(
-        self, contract_addresses, from_block, to_block=None, anonymous=False
+        self, contract_addresses, from_block, to_block=None, anonymous=False, mixed=False
     ):
         if not isinstance(contract_addresses, list):
             raise TypeError("contract_addresses must be a list")
@@ -239,16 +271,26 @@ class Chain:
             raw_logs = self.eth.get_logs(filters)
             for raw_log in raw_logs:
                 contract = self.get_contract(raw_log["address"].lower())
-                if anonymous:
-                    decoder = AnonymousEventLogDecoder(contract)
+                if mixed:
+                    try:
+                        decoder = EventLogDecoder(contract)
+                        data = decoder.decode_log(raw_log)
+                        yield data
+                    except KeyError:
+                        decoder = AnonymousEventLogDecoder(contract)
+                        data = decoder.decode_log(raw_log)
+                        yield data
                 else:
-                    decoder = EventLogDecoder(contract)
-                yield decoder.decode_log(raw_log)
+                    if anonymous:
+                        decoder = AnonymousEventLogDecoder(contract)
+                    else:
+                        decoder = EventLogDecoder(contract)
+                    yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_contracts, from_block, to_block)
 
     def get_events_for_contracts_topics(
-        self, contract_addresses, topics, from_block, to_block=None, anonymous=False
+        self, contract_addresses, topics, from_block, to_block=None, anonymous=False, mixed=False
     ):
         if not isinstance(contract_addresses, list):
             raise TypeError("contract_addresses must be a list")
@@ -273,11 +315,21 @@ class Chain:
             raw_logs = self.eth.get_logs(filters)
             for raw_log in raw_logs:
                 contract = self.get_contract(raw_log["address"].lower())
-                if anonymous:
-                    decoder = AnonymousEventLogDecoder(contract)
+                if mixed:
+                    try:
+                        decoder = EventLogDecoder(contract)
+                        data = decoder.decode_log(raw_log)
+                        yield data
+                    except KeyError:
+                        decoder = AnonymousEventLogDecoder(contract)
+                        data = decoder.decode_log(raw_log)
+                        yield data
                 else:
-                    decoder = EventLogDecoder(contract)
-                yield decoder.decode_log(raw_log)
+                    if anonymous:
+                        decoder = AnonymousEventLogDecoder(contract)
+                    else:
+                        decoder = EventLogDecoder(contract)
+                    yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_contracts_topics, from_block, to_block)
 
@@ -328,6 +380,9 @@ class Chain:
         signed_abis = {f"0x{event_abi_to_log_topic(abi).hex()}": abi for abi in event_abis}
         return signed_abis
 
+    def get_events_topics(self, contract_address, events=None):
+        return list(self.abi_to_event_topics(contract_address, events=events).keys())
+
     def address_to_topic(self, address):
         stripped_address = address[2:]
         topic_format = "0x" + stripped_address.lower().rjust(64, "0")
@@ -367,10 +422,6 @@ class Chain:
         response.raise_for_status()
         return response.json()
 
-    def decode_eth_call_output(self, contract_address, output, output_types):
-        contract = self.get_contract(contract_address)
-        return contract.abi.decode(output_types, output)
-
     def eth_multicall(self, calls):
         if len(calls) > 100:
             raise ValueError("Batch request limit exceeded (limit: 100)")
@@ -394,3 +445,57 @@ class Chain:
             )
             response.append(dict(zip(outputs_details[r["id"]]["output_names"], decoded_response)))
         return response
+
+    def to_hex_topic(self, topic):
+        return Web3.keccak(text=topic).hex()
+
+    def get_token_info(self, address, bytes32=False):
+        calls = []
+        calls.append(
+            (
+                address,
+                ["decimals()(uint8)"],
+                ["decimals", None],
+            )
+        )
+        if bytes32:
+            calls.append(
+                (
+                    address,
+                    ["name()(bytes32)"],
+                    ["name", None],
+                )
+            )
+        else:
+            calls.append(
+                (
+                    address,
+                    ["name()(string)"],
+                    ["name", None],
+                )
+            )
+        if bytes32:
+            calls.append(
+                (
+                    address,
+                    ["symbol()(bytes32)"],
+                    ["symbol", None],
+                )
+            )
+        else:
+            calls.append(
+                (
+                    address,
+                    ["symbol()(string)"],
+                    ["symbol", None],
+                )
+            )
+        data = self.multicall(calls)
+        if data["symbol"] is None:
+            data = self.get_token_info(address, bytes32=True)
+            data["symbol"] = data["symbol"].decode("utf-8").rstrip("\x00")
+            data["name"] = data["name"].decode("utf-8").rstrip("\x00")
+        return data
+
+    def get_multicall_address(self):
+        return MULTICALL3_ADDRESSES[self.chain_id] if self.chain_id else None

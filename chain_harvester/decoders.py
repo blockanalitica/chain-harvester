@@ -1,7 +1,7 @@
 import binascii
 
 from Crypto.Hash import keccak
-from eth_utils import event_abi_to_log_topic
+from eth_utils import event_abi_to_log_topic, to_int
 from web3 import Web3
 from web3._utils.events import get_event_data
 
@@ -87,7 +87,6 @@ class AnonymousEventLogDecoder:
             parse_from += 64
 
         item = dict(log_entry)
-
         item["args"] = {
             "event_name": self._signed_abis["events"]["anonymous"]["name"],
             "event_layout": event_layout,
@@ -104,7 +103,13 @@ def bytes4_to_str(value):
 
 
 def bytes32_to_str(value):
-    return Web3.to_text(value).strip("\x00")
+    try:
+        return int.from_bytes(value, "big")
+    except TypeError:
+        try:
+            return Web3.to_text(value).strip("\x00")
+        except UnicodeDecodeError:
+            return int(value, 16)
 
 
 def address_to_str(value):
@@ -121,7 +126,7 @@ def bytes_to_str(value):
 
 
 def uint256_to_int(value):
-    return int.from_bytes(value, "big")
+    return to_int(hexstr=value)
 
 
 def int256_to_int(value):

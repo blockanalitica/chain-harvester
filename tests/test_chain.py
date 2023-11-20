@@ -64,3 +64,16 @@ def test__load_abi__contract():
         assert loaded_abi == sample_abi
 
         assert os.path.exists(abi_path)
+
+
+def test__to_hex_topic():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    assert (
+        chain.to_hex_topic("File(bytes32,bytes32,uint256)")
+        == "0x851aa1caf4888170ad8875449d18f0f512fd6deb2a6571ea1a41fb9f95acbcd1"
+    )
+
+
+def test__multicall_address():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    assert chain.get_multicall_address() == "0xcA11bde05977b3631167028862bE2a173976CA11"

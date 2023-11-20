@@ -1,5 +1,96 @@
 # Changelog
 
+## [0.18.0](https://github.com/blockanalitica/chain-harvester/compare/v0.17.1...v0.18.0) (2023-11-02)
+
+
+### Features
+
+* add get_multicall_address() ([#70](https://github.com/blockanalitica/chain-harvester/issues/70)) ([b15a6bc](https://github.com/blockanalitica/chain-harvester/commit/b15a6bcac90123e0f5ada5a0a68b7941fae11d26))
+
+## [0.17.1](https://github.com/blockanalitica/chain-harvester/compare/v0.17.0...v0.17.1) (2023-10-27)
+
+
+### Bug Fixes
+
+* add sepolia chain_id ([#68](https://github.com/blockanalitica/chain-harvester/issues/68)) ([921b8a2](https://github.com/blockanalitica/chain-harvester/commit/921b8a2b90268e7e4a61260282588b501bf10b15))
+
+## [0.17.0](https://github.com/blockanalitica/chain-harvester/compare/v0.16.0...v0.17.0) (2023-10-27)
+
+
+### Features
+
+* add get_token_info ([#66](https://github.com/blockanalitica/chain-harvester/issues/66)) ([7040768](https://github.com/blockanalitica/chain-harvester/commit/7040768f1a4c7c924978d555f9d61dd1bf1b4cdf))
+
+## [0.16.0](https://github.com/blockanalitica/chain-harvester/compare/v0.15.2...v0.16.0) (2023-10-26)
+
+
+### Features
+
+* add sepolia ([#64](https://github.com/blockanalitica/chain-harvester/issues/64)) ([b07a5cb](https://github.com/blockanalitica/chain-harvester/commit/b07a5cb77c1c9f59c53b4eb28a78e8d0544d8b0b))
+
+## [0.15.2](https://github.com/blockanalitica/chain-harvester/compare/v0.15.1...v0.15.2) (2023-10-24)
+
+
+### Bug Fixes
+
+* bytes32 decoding, first check for number ([#62](https://github.com/blockanalitica/chain-harvester/issues/62)) ([56364d0](https://github.com/blockanalitica/chain-harvester/commit/56364d0d651684d9fc3acc46186c33f38ffb9f7f))
+
+## [0.15.1](https://github.com/blockanalitica/chain-harvester/compare/v0.15.0...v0.15.1) (2023-10-24)
+
+
+### Bug Fixes
+
+* bytes32 decoding ([#60](https://github.com/blockanalitica/chain-harvester/issues/60)) ([0ae5491](https://github.com/blockanalitica/chain-harvester/commit/0ae549175c8035f7b13f5546601c458c92c9bbca))
+
+## [0.15.0](https://github.com/blockanalitica/chain-harvester/compare/v0.14.3...v0.15.0) (2023-10-16)
+
+
+### Features
+
+* add get_code and is_eoa ([#58](https://github.com/blockanalitica/chain-harvester/issues/58)) ([facbc05](https://github.com/blockanalitica/chain-harvester/commit/facbc0508d6f825b5123d141665d728217f8df35))
+
+## [0.14.3](https://github.com/blockanalitica/chain-harvester/compare/v0.14.2...v0.14.3) (2023-10-15)
+
+
+### Bug Fixes
+
+* decoder for bytes32_to_str ([#56](https://github.com/blockanalitica/chain-harvester/issues/56)) ([d628704](https://github.com/blockanalitica/chain-harvester/commit/d6287049e534e11ce58e78b03a926335690528c6))
+
+## [0.14.2](https://github.com/blockanalitica/chain-harvester/compare/v0.14.1...v0.14.2) (2023-10-15)
+
+
+### Bug Fixes
+
+* mixed contracts error fetching ([#54](https://github.com/blockanalitica/chain-harvester/issues/54)) ([d27d089](https://github.com/blockanalitica/chain-harvester/commit/d27d089c1712b6684ad6851af6232c28923f5162))
+
+## [0.14.1](https://github.com/blockanalitica/chain-harvester/compare/v0.14.0...v0.14.1) (2023-10-15)
+
+
+### Bug Fixes
+
+* get_events_topics needs to return list not dict keys ([#52](https://github.com/blockanalitica/chain-harvester/issues/52)) ([bc8a787](https://github.com/blockanalitica/chain-harvester/commit/bc8a7879927289155feb73b3f8e386ad0f687331))
+
+## [0.14.0](https://github.com/blockanalitica/chain-harvester/compare/v0.13.0...v0.14.0) (2023-10-15)
+
+
+### Features
+
+* add mixed option to get_events_for_contracts ([#50](https://github.com/blockanalitica/chain-harvester/issues/50)) ([1bca236](https://github.com/blockanalitica/chain-harvester/commit/1bca236544ac20561ea54a864cbdea597cd49055))
+
+## [0.13.0](https://github.com/blockanalitica/chain-harvester/compare/v0.12.2...v0.13.0) (2023-10-14)
+
+
+### Features
+
+* add to_hex_topic ([#48](https://github.com/blockanalitica/chain-harvester/issues/48)) ([879ca3c](https://github.com/blockanalitica/chain-harvester/commit/879ca3c87f684c324fd776f40154ae6f33d64046))
+
+## [0.12.2](https://github.com/blockanalitica/chain-harvester/compare/v0.12.1...v0.12.2) (2023-10-14)
+
+
+### Bug Fixes
+
+* uint256_to_int decoding ([#46](https://github.com/blockanalitica/chain-harvester/issues/46)) ([ef644df](https://github.com/blockanalitica/chain-harvester/commit/ef644dfb818bd125af9bdb0486d713e0730c517e))
+
 ## [0.12.1](https://github.com/blockanalitica/chain-harvester/compare/v0.12.0...v0.12.1) (2023-10-04)
 
 
