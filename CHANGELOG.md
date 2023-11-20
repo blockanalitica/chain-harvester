@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.0](https://github.com/blockanalitica/chain-harvester/compare/v0.18.0...v0.19.0) (2023-11-20)
+
+
+### Features
+
+* batch eth calls ([#45](https://github.com/blockanalitica/chain-harvester/issues/45)) ([a6d5981](https://github.com/blockanalitica/chain-harvester/commit/a6d5981ba6c0f4b71486fb1d50d07ab157abfaa1))
+
 ## [0.18.0](https://github.com/blockanalitica/chain-harvester/compare/v0.17.1...v0.18.0) (2023-11-02)
 
 
