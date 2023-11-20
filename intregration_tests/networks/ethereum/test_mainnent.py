@@ -1,3 +1,5 @@
+from web3 import Web3
+
 from chain_harvester.networks.ethereum.mainnet import EthereumMainnetChain
 from intregration_tests.env import API_KEYS, RPC_NODES
 
@@ -81,6 +83,30 @@ def test__anonymous_events():
     )
 
     assert len(list(events)) == 1
+
+
+def test__eth_multicall():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    block_identifier = 17892782
+
+    response = chain.eth_multicall(
+        [["0x6D635c8d08a1eA2F1687a5E46b666949c977B7dd", "accrued", block_identifier, [1]]]
+    )
+    assert response == [{"amt": 700000000000000000000}]
+
+    ilk = Web3.to_bytes(text="ETH-A").ljust(32, b"\x00")
+    urn = Web3.to_checksum_address("0x526e31defe9e23dc540d955839825b20c90332f9")
+    response = chain.eth_multicall(
+        [
+            [
+                "0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B".lower(),
+                "urns",
+                block_identifier,
+                [ilk, urn],
+            ]
+        ]
+    )
+    assert response == [{"ink": 42500000000000000000, "art": 13890243153162300485451}]
 
 
 def test__anonymous_events_decode():

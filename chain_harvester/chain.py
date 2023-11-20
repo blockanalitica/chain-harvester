@@ -2,6 +2,7 @@ import json
 import logging
 import os
 
+import eth_abi
 import requests
 from eth_utils import event_abi_to_log_topic
 from requests.adapters import HTTPAdapter
@@ -386,6 +387,64 @@ class Chain:
         stripped_address = address[2:]
         topic_format = "0x" + stripped_address.lower().rjust(64, "0")
         return topic_format
+
+    def encode_eth_call_payload(self, contract_address, function_name, block_identifier, args):
+        contract = self.get_contract(contract_address)
+        output_details = {"output_types": [], "output_names": []}
+        for element in contract.abi:
+            if element["type"] == "function" and element["name"] == function_name:
+                for i in element["outputs"]:
+                    output_details["output_types"].append(i["type"])
+                    output_details["output_names"].append(i["name"])
+
+        data = contract.encodeABI(fn_name=function_name, args=args)
+
+        if isinstance(block_identifier, int):
+            block_identifier = hex(block_identifier)
+
+        payload = {
+            "jsonrpc": "2.0",
+            "params": [
+                {
+                    "to": contract_address,
+                    "data": data,
+                },
+                block_identifier,
+            ],
+            "method": "eth_call",
+        }
+
+        return payload, output_details
+
+    def batch_eth_calls(self, data):
+        headers = {"content-type": "application/json"}
+        response = requests.post(self.rpc, json=data, headers=headers, timeout=60)
+        response.raise_for_status()
+        return response.json()
+
+    def eth_multicall(self, calls):
+        if len(calls) > 100:
+            raise ValueError("Batch request limit exceeded (limit: 100)")
+
+        outputs_details = {}
+        payloads = []
+        response = []
+        request_id = 1
+        for contract_address, function_name, block_identifier, args in calls:
+            payload, names_types = self.encode_eth_call_payload(
+                contract_address, function_name, block_identifier, args
+            )
+            payload["id"] = request_id
+            payloads.append(payload)
+            outputs_details[request_id] = names_types
+            request_id += 1
+        batch_response = self.batch_eth_calls(payloads)
+        for r in batch_response:
+            decoded_response = eth_abi.abi.decode(
+                outputs_details[r["id"]]["output_types"], bytes.fromhex(r["result"][2:])
+            )
+            response.append(dict(zip(outputs_details[r["id"]]["output_names"], decoded_response)))
+        return response
 
     def to_hex_topic(self, topic):
         return Web3.keccak(text=topic).hex()
