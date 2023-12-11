@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.1](https://github.com/blockanalitica/chain-harvester/compare/v0.19.0...v0.19.1) (2023-12-11)
+
+
+### Bug Fixes
+
+* reset retries when spliting ([#73](https://github.com/blockanalitica/chain-harvester/issues/73)) ([34fcf4b](https://github.com/blockanalitica/chain-harvester/commit/34fcf4bd352aa7f5da4de4c7d297baa919c78c05))
+
 ## [0.19.0](https://github.com/blockanalitica/chain-harvester/compare/v0.18.0...v0.19.0) (2023-11-20)
 
 
