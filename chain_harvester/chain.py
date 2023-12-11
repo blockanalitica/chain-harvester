@@ -168,14 +168,15 @@ class Chain:
         retries = 0
         step = self.step
         while True:
-            log.debug(f"Fetching events from {from_block} to {to_block} with step {step}")
             end_block = min(from_block + step - 1, to_block)
+            log.debug(f"Fetching events from {from_block} to {end_block} with step {step}")
             events = fetch_events_func(from_block, end_block)
             if events is None:
                 break
 
             try:
                 yield from events
+                retries = 0
             except ValueError as e:
                 # We're catching ValueError as the limit for each response is either
                 # 2000 blocks or 10k logs. Since our step is bigger than 2k blocks, we
