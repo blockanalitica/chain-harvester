@@ -9,6 +9,7 @@ class Network(IntEnum):
     Goerli = 5
     Gnosis = 100
     Sepolia = 11155111
+    Base = 8453
 
 
 MULTICALL_ADDRESSES = {
@@ -28,6 +29,7 @@ MULTICALL3_ADDRESSES = {
     Network.Goerli: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Gnosis: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Sepolia: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Base: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -38,6 +40,9 @@ CHAINS = {
     },
     "gnosis": {
         "mainnet": Network.Gnosis,
+    },
+    "base": {
+        "mainnet": Network.Base,
     },
 }
 

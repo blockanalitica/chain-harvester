@@ -84,6 +84,7 @@ class Chain:
         raise NotImplementedError
 
     def get_abi_from_source(self, contract_address):
+        log.error("ABI for %s was fetched from etherscan. Add it to abis folder!", contract_address)
         try:
             response = requests.get(
                 self.get_abi_source_url(contract_address),
@@ -94,9 +95,6 @@ class Chain:
                 "Timeout when get abi from etherscan", extra={"contract_address": contract_address}
             )
             raise
-
-        response.raise_for_status()
-        data = response.json()
 
         response.raise_for_status()
         data = response.json()
