@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.0](https://github.com/blockanalitica/chain-harvester/compare/v0.19.1...v0.20.0) (2023-12-21)
+
+
+### Features
+
+* Base chain mainnet ([#75](https://github.com/blockanalitica/chain-harvester/issues/75)) ([7b69153](https://github.com/blockanalitica/chain-harvester/commit/7b69153ad5125a91cf43ff481da70459c1717f61))
+
 ## [0.19.1](https://github.com/blockanalitica/chain-harvester/compare/v0.19.0...v0.19.1) (2023-12-11)
 
 
