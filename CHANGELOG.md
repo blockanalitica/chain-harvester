@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.0](https://github.com/blockanalitica/chain-harvester/compare/v0.20.0...v0.21.0) (2024-01-05)
+
+
+### Features
+
+* added optimism, polygon and arbitrum mainnet chains ([#77](https://github.com/blockanalitica/chain-harvester/issues/77)) ([aec51e3](https://github.com/blockanalitica/chain-harvester/commit/aec51e3f505406925b014f509f824209726be873))
+
 ## [0.20.0](https://github.com/blockanalitica/chain-harvester/compare/v0.19.1...v0.20.0) (2023-12-21)
 
 
