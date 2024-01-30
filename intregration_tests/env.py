@@ -13,6 +13,9 @@ API_KEYS = {
     "gnosis": {
         "mainnet": os.environ.get("GNOSISSCAN_API_KEY"),
     },
+    "tenderly": {
+        "testnet": os.environ.get("TENDERLY_API_KEY"),
+    },
 }
 
 RPC_NODES = {
@@ -22,5 +25,8 @@ RPC_NODES = {
     },
     "gnosis": {
         "mainnet": os.environ.get("GNOSIS_MAINNET_RPC"),
+    },
+    "tenderly": {
+        "testnet": os.environ.get("TENDERLY_TESTNET_RPC"),
     },
 }
