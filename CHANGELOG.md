@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.0](https://github.com/blockanalitica/chain-harvester/compare/v0.21.0...v0.22.0) (2024-01-30)
+
+
+### Features
+
+* add Tenderly ([#79](https://github.com/blockanalitica/chain-harvester/issues/79)) ([01f27d3](https://github.com/blockanalitica/chain-harvester/commit/01f27d36a0dd5c344506c1e6d9eca63f8b818b0e))
+
 ## [0.21.0](https://github.com/blockanalitica/chain-harvester/compare/v0.20.0...v0.21.0) (2024-01-05)
 
 
