@@ -48,7 +48,7 @@ class TenderlyTestNetChain(Chain):
             )
         except requests.exceptions.Timeout:
             log.exception(
-                "Timeout when get abi from etherscan", extra={"contract_address": contract_address}
+                "Timeout when get abi from tenderly", extra={"contract_address": contract_address}
             )
             raise
 
