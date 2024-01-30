@@ -1,9 +1,8 @@
-import json
 import logging
 
 import requests
 
-from chain_harvester.chain import Chain, ChainException
+from chain_harvester.chain import Chain
 from chain_harvester.constants import CHAINS
 
 log = logging.getLogger(__name__)

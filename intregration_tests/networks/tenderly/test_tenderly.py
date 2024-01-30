@@ -1,6 +1,7 @@
+import os
+
 from chain_harvester.networks.tenderly.testnet import TenderlyTestNetChain
 from intregration_tests.env import API_KEYS, RPC_NODES
-import os
 
 
 def test__get_events_for_contract():
