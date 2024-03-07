@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.23.1](https://github.com/blockanalitica/chain-harvester/compare/v0.23.0...v0.23.1) (2024-03-07)
+
+
+### Bug Fixes
+
+* wrong blast class name ([#83](https://github.com/blockanalitica/chain-harvester/issues/83)) ([af04089](https://github.com/blockanalitica/chain-harvester/commit/af0408916bafdcec68cebf1e6b4de10fb3fac578))
+
 ## [0.23.0](https://github.com/blockanalitica/chain-harvester/compare/v0.22.0...v0.23.0) (2024-03-07)
 
 
