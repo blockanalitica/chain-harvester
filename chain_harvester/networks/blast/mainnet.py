@@ -6,7 +6,7 @@ from chain_harvester.constants import CHAINS
 log = logging.getLogger(__name__)
 
 
-class OptimismMainnetChain(Chain):
+class BlastMainnetChain(Chain):
     def __init__(
         self, rpc=None, rpc_nodes=None, api_key=None, api_keys=None, abis_path=None, *args, **kwargs
     ):
