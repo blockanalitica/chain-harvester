@@ -14,6 +14,7 @@ class Network(IntEnum):
     Optimism = 10
     Polygon = 137
     Tenderly = 314310
+    Blast = 81457
 
 
 MULTICALL_ADDRESSES = {
@@ -63,6 +64,9 @@ CHAINS = {
     },
     "tenderly": {
         "testnet": Network.Tenderly,
+    },
+    "blast": {
+        "mainnet": Network.Blast,
     },
 }
 
