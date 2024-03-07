@@ -14,6 +14,7 @@ class Network(IntEnum):
     Optimism = 10
     Polygon = 137
     Tenderly = 314310
+    Blast = 81457
 
 
 MULTICALL_ADDRESSES = {
@@ -38,6 +39,7 @@ MULTICALL3_ADDRESSES = {
     Network.Optimism: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Polygon: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Tenderly: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Blast: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -63,6 +65,9 @@ CHAINS = {
     },
     "tenderly": {
         "testnet": Network.Tenderly,
+    },
+    "blast": {
+        "mainnet": Network.Blast,
     },
 }
 
