@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.23.0](https://github.com/blockanalitica/chain-harvester/compare/v0.22.0...v0.23.0) (2024-03-07)
+
+
+### Features
+
+* added Blast mainnet ([#81](https://github.com/blockanalitica/chain-harvester/issues/81)) ([2010437](https://github.com/blockanalitica/chain-harvester/commit/20104371f857e9dfaf09a240b2e629ea5bd676d5))
+
 ## [0.22.0](https://github.com/blockanalitica/chain-harvester/compare/v0.21.0...v0.22.0) (2024-01-30)
 
 
