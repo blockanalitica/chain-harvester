@@ -368,7 +368,7 @@ class Chain:
 
         return multi()
 
-    def abi_to_event_topics(self, contract_address, events=None):
+    def abi_to_event_topics(self, contract_address, events=None, ignore=None):
         if events and not isinstance(events, list):
             raise TypeError("events must be a list")
 
@@ -376,13 +376,15 @@ class Chain:
         event_abis = [
             abi
             for abi in contract.abi
-            if abi["type"] == "event" and (events is None or abi["name"] in events)
+            if abi["type"] == "event"
+            and (events is None or abi["name"] in events)
+            and (ignore is None or abi["name"] not in ignore)
         ]
         signed_abis = {f"0x{event_abi_to_log_topic(abi).hex()}": abi for abi in event_abis}
         return signed_abis
 
-    def get_events_topics(self, contract_address, events=None):
-        return list(self.abi_to_event_topics(contract_address, events=events).keys())
+    def get_events_topics(self, contract_address, events=None, ignore=None):
+        return list(self.abi_to_event_topics(contract_address, events=events, ignore=ignore).keys())
 
     def address_to_topic(self, address):
         stripped_address = address[2:]

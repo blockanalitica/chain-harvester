@@ -18,3 +18,23 @@ def test__get_events_for_contract():
         to_block=19062238,
     )
     assert len(list(events)) == 1
+
+
+def test_abi_to_event_topics():
+    chain = TenderlyTestNetChain(
+        rpc_nodes=RPC_NODES,
+        api_keys=API_KEYS,
+        account=os.environ.get("TENDERLY_ACCOUNT"),
+        project=os.environ.get("TENDERLY_PROJECT"),
+        testnet_id=os.environ.get("TENDERLY_TESTNET_ID"),
+    )
+    topics = chain.abi_to_event_topics("0x8b342f4ddcc71af65e4d2da9cd00cc0e945cfd12")
+    assert len(topics) == 2
+    topics = chain.abi_to_event_topics(
+        "0x8b342f4ddcc71af65e4d2da9cd00cc0e945cfd12", events=["MkrToNgt"]
+    )
+    assert len(topics) == 1
+    topics = chain.abi_to_event_topics(
+        "0x8b342f4ddcc71af65e4d2da9cd00cc0e945cfd12", ignore=["MkrToNgt"]
+    )
+    assert len(topics) == 1
