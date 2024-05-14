@@ -77,8 +77,10 @@ class Chain:
     def get_block_info(self, block_number):
         return self.eth.get_block(block_number)
 
-    def get_latest_block(self):
-        return self.eth.get_block_number()
+    def get_latest_block(self, true_latest=False):
+        if true_latest:
+            return self.eth.get_block_number()
+        return self.eth.get_block_number() - 5
 
     def get_abi_source_url(self, contract_address):
         raise NotImplementedError
