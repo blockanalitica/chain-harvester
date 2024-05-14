@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.25.0](https://github.com/blockanalitica/chain-harvester/compare/v0.24.0...v0.25.0) (2024-05-14)
+
+
+### Features
+
+* add ignore to abi_to_event_topics ([1e51e45](https://github.com/blockanalitica/chain-harvester/commit/1e51e4532a1ef0756316995a09dafd7f4973394e))
+
 ## [0.24.0](https://github.com/blockanalitica/chain-harvester/compare/v0.23.1...v0.24.0) (2024-05-14)
 
 
