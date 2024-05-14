@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.24.0](https://github.com/blockanalitica/chain-harvester/compare/v0.23.1...v0.24.0) (2024-05-14)
+
+
+### Features
+
+* get_latest_block true_latest ([0121bf2](https://github.com/blockanalitica/chain-harvester/commit/0121bf21f4d6fa0150e417346e5cd2a6c9acfca6))
+
 ## [0.23.1](https://github.com/blockanalitica/chain-harvester/compare/v0.23.0...v0.23.1) (2024-03-07)
 
 
