@@ -502,3 +502,6 @@ class Chain:
 
     def get_multicall_address(self):
         return MULTICALL3_ADDRESSES[self.chain_id] if self.chain_id else None
+
+    def create_index(self, block, tx_index, log_index):
+        return "_".join((str(block).zfill(12), str(tx_index).zfill(6), str(log_index).zfill(6)))

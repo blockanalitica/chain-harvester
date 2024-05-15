@@ -1,9 +1,25 @@
 import binascii
+from typing import Mapping
 
 from Crypto.Hash import keccak
 from eth_utils import event_abi_to_log_topic, to_int
 from web3 import Web3
 from web3._utils.events import get_event_data
+
+
+def _to_serializable(val):
+    """r
+    Recursively convert values that are instances of `bytes` or `Mapping` (including `AttributeDict`)
+    to JSON serializable formats (hex strings or standard dictionaries).
+    """
+    if isinstance(val, bytes):
+        return val.hex()  # Convert bytes to hex string for JSON serialization
+    elif isinstance(val, Mapping):  # Includes AttributeDict and dict types
+        return {k: _to_serializable(v) for k, v in val.items()}
+    elif isinstance(val, list):  # For lists, apply conversion to each item
+        return [_to_serializable(item) for item in val]
+    else:
+        return val
 
 
 class EventLogDecoder:
@@ -18,6 +34,7 @@ class EventLogDecoder:
         func_abi = self._signed_abis[selector]
 
         event = get_event_data(self._contract.w3.codec, func_abi, log_entry)
+        event["args"] = _to_serializable(dict(event["args"])) if event.get("args") else None
         return event
 
 
@@ -88,9 +105,11 @@ class AnonymousEventLogDecoder:
 
         item = dict(log_entry)
         item["args"] = {
-            "event_name": self._signed_abis["events"]["anonymous"]["name"],
-            "event_layout": event_layout,
-            "executed_function": self._signed_abis["functions"][topics[0].hex()]["name"],
+            "event_name": _to_serializable(self._signed_abis["events"]["anonymous"]["name"]),
+            "event_layout": _to_serializable(event_layout),
+            "executed_function": _to_serializable(
+                self._signed_abis["functions"][topics[0].hex()]["name"]
+            ),
         }
         return item
 
