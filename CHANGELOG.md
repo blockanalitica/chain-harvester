@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.26.1](https://github.com/blockanalitica/chain-harvester/compare/v0.26.0...v0.26.1) (2024-05-15)
+
+
+### Bug Fixes
+
+* event needs to be dict ([#89](https://github.com/blockanalitica/chain-harvester/issues/89)) ([3c62ecb](https://github.com/blockanalitica/chain-harvester/commit/3c62ecb728cee422ccfbf8534ec51e5dae984b1f))
+
 ## [0.26.0](https://github.com/blockanalitica/chain-harvester/compare/v0.25.0...v0.26.0) (2024-05-15)
 
 
