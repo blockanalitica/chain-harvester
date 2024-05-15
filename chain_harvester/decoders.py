@@ -34,7 +34,9 @@ class EventLogDecoder:
         func_abi = self._signed_abis[selector]
 
         event = get_event_data(self._contract.w3.codec, func_abi, log_entry)
-        event["args"] = _to_serializable(dict(event["args"])) if event.get("args") else None
+        event = dict(event)
+        args = dict(event["args"])
+        event["args"] = _to_serializable(args)
         return event
 
 
