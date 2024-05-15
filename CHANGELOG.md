@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.26.0](https://github.com/blockanalitica/chain-harvester/compare/v0.25.0...v0.26.0) (2024-05-15)
+
+
+### Features
+
+* to_serializable + create_index ([#87](https://github.com/blockanalitica/chain-harvester/issues/87)) ([88b78b1](https://github.com/blockanalitica/chain-harvester/commit/88b78b1b991dfb958f06d7c0d0e5f66a46adacc4))
+
 ## [0.25.0](https://github.com/blockanalitica/chain-harvester/compare/v0.24.0...v0.25.0) (2024-05-14)
 
 
