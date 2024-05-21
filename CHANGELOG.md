@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.1](https://github.com/blockanalitica/chain-harvester/compare/v0.27.0...v0.27.1) (2024-05-21)
+
+
+### Bug Fixes
+
+* wrong folder for filecoin ([#93](https://github.com/blockanalitica/chain-harvester/issues/93)) ([9ac3160](https://github.com/blockanalitica/chain-harvester/commit/9ac31608986735296065f7a1b0a7a2a741256411))
+
 ## [0.27.0](https://github.com/blockanalitica/chain-harvester/compare/v0.26.1...v0.27.0) (2024-05-21)
 
 
