@@ -15,6 +15,7 @@ class Network(IntEnum):
     Polygon = 137
     Tenderly = 314310
     Blast = 81457
+    Filecoin = 314
 
 
 MULTICALL_ADDRESSES = {
@@ -40,6 +41,7 @@ MULTICALL3_ADDRESSES = {
     Network.Polygon: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Tenderly: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Blast: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Filecoin: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -68,6 +70,9 @@ CHAINS = {
     },
     "blast": {
         "mainnet": Network.Blast,
+    },
+    "filecoin": {
+        "mainnet": Network.Filecoin,
     },
 }
 
