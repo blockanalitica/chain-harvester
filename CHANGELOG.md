@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.0](https://github.com/blockanalitica/chain-harvester/compare/v0.26.1...v0.27.0) (2024-05-21)
+
+
+### Features
+
+* added support for Filecoin ([#91](https://github.com/blockanalitica/chain-harvester/issues/91)) ([7224ebf](https://github.com/blockanalitica/chain-harvester/commit/7224ebf8ca3fb8da122b85e351c9a0e84e869ed9))
+
 ## [0.26.1](https://github.com/blockanalitica/chain-harvester/compare/v0.26.0...v0.26.1) (2024-05-15)
 
 
