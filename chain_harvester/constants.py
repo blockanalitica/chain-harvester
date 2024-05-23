@@ -16,6 +16,7 @@ class Network(IntEnum):
     Tenderly = 314310
     Blast = 81457
     Filecoin = 314
+    Mode = 34443
 
 
 MULTICALL_ADDRESSES = {
@@ -42,6 +43,7 @@ MULTICALL3_ADDRESSES = {
     Network.Tenderly: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Blast: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Filecoin: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Mode: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -73,6 +75,9 @@ CHAINS = {
     },
     "filecoin": {
         "mainnet": Network.Filecoin,
+    },
+    "mode": {
+        "mainnet": Network.Mode,
     },
 }
 
