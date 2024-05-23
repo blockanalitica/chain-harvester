@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.0](https://github.com/blockanalitica/chain-harvester/compare/v0.27.1...v0.28.0) (2024-05-23)
+
+
+### Features
+
+* added Mode mainnet ([#95](https://github.com/blockanalitica/chain-harvester/issues/95)) ([366ff98](https://github.com/blockanalitica/chain-harvester/commit/366ff9850374db614a460ce4c9066a3851eb589f))
+
 ## [0.27.1](https://github.com/blockanalitica/chain-harvester/compare/v0.27.0...v0.27.1) (2024-05-21)
 
 
