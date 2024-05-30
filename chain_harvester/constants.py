@@ -17,6 +17,7 @@ class Network(IntEnum):
     Blast = 81457
     Filecoin = 314
     Mode = 34443
+    Scroll = 534352
 
 
 MULTICALL_ADDRESSES = {
@@ -44,6 +45,7 @@ MULTICALL3_ADDRESSES = {
     Network.Blast: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Filecoin: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Mode: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Scroll: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -78,6 +80,9 @@ CHAINS = {
     },
     "mode": {
         "mainnet": Network.Mode,
+    },
+    "scroll": {
+        "mainnet": Network.Scroll,
     },
 }
 
