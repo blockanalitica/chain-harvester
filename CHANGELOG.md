@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.29.0](https://github.com/blockanalitica/chain-harvester/compare/v0.28.0...v0.29.0) (2024-05-30)
+
+
+### Features
+
+* add scroll ([#97](https://github.com/blockanalitica/chain-harvester/issues/97)) ([6772b57](https://github.com/blockanalitica/chain-harvester/commit/6772b576cfa93b69344dadc5834b4700e5eec3b4))
+
 ## [0.28.0](https://github.com/blockanalitica/chain-harvester/compare/v0.27.1...v0.28.0) (2024-05-23)
 
 
