@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.30.1](https://github.com/blockanalitica/chain-harvester/compare/v0.30.0...v0.30.1) (2024-05-31)
+
+
+### Bug Fixes
+
+* utils ([#101](https://github.com/blockanalitica/chain-harvester/issues/101)) ([1db959c](https://github.com/blockanalitica/chain-harvester/commit/1db959c5db2e71e41c53b58bfe86ea79e0144cc3))
+
 ## [0.30.0](https://github.com/blockanalitica/chain-harvester/compare/v0.29.0...v0.30.0) (2024-05-31)
 
 
