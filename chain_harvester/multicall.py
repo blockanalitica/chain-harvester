@@ -73,7 +73,7 @@ class Call:
         if self.returns:
             return {
                 name: apply_handler(handler, value) if handler else value
-                for (name, handler), value in zip(self.returns, decoded)
+                for (name, handler), value in zip(self.returns, decoded, strict=False)
             }
         else:
             return decoded if len(decoded) > 1 else decoded[0]
@@ -128,7 +128,7 @@ class Multicall:
 
     def __call__(self):
         result = {}
-        for call, (success, output) in zip(self.calls, self.fetch_outputs()):
+        for call, (success, output) in zip(self.calls, self.fetch_outputs(), strict=False):
             result.update(call.decode_output(output, success))
         return result
 

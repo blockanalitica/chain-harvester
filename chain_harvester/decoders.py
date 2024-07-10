@@ -1,5 +1,5 @@
 import binascii
-from typing import Mapping
+from collections.abc import Mapping
 
 from Crypto.Hash import keccak
 from eth_utils import event_abi_to_log_topic, to_int
@@ -8,9 +8,10 @@ from web3._utils.events import get_event_data
 
 
 def _to_serializable(val):
-    """r
-    Recursively convert values that are instances of `bytes` or `Mapping` (including `AttributeDict`)
-    to JSON serializable formats (hex strings or standard dictionaries).
+    """
+    Recursively convert values that are instances of `bytes` or `Mapping`
+    (including `AttributeDict`) to JSON serializable formats (hex strings or standard
+    dictionaries).
     """
     if isinstance(val, bytes):
         return val.hex()  # Convert bytes to hex string for JSON serialization
@@ -172,4 +173,4 @@ def decode_value(value, value_type):
     elif value_type == "int256":
         return int256_to_int(value)
     else:
-        raise Exception(f"Unable to decode {value_type} data type; value: {value}")  # noqa: TRY002
+        raise Exception(f"Unable to decode {value_type} data type; value: {value}")

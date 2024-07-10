@@ -77,3 +77,15 @@ def test__to_hex_topic():
 def test__multicall_address():
     chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
     assert chain.get_multicall_address() == "0xcA11bde05977b3631167028862bE2a173976CA11"
+
+
+def test__chainlink_price_feed_for_asset_symbol():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    feed = chain.chainlink_price_feed_for_asset_symbol("DAI")
+    assert feed == "0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9"
+
+
+def test__chainlink_price_feed_for_asset_symbol_mapping():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    feed = chain.chainlink_price_feed_for_asset_symbol("WETH")
+    assert feed == "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"

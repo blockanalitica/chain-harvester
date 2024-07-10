@@ -10,6 +10,7 @@ from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
+from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester.constants import MULTICALL3_ADDRESSES
 from chain_harvester.decoders import AnonymousEventLogDecoder, EventLogDecoder
 from chain_harvester.multicall import Call, Multicall
@@ -446,7 +447,9 @@ class Chain:
             decoded_response = eth_abi.abi.decode(
                 outputs_details[r["id"]]["output_types"], bytes.fromhex(r["result"][2:])
             )
-            response.append(dict(zip(outputs_details[r["id"]]["output_names"], decoded_response)))
+            response.append(
+                dict(zip(outputs_details[r["id"]]["output_names"], decoded_response, strict=False))
+            )
         return response
 
     def to_hex_topic(self, topic):
@@ -505,3 +508,6 @@ class Chain:
 
     def create_index(self, block, tx_index, log_index):
         return "_".join((str(block).zfill(12), str(tx_index).zfill(6), str(log_index).zfill(6)))
+
+    def chainlink_price_feed_for_asset_symbol(self, symbol):
+        return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)

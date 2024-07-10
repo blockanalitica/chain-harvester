@@ -21,21 +21,20 @@ pytest = "^7.4.0"
 pre-commit = "^3.3.3"
 tox = "^4.6.4"
 python-dotenv = "^1.0.0"
-
+ruff = "^0.5.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
-line-length = 100
-target-version = ['py37']
-preview = true
-
 [tool.ruff]
-target-version = "py37"
+target-version = "py311"
 line-length = 100
-fix = true
+indent-width = 4
+
+[tool.ruff.lint]
+fixable = ["ALL"]
+unfixable = []
 select = [
     # flake8-2020
     "YTT",
@@ -70,17 +69,27 @@ select = [
     "T201",
 ]
 ignore = [
-    # LineTooLong
-    "E501",
     # DoNotAssignLambda
     "E731",
     "TRY300",
-    "TRY003"
+    "TRY003",
+    "RUF012",
+    "S108",
+    "TRY002",
+    "C901",
+    "UP038",
+    "SIM108"
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"]
 "intregration_tests/*" = ["S101"]
 
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
-
+[tool.ruff.lint.isort]
+known-first-party = ["chain_harvester"]
