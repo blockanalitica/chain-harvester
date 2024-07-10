@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.31.1](https://github.com/blockanalitica/chain-harvester/compare/v0.31.0...v0.31.1) (2024-07-10)
+
+
+### Bug Fixes
+
+* added missing USDbC map to USDC on Base chain for Chainlink ([#105](https://github.com/blockanalitica/chain-harvester/issues/105)) ([716327c](https://github.com/blockanalitica/chain-harvester/commit/716327cff934227eb403ad42c8121cd540ff51a3))
+
 ## [0.31.0](https://github.com/blockanalitica/chain-harvester/compare/v0.30.1...v0.31.0) (2024-07-10)
 
 
