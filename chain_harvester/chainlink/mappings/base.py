@@ -1,5 +1,6 @@
 MAINNET_ASSET_MAPPING = {
     "WETH": "ETH",
+    "USDBC": "USDC",
 }
 
 MAINNET_USD = {
