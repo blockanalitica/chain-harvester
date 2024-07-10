@@ -2,16 +2,24 @@
 install: ## Install the poetry environment and install the pre-commit hooks
 	@echo "🚀 Creating virtual environment using pyenv and poetry"
 	@poetry install	
-	@ poetry run pre-commit install
+	@poetry run pre-commit install
 	@poetry shell
 
 .PHONY: check
 check: ## Run code quality tools.
 	@echo "🚀 Checking Poetry lock file consistency with 'pyproject.toml': Running poetry lock --check"
-	@poetry lock --check
+	@poetry check --lock
 	@echo "🚀 Linting code: Running pre-commit"
 	@poetry run pre-commit run -a
 
+.PHONY: format
+format: ## Format code based on code quality tools.
+	@echo "🚀 Checking Poetry lock file consistency with 'pyproject.toml': Running poetry lock --check"
+	@poetry check --lock
+	@echo "🚀 Linting code: Running ruff format"
+	@poetry run ruff format .
+	@echo "🚀 Linting code: Running ruff check"
+	@poetry run ruff check --fix .
 
 .PHONY: test
 test: ## Test the code with pytest

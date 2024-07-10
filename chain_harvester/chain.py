@@ -447,7 +447,9 @@ class Chain:
             decoded_response = eth_abi.abi.decode(
                 outputs_details[r["id"]]["output_types"], bytes.fromhex(r["result"][2:])
             )
-            response.append(dict(zip(outputs_details[r["id"]]["output_names"], decoded_response)))
+            response.append(
+                dict(zip(outputs_details[r["id"]]["output_names"], decoded_response, strict=False))
+            )
         return response
 
     def to_hex_topic(self, topic):
