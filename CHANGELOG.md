@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.31.0](https://github.com/blockanalitica/chain-harvester/compare/v0.30.1...v0.31.0) (2024-07-10)
+
+
+### Features
+
+* added chainlink feeds mappings ([#103](https://github.com/blockanalitica/chain-harvester/issues/103)) ([d8c7ceb](https://github.com/blockanalitica/chain-harvester/commit/d8c7ceb73202b561769200708eb2e6d448cdc1fd))
+
 ## [0.30.1](https://github.com/blockanalitica/chain-harvester/compare/v0.30.0...v0.30.1) (2024-05-31)
 
 
