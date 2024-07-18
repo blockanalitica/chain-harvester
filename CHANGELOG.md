@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.32.0](https://github.com/blockanalitica/chain-harvester/compare/v0.31.1...v0.32.0) (2024-07-18)
+
+
+### Features
+
+* add normalize_to_decimal to utils ([#109](https://github.com/blockanalitica/chain-harvester/issues/109)) ([fb545d0](https://github.com/blockanalitica/chain-harvester/commit/fb545d019dcbec5736a2feba632d12e7ad988278))
+* add ray div to utils ([#107](https://github.com/blockanalitica/chain-harvester/issues/107)) ([6dd2395](https://github.com/blockanalitica/chain-harvester/commit/6dd239571eb3e5a72052238ba71bef11136cf2e7))
+
 ## [0.31.1](https://github.com/blockanalitica/chain-harvester/compare/v0.31.0...v0.31.1) (2024-07-10)
 
 
