@@ -1,8 +1,11 @@
-from decimal import Decimal
+from decimal import Decimal, getcontext
 
 from web3 import Web3
 
 from .constants import RAY
+
+# interest bearing math
+getcontext().prec = 50
 
 
 def create_index(block, tx_index, log_index):
