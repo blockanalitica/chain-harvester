@@ -28,3 +28,9 @@ def ray_div(a, b):
     half_b = b // Decimal("2")
     result = (a * RAY + half_b) // b if a >= 0 else -(((-a) * RAY + half_b) // b)
     return result
+
+
+def normalize_to_decimal(value, decimals):
+    if value is None:
+        return None
+    return Decimal(str(value)) / Decimal(str(10**decimals))
