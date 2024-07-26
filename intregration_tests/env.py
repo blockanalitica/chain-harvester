@@ -30,3 +30,5 @@ RPC_NODES = {
         "testnet": os.environ.get("TENDERLY_TESTNET_RPC"),
     },
 }
+
+ETHEREUM_ALCHEMY_API_KEY = os.environ.get("ETHEREUM_ALCHEMY_API_KEY")
