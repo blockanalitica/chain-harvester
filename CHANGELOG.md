@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.0](https://github.com/blockanalitica/chain-harvester/compare/v0.32.0...v0.33.0) (2024-07-26)
+
+
+### Features
+
+* add Alchemy adapter ([#110](https://github.com/blockanalitica/chain-harvester/issues/110)) ([72cef13](https://github.com/blockanalitica/chain-harvester/commit/72cef139bd8d4be8bbddacd44968cd3dd6055741))
+
 ## [0.32.0](https://github.com/blockanalitica/chain-harvester/compare/v0.31.1...v0.32.0) (2024-07-18)
 
 
