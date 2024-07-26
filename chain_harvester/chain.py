@@ -87,7 +87,10 @@ class Chain:
         raise NotImplementedError
 
     def get_abi_from_source(self, contract_address):
-        log.error("ABI for %s was fetched from etherscan. Add it to abis folder!", contract_address)
+        log.error(
+            "ABI for %s was fetched from etherscan. Add it to abis folder!",
+            contract_address,
+        )
         try:
             response = requests.get(
                 self.get_abi_source_url(contract_address),
@@ -95,7 +98,8 @@ class Chain:
             )
         except requests.exceptions.Timeout:
             log.exception(
-                "Timeout when get abi from etherscan", extra={"contract_address": contract_address}
+                "Timeout when get abi from etherscan",
+                extra={"contract_address": contract_address},
             )
             raise
 
@@ -252,7 +256,12 @@ class Chain:
         return self._yield_all_events(fetch_events_for_contract_topics, from_block, to_block)
 
     def get_events_for_contracts(
-        self, contract_addresses, from_block, to_block=None, anonymous=False, mixed=False
+        self,
+        contract_addresses,
+        from_block,
+        to_block=None,
+        anonymous=False,
+        mixed=False,
     ):
         if not isinstance(contract_addresses, list):
             raise TypeError("contract_addresses must be a list")
@@ -292,7 +301,13 @@ class Chain:
         return self._yield_all_events(fetch_events_for_contracts, from_block, to_block)
 
     def get_events_for_contracts_topics(
-        self, contract_addresses, topics, from_block, to_block=None, anonymous=False, mixed=False
+        self,
+        contract_addresses,
+        topics,
+        from_block,
+        to_block=None,
+        anonymous=False,
+        mixed=False,
     ):
         if not isinstance(contract_addresses, list):
             raise TypeError("contract_addresses must be a list")
@@ -448,7 +463,13 @@ class Chain:
                 outputs_details[r["id"]]["output_types"], bytes.fromhex(r["result"][2:])
             )
             response.append(
-                dict(zip(outputs_details[r["id"]]["output_names"], decoded_response, strict=False))
+                dict(
+                    zip(
+                        outputs_details[r["id"]]["output_names"],
+                        decoded_response,
+                        strict=False,
+                    )
+                )
             )
         return response
 
@@ -511,3 +532,45 @@ class Chain:
 
     def chainlink_price_feed_for_asset_symbol(self, symbol):
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
+
+    def get_block_transactions(self, url, block_number):
+        payload = {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "alchemy_getTransactionReceipts",
+            "params": [{"blockNumber": str(block_number)}],
+        }
+        headers = {"accept": "application/json", "content-type": "application/json"}
+
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        return response.json()["result"]["receipts"]
+
+    def get_transactions_for_contracts(
+        self, url, contract_addresses, from_block, to_block=None, failed=False
+    ):
+        if not isinstance(contract_addresses, list):
+            raise TypeError("contract_addresses must be a list")
+
+        if not to_block:
+            to_block = self.get_latest_block()
+
+        contract_addresses = [addr.lower() for addr in contract_addresses]
+
+        for block in range(from_block, to_block + 1):
+            data = self.get_block_transactions(url, block)
+            for tx in data:
+                if tx["to"].lower() in contract_addresses:
+                    if failed and tx["status"] == "0x1":
+                        continue
+                    transaction = self.eth.get_transaction(tx["transactionHash"])
+                    contract = self.get_contract(tx["to"])
+                    func_obj, func_params = contract.decode_function_input(transaction["input"])
+                    yield {
+                        "tx": tx,
+                        "transaction": transaction,
+                        "contract": tx["to"].lower(),
+                        "function_abi": func_obj.__dict__,
+                        "function_name": func_obj.fn_name,
+                        "args": func_params,
+                        "status": tx["status"],
+                    }

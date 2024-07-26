@@ -1,7 +1,7 @@
 from web3 import Web3
 
 from chain_harvester.networks.ethereum.mainnet import EthereumMainnetChain
-from intregration_tests.env import API_KEYS, RPC_NODES
+from intregration_tests.env import API_KEYS, ETHEREUM_ALCHEMY_API_KEY, RPC_NODES
 
 
 def test__call_contract_function():
@@ -90,7 +90,14 @@ def test__eth_multicall():
     block_identifier = 17892782
 
     response = chain.eth_multicall(
-        [["0x6D635c8d08a1eA2F1687a5E46b666949c977B7dd", "accrued", block_identifier, [1]]]
+        [
+            [
+                "0x6D635c8d08a1eA2F1687a5E46b666949c977B7dd",
+                "accrued",
+                block_identifier,
+                [1],
+            ]
+        ]
     )
     assert response == [{"amt": 700000000000000000000}]
 
@@ -274,3 +281,64 @@ def test__get_token_info__mkr():
     assert data["name"] == "Maker"
     assert data["symbol"] == "MKR"
     assert data["decimals"] == 18
+
+
+def test_decoding_ilk():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS, step=10_000_000)
+    events = chain.get_events_for_contracts_topics(
+        [
+            "0xbE4F921cdFEf2cF5080F9Cf00CC2c14F1F96Bd07",
+            "0xa1cB9e29f1727d8a0a6E3e0c1334A2323312A2d5",
+        ],
+        [["0x74ceb2982b813d6b690af89638316706e6acb9a48fced388741b61b510f165b7"]],
+        10466460,
+        12000000,
+        mixed=True,
+    )
+
+    assert len(list(events)) == 9
+
+
+def test_decoding_ilk_bytes():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    events = chain.get_events_for_contracts_topics(
+        [
+            "0x135954d155898D42C90D2a57824C690e0c7BEf1B",
+        ],
+        [],
+        20258969,
+        20258971,
+        mixed=False,
+    )
+    assert len(list(events)) == 1
+
+
+def test_get_block_transactions():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    url = f"https://eth-mainnet.g.alchemy.com/v2/{ETHEREUM_ALCHEMY_API_KEY}"
+    data = chain.get_block_transactions(url, 20192996)
+    assert len(data) == 131
+
+
+def test_get_transactions_for_contracts():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    url = f"https://eth-mainnet.g.alchemy.com/v2/{ETHEREUM_ALCHEMY_API_KEY}"
+    data = chain.get_transactions_for_contracts(
+        url, ["0x89B78CfA322F6C5dE0aBcEecab66Aee45393cC5A"], 20391781, to_block=20391781
+    )
+    events = list(data)
+    assert len(events) == 1
+
+
+def test_get_transactions_for_contracts__failed():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    url = f"https://eth-mainnet.g.alchemy.com/v2/{ETHEREUM_ALCHEMY_API_KEY}"
+    data = chain.get_transactions_for_contracts(
+        url,
+        ["0x89B78CfA322F6C5dE0aBcEecab66Aee45393cC5A"],
+        20391781,
+        to_block=20391781,
+        failed=True,
+    )
+    events = list(data)
+    assert len(events) == 0
