@@ -44,14 +44,14 @@ class Alchemy:
             raise TypeError("contract_addresses must be a list")
 
         if not to_block:
-            to_block = self.get_latest_block()
+            to_block = self.chain.get_latest_block()
 
         contract_addresses = [addr.lower() for addr in contract_addresses]
 
         for block in range(from_block, to_block + 1):
             data = self.get_block_transactions(block)
             for tx in data:
-                if tx["to"].lower() in contract_addresses:
+                if tx["to"] and tx["to"].lower() in contract_addresses:
                     if failed and tx["status"] == "0x1":
                         continue
                     transaction = self.chain.eth.get_transaction(tx["transactionHash"])
