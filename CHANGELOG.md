@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.34.0](https://github.com/blockanalitica/chain-harvester/compare/v0.33.0...v0.34.0) (2024-07-30)
+
+
+### Features
+
+* abi to get topics get_topics_for_contract ([#114](https://github.com/blockanalitica/chain-harvester/issues/114)) ([9d55a23](https://github.com/blockanalitica/chain-harvester/commit/9d55a23a3ad533d48a4f0313c1983dd9832b2e48))
+
+
+### Bug Fixes
+
+* check of tx has to for get_transactions_for_contracts ([#112](https://github.com/blockanalitica/chain-harvester/issues/112)) ([6cc1d49](https://github.com/blockanalitica/chain-harvester/commit/6cc1d49d71576f1f97a047338c39b55774ed4bb2))
+
 ## [0.33.0](https://github.com/blockanalitica/chain-harvester/compare/v0.32.0...v0.33.0) (2024-07-26)
 
 
