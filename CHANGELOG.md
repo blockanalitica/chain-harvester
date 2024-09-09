@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.35.0](https://github.com/blockanalitica/chain-harvester/compare/v0.34.0...v0.35.0) (2024-09-09)
+
+
+### Features
+
+* Add linea chain ([#115](https://github.com/blockanalitica/chain-harvester/issues/115)) ([ffce02f](https://github.com/blockanalitica/chain-harvester/commit/ffce02ff0617041310de62aa3bc7edfd2efaaf7a))
+
+
+### Bug Fixes
+
+* break infinity loop if there is broken token contract ([#117](https://github.com/blockanalitica/chain-harvester/issues/117)) ([e75870e](https://github.com/blockanalitica/chain-harvester/commit/e75870ebd6220383dfd1ec18e1049c92d92f835b))
+
 ## [0.34.0](https://github.com/blockanalitica/chain-harvester/compare/v0.33.0...v0.34.0) (2024-07-30)
 
 
