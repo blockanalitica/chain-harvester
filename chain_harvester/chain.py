@@ -13,6 +13,7 @@ from web3.middleware import geth_poa_middleware
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester.constants import MULTICALL3_ADDRESSES
 from chain_harvester.decoders import AnonymousEventLogDecoder, EventLogDecoder
+from chain_harvester.http import retry_get_json
 from chain_harvester.multicall import Call, Multicall
 
 log = logging.getLogger(__name__)
@@ -534,3 +535,22 @@ class Chain:
 
     def chainlink_price_feed_for_asset_symbol(self, symbol):
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
+
+    def get_block_for_timestamp(self, timestamp):
+        if self.network == "gnosis":
+            api_url = "https://api.gnosisscan.io/api"
+        elif self.network == "optimism":
+            api_url = "https://api-optimistic.etherscan.io/api"
+        elif self.network == "arbitrum":
+            api_url = "https://api.arbiscan.io/api"
+        elif self.network == "linea":
+            api_url = "https://api.lineascan.build/api"
+        else:
+            api_url = "ttps://api.etherscan.io/api"
+
+        url = f"{api_url}?module=block&action=getblocknobytime&timestamp={timestamp}"
+        url += f"&closest=before&apikey={self.api_keys['gnosis']['mainnet']}"
+        data = retry_get_json(url)
+        result = int(data["result"])
+
+        return result
