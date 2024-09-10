@@ -549,7 +549,7 @@ class Chain:
             api_url = "https://api.etherscan.io/api"
 
         url = f"{api_url}?module=block&action=getblocknobytime&timestamp={timestamp}"
-        url += f"&closest=before&apikey={self.api_keys[self.network]['mainnet']}"
+        url += f"&closest=before&apikey={self.api_key}"
         data = retry_get_json(url)
         result = int(data["result"])
 
