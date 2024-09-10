@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.36.2](https://github.com/blockanalitica/chain-harvester/compare/v0.36.1...v0.36.2) (2024-09-10)
+
+
+### Bug Fixes
+
+* check for chain and network ([#123](https://github.com/blockanalitica/chain-harvester/issues/123)) ([be6f51e](https://github.com/blockanalitica/chain-harvester/commit/be6f51eef39748a261d6582d5183f2eaba412123))
+
 ## [0.36.1](https://github.com/blockanalitica/chain-harvester/compare/v0.36.0...v0.36.1) (2024-09-10)
 
 
