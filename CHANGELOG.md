@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.36.0](https://github.com/blockanalitica/chain-harvester/compare/v0.35.0...v0.36.0) (2024-09-10)
+
+
+### Features
+
+* add get block for timestamp func to chain ([#118](https://github.com/blockanalitica/chain-harvester/issues/118)) ([be9c9aa](https://github.com/blockanalitica/chain-harvester/commit/be9c9aafae5b2e18f5e4be09b26e31fa3aacacc0))
+
+
+### Bug Fixes
+
+* get block for timestamp typo and bug ([#120](https://github.com/blockanalitica/chain-harvester/issues/120)) ([bcd240a](https://github.com/blockanalitica/chain-harvester/commit/bcd240a6d3fd53d20cad16a382241bc96582e734))
+
 ## [0.35.0](https://github.com/blockanalitica/chain-harvester/compare/v0.34.0...v0.35.0) (2024-09-09)
 
 
