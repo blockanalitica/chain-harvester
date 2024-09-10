@@ -537,16 +537,23 @@ class Chain:
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
 
     def get_block_for_timestamp(self, timestamp):
-        if self.network == "gnosis":
-            api_url = "https://api.gnosisscan.io/api"
-        elif self.network == "optimism":
-            api_url = "https://api-optimistic.etherscan.io/api"
-        elif self.network == "arbitrum":
-            api_url = "https://api.arbiscan.io/api"
-        elif self.network == "linea":
-            api_url = "https://api.lineascan.build/api"
+        if self.chain == "gnosis":
+            if self.network == "mainnet":
+                api_url = "https://api.gnosisscan.io/api"
+        elif self.chain == "optimism":
+            if self.network == "mainnet":
+                api_url = "https://api-optimistic.etherscan.io/api"
+        elif self.chain == "arbitrum":
+            if self.network == "mainnet":
+                api_url = "https://api.arbiscan.io/api"
+        elif self.chain == "linea":
+            if self.network == "mainnet":
+                api_url = "https://api.lineascan.build/api"
         else:
-            api_url = "https://api.etherscan.io/api"
+            if self.network == "sepolia":
+                api_url = "https://api-sepolia.etherscan.io/api"
+            else:
+                api_url = "https://api.etherscan.io/api"
 
         url = f"{api_url}?module=block&action=getblocknobytime&timestamp={timestamp}"
         url += f"&closest=before&apikey={self.api_key}"
