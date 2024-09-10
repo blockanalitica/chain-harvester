@@ -546,10 +546,10 @@ class Chain:
         elif self.network == "linea":
             api_url = "https://api.lineascan.build/api"
         else:
-            api_url = "ttps://api.etherscan.io/api"
+            api_url = "https://api.etherscan.io/api"
 
         url = f"{api_url}?module=block&action=getblocknobytime&timestamp={timestamp}"
-        url += f"&closest=before&apikey={self.api_keys['gnosis']['mainnet']}"
+        url += f"&closest=before&apikey={self.api_keys[self.network]['mainnet']}"
         data = retry_get_json(url)
         result = int(data["result"])
 
