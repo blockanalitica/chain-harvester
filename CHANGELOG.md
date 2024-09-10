@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.36.1](https://github.com/blockanalitica/chain-harvester/compare/v0.36.0...v0.36.1) (2024-09-10)
+
+
+### Bug Fixes
+
+* get block for timestamp api key ([#121](https://github.com/blockanalitica/chain-harvester/issues/121)) ([58bc6f3](https://github.com/blockanalitica/chain-harvester/commit/58bc6f386c1dd08a8cd5329c379587d7599b6592))
+
 ## [0.36.0](https://github.com/blockanalitica/chain-harvester/compare/v0.35.0...v0.36.0) (2024-09-10)
 
 
