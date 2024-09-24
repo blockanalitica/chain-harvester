@@ -1,5 +1,5 @@
 from chain_harvester.networks.gnosis.mainnet import GnosisMainnetChain
-from intregration_tests.env import API_KEYS, RPC_NODES
+from integration_tests.env import API_KEYS, RPC_NODES
 
 
 def test__call_contract_function():
