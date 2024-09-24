@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.0](https://github.com/blockanalitica/chain-harvester/compare/v0.36.2...v0.37.0) (2024-09-24)
+
+
+### Features
+
+* rari and typo fix ([#125](https://github.com/blockanalitica/chain-harvester/issues/125)) ([49e468b](https://github.com/blockanalitica/chain-harvester/commit/49e468b42bdc1d56fcf6b140e0da427653656929))
+
 ## [0.36.2](https://github.com/blockanalitica/chain-harvester/compare/v0.36.1...v0.36.2) (2024-09-10)
 
 
