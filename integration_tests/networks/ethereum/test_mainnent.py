@@ -1,7 +1,7 @@
 from web3 import Web3
 
 from chain_harvester.networks.ethereum.mainnet import EthereumMainnetChain
-from intregration_tests.env import API_KEYS, ETHEREUM_ALCHEMY_API_KEY, RPC_NODES
+from integration_tests.env import API_KEYS, ETHEREUM_ALCHEMY_API_KEY, RPC_NODES
 
 
 def test__call_contract_function():

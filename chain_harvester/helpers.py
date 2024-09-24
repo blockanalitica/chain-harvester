@@ -1,8 +1,10 @@
 from chain_harvester.networks.arbitrum.mainnet import ArbitrumMainnetChain
 from chain_harvester.networks.base.mainnet import BaseMainnetChain
 from chain_harvester.networks.ethereum.mainnet import EthereumMainnetChain
+from chain_harvester.networks.filecoin.mainnet import FilecoinMainnetChain
 from chain_harvester.networks.optimism.mainnet import OptimismMainnetChain
 from chain_harvester.networks.polygon.mainnet import PolygonMainnetChain
+from chain_harvester.networks.rari.mainnet import RariMainnetChain
 from chain_harvester.networks.scroll.mainnet import ScrollMainnetChain
 
 
@@ -20,5 +22,9 @@ def get_chain(network, *args, **kwargs):
             return BaseMainnetChain(*args, **kwargs)
         case "scroll":
             return ScrollMainnetChain(*args, **kwargs)
+        case "filecoin":
+            return FilecoinMainnetChain(*args, **kwargs)
+        case "rari":
+            return RariMainnetChain(*args, **kwargs)
         case _:
             raise ValueError(f"Unknown network: {network}")

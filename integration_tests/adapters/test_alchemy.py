@@ -1,5 +1,5 @@
 from chain_harvester.adapters.alchemy import Alchemy
-from intregration_tests.env import API_KEYS, RPC_NODES
+from integration_tests.env import API_KEYS, RPC_NODES
 
 
 def test_get_block_transactions():
