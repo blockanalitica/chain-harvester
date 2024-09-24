@@ -1,4 +1,3 @@
-import json
 import logging
 
 import requests
@@ -41,6 +40,4 @@ class RariMainnetChain(Chain):
 
         response.raise_for_status()
         data = response.json()
-
-        abi = json.loads(data["abi"])
-        return abi
+        return data["abi"]
