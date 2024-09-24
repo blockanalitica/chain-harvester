@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.1](https://github.com/blockanalitica/chain-harvester/compare/v0.37.0...v0.37.1) (2024-09-24)
+
+
+### Bug Fixes
+
+* rari ABI fetching ([#127](https://github.com/blockanalitica/chain-harvester/issues/127)) ([6f88d8f](https://github.com/blockanalitica/chain-harvester/commit/6f88d8f679197b525720aed11a96f4f6370f802b))
+
 ## [0.37.0](https://github.com/blockanalitica/chain-harvester/compare/v0.36.2...v0.37.0) (2024-09-24)
 
 
