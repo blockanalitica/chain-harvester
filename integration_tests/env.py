@@ -16,6 +16,9 @@ API_KEYS = {
     "tenderly": {
         "testnet": os.environ.get("TENDERLY_API_KEY"),
     },
+    "linea": {
+        "mainnet": os.environ.get("LINEASCAN_API_KEY"),
+    },
     "rari": {"mainnet": "n/a"},
 }
 
@@ -29,6 +32,9 @@ RPC_NODES = {
     },
     "tenderly": {
         "testnet": os.environ.get("TENDERLY_TESTNET_RPC"),
+    },
+    "linea": {
+        "mainnet": os.environ.get("LINEA_MAINNET_RPC"),
     },
     "rari": {
         "mainnet": os.environ.get("RARI_MAINNET_RPC"),

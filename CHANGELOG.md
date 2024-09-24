@@ -1,5 +1,43 @@
 # Changelog
 
+## [0.36.2](https://github.com/blockanalitica/chain-harvester/compare/v0.36.1...v0.36.2) (2024-09-10)
+
+
+### Bug Fixes
+
+* check for chain and network ([#123](https://github.com/blockanalitica/chain-harvester/issues/123)) ([be6f51e](https://github.com/blockanalitica/chain-harvester/commit/be6f51eef39748a261d6582d5183f2eaba412123))
+
+## [0.36.1](https://github.com/blockanalitica/chain-harvester/compare/v0.36.0...v0.36.1) (2024-09-10)
+
+
+### Bug Fixes
+
+* get block for timestamp api key ([#121](https://github.com/blockanalitica/chain-harvester/issues/121)) ([58bc6f3](https://github.com/blockanalitica/chain-harvester/commit/58bc6f386c1dd08a8cd5329c379587d7599b6592))
+
+## [0.36.0](https://github.com/blockanalitica/chain-harvester/compare/v0.35.0...v0.36.0) (2024-09-10)
+
+
+### Features
+
+* add get block for timestamp func to chain ([#118](https://github.com/blockanalitica/chain-harvester/issues/118)) ([be9c9aa](https://github.com/blockanalitica/chain-harvester/commit/be9c9aafae5b2e18f5e4be09b26e31fa3aacacc0))
+
+
+### Bug Fixes
+
+* get block for timestamp typo and bug ([#120](https://github.com/blockanalitica/chain-harvester/issues/120)) ([bcd240a](https://github.com/blockanalitica/chain-harvester/commit/bcd240a6d3fd53d20cad16a382241bc96582e734))
+
+## [0.35.0](https://github.com/blockanalitica/chain-harvester/compare/v0.34.0...v0.35.0) (2024-09-09)
+
+
+### Features
+
+* Add linea chain ([#115](https://github.com/blockanalitica/chain-harvester/issues/115)) ([ffce02f](https://github.com/blockanalitica/chain-harvester/commit/ffce02ff0617041310de62aa3bc7edfd2efaaf7a))
+
+
+### Bug Fixes
+
+* break infinity loop if there is broken token contract ([#117](https://github.com/blockanalitica/chain-harvester/issues/117)) ([e75870e](https://github.com/blockanalitica/chain-harvester/commit/e75870ebd6220383dfd1ec18e1049c92d92f835b))
+
 ## [0.34.0](https://github.com/blockanalitica/chain-harvester/compare/v0.33.0...v0.34.0) (2024-07-30)
 
 

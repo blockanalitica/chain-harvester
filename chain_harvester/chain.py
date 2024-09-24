@@ -13,6 +13,7 @@ from web3.middleware import geth_poa_middleware
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester.constants import MULTICALL3_ADDRESSES
 from chain_harvester.decoders import AnonymousEventLogDecoder, EventLogDecoder
+from chain_harvester.http import retry_get_json
 from chain_harvester.multicall import Call, Multicall
 
 log = logging.getLogger(__name__)
@@ -476,7 +477,7 @@ class Chain:
     def to_hex_topic(self, topic):
         return Web3.keccak(text=topic).hex()
 
-    def get_token_info(self, address, bytes32=False):
+    def get_token_info(self, address, bytes32=False, retry=False):
         calls = []
         calls.append(
             (
@@ -518,8 +519,10 @@ class Chain:
                 )
             )
         data = self.multicall(calls)
-        if data["symbol"] is None:
-            data = self.get_token_info(address, bytes32=True)
+        if data["symbol"] is None and not retry:
+            data = self.get_token_info(address, bytes32=True, retry=True)
+            if data["symbol"] is None:
+                return data
             data["symbol"] = data["symbol"].decode("utf-8").rstrip("\x00")
             data["name"] = data["name"].decode("utf-8").rstrip("\x00")
         return data
@@ -532,3 +535,29 @@ class Chain:
 
     def chainlink_price_feed_for_asset_symbol(self, symbol):
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
+
+    def get_block_for_timestamp(self, timestamp):
+        if self.chain == "gnosis":
+            if self.network == "mainnet":
+                api_url = "https://api.gnosisscan.io/api"
+        elif self.chain == "optimism":
+            if self.network == "mainnet":
+                api_url = "https://api-optimistic.etherscan.io/api"
+        elif self.chain == "arbitrum":
+            if self.network == "mainnet":
+                api_url = "https://api.arbiscan.io/api"
+        elif self.chain == "linea":
+            if self.network == "mainnet":
+                api_url = "https://api.lineascan.build/api"
+        else:
+            if self.network == "sepolia":
+                api_url = "https://api-sepolia.etherscan.io/api"
+            else:
+                api_url = "https://api.etherscan.io/api"
+
+        url = f"{api_url}?module=block&action=getblocknobytime&timestamp={timestamp}"
+        url += f"&closest=before&apikey={self.api_key}"
+        data = retry_get_json(url)
+        result = int(data["result"])
+
+        return result

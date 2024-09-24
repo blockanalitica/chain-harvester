@@ -342,3 +342,15 @@ def test_get_transactions_for_contracts__failed():
     )
     events = list(data)
     assert len(events) == 0
+
+
+def test__get_token_info__retry():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    data = chain.get_token_info("0x6b175474e89094c44da98b954eedeac495271d0f")
+    assert data["name"] == "Dai Stablecoin"
+    assert data["symbol"] == "DAI"
+    assert data["decimals"] == 18
+
+    data = chain.get_token_info("0x9f8f72aa9304c8b593d555f12ef6589cc3a579a3")
+    assert data["name"] is None
+    assert data["symbol"] is None
