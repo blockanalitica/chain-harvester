@@ -1,5 +1,6 @@
-from chain_harvester.networks.linea.mainnet import LineaMainnetChain
 from intregration_tests.env import API_KEYS, RPC_NODES
+
+from chain_harvester.networks.linea.mainnet import LineaMainnetChain
 
 
 def test__multicall():
