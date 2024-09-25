@@ -549,6 +549,9 @@ class Chain:
         elif self.chain == "linea":
             if self.network == "mainnet":
                 api_url = "https://api.lineascan.build/api"
+        elif self.chain == "base":
+            if self.network == "mainnet":
+                api_url = "https://api.basescan.org/api"
         else:
             if self.network == "sepolia":
                 api_url = "https://api-sepolia.etherscan.io/api"
