@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.38.0](https://github.com/blockanalitica/chain-harvester/compare/v0.37.1...v0.38.0) (2024-09-25)
+
+
+### Features
+
+* add base to get_block_for_timestamp ([#129](https://github.com/blockanalitica/chain-harvester/issues/129)) ([8823a13](https://github.com/blockanalitica/chain-harvester/commit/8823a1323fe160bd9945c44070ffce6f3a9b9779))
+
 ## [0.37.1](https://github.com/blockanalitica/chain-harvester/compare/v0.37.0...v0.37.1) (2024-09-24)
 
 
