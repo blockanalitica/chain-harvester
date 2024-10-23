@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.38.1](https://github.com/blockanalitica/chain-harvester/compare/v0.38.0...v0.38.1) (2024-10-23)
+
+
+### Bug Fixes
+
+* multicall returns error in weird cases ([#131](https://github.com/blockanalitica/chain-harvester/issues/131)) ([5226ed5](https://github.com/blockanalitica/chain-harvester/commit/5226ed5285f28cf0892b3dcfabcbd50327b9ae1f))
+
 ## [0.38.0](https://github.com/blockanalitica/chain-harvester/compare/v0.37.1...v0.38.0) (2024-09-25)
 
 
