@@ -13,8 +13,8 @@ from web3.middleware import geth_poa_middleware
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester.constants import MULTICALL3_ADDRESSES
 from chain_harvester.decoders import AnonymousEventLogDecoder, EventLogDecoder
-from chain_harvester.http import retry_get_json
 from chain_harvester.multicall import Call, Multicall
+from chain_harvester.utils.http import retry_get_json
 
 log = logging.getLogger(__name__)
 
