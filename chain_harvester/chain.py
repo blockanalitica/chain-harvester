@@ -8,7 +8,7 @@ from eth_utils import event_abi_to_log_topic
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
+from web3.middleware import ExtraDataToPOAMiddleware
 
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester.constants import MULTICALL3_ADDRESSES
@@ -69,7 +69,7 @@ class Chain:
             self._w3 = Web3(
                 Web3.HTTPProvider(self.rpc, request_kwargs={"timeout": 60}, session=session)
             )
-            self._w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+            self._w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
         return self._w3
 
     @property
