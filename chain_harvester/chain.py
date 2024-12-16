@@ -475,7 +475,7 @@ class Chain:
         return response
 
     def to_hex_topic(self, topic):
-        return Web3.keccak(text=topic).hex()
+        return "0x" + Web3.keccak(text=topic).hex()
 
     def get_token_info(self, address, bytes32=False, retry=False):
         calls = []
