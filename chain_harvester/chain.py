@@ -417,7 +417,7 @@ class Chain:
                     output_details["output_types"].append(i["type"])
                     output_details["output_names"].append(i["name"])
 
-        data = contract.encodeABI(fn_name=function_name, args=args)
+        data = contract.encode_abi(abi_element_identifier=function_name, args=args)
 
         if isinstance(block_identifier, int):
             block_identifier = hex(block_identifier)
