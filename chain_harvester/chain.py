@@ -8,7 +8,7 @@ from eth_utils import event_abi_to_log_topic
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
-from web3.exceptions import Web3ValueError
+from web3.exceptions import Web3RPCError, Web3ValueError
 from web3.middleware import ExtraDataToPOAMiddleware
 
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
@@ -184,8 +184,8 @@ class Chain:
             try:
                 yield from events
                 retries = 0
-            except Web3ValueError as e:
-                # We're catching ValueError as the limit for each response is either
+            except (Web3RPCError, Web3ValueError) as e:
+                # We're catching Web3ValueError as the limit for each response is either
                 # 2000 blocks or 10k logs. Since our step is bigger than 2k blocks, we
                 # catch the errors, and retry with smaller step (2k blocks)
                 err_code = None
