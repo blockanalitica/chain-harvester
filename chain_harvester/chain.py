@@ -8,7 +8,7 @@ from eth_utils import event_abi_to_log_topic
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
-from web3.exceptions import Web3RPCError, Web3ValueError
+from web3.exceptions import Web3RPCError
 from web3.middleware import ExtraDataToPOAMiddleware
 
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
@@ -174,6 +174,7 @@ class Chain:
     def _yield_all_events(self, fetch_events_func, from_block, to_block):
         retries = 0
         step = self.step
+
         while True:
             end_block = min(from_block + step - 1, to_block)
             log.debug(f"Fetching events from {from_block} to {end_block} with step {step}")
@@ -184,20 +185,19 @@ class Chain:
             try:
                 yield from events
                 retries = 0
-            except (Web3RPCError, Web3ValueError) as e:
-                # We're catching Web3ValueError as the limit for each response is either
+            except Web3RPCError as e:
+                # We're catching Web3RPCError as the limit for each response is either
                 # 2000 blocks or 10k logs. Since our step is bigger than 2k blocks, we
                 # catch the errors, and retry with smaller step (2k blocks)
-                err_code = None
-                if len(e.args) > 0 and isinstance(e.args[0], dict):
-                    err_code = e.args[0]["code"]
+
+                err_code = e.rpc_response["error"]["code"]
 
                 if err_code in [-32602, -32005, -32000]:
                     if retries > 5:
                         raise
 
                     step /= 5
-                    step = int(step)
+                    step = max(int(step), 2000)
                     retries += 1
                     continue
                 else:
