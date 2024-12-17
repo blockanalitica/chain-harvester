@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/blockanalitica/chain-harvester/compare/v0.38.1...v1.0.0) (2024-12-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* update requiremets to newest versions ([#134](https://github.com/blockanalitica/chain-harvester/issues/134))
+
+### Features
+
+* update requiremets to newest versions ([#134](https://github.com/blockanalitica/chain-harvester/issues/134)) ([182f52f](https://github.com/blockanalitica/chain-harvester/commit/182f52f510630a6784f4a3ea7770849489f6adbf))
+
 ## [0.38.1](https://github.com/blockanalitica/chain-harvester/compare/v0.38.0...v0.38.1) (2024-10-23)
 
 
