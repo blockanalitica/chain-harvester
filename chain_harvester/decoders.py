@@ -14,7 +14,15 @@ def _to_serializable(val):
     dictionaries).
     """
     if isinstance(val, bytes):
-        return val.hex()  # Convert bytes to hex string for JSON serialization
+        hex_val = val.hex()
+        try:
+            if len(hex_val) == 64:
+                return bytes.fromhex(hex_val).decode("utf-8").rstrip("\x00").lower()
+            else:
+                return hex_val.decode("utf-8").rstrip("\x00").lower()
+        except Exception:
+            return hex_val
+
     elif isinstance(val, Mapping):  # Includes AttributeDict and dict types
         return {k: _to_serializable(v) for k, v in val.items()}
     elif isinstance(val, list):  # For lists, apply conversion to each item
@@ -71,12 +79,11 @@ class AnonymousEventLogDecoder:
                 mapping["events"]["non-anonymous"].setdefault(element["name"], element["inputs"])
             else:
                 pass
-
         return mapping
 
     def decode_log(self, log_entry):
         ARG_KEYS = ["arg1", "arg2", "arg3", "arg4", "arg5", "arg6"]
-        DATA_SKIP_BYTES = 138
+        DATA_SKIP_BYTES = 136
 
         topics = log_entry["topics"]
         data = log_entry["data"].hex()
@@ -99,7 +106,10 @@ class AnonymousEventLogDecoder:
         # skip 0x, first two sets of bytes and function signature (2 + 64 + 64 + 8)
         data = data[DATA_SKIP_BYTES:]
         parse_from = 0
-        for arg in self._signed_abis["functions"][topics[0].hex()]["inputs"]:
+        hex_topic = topics[0].hex()
+        if not "0x".startswith(hex_topic):
+            hex_topic = "0x" + hex_topic
+        for arg in self._signed_abis["functions"][hex_topic]["inputs"]:
             event_layout.setdefault(
                 arg["name"],
                 decode_value(value=data[parse_from : parse_from + 64], value_type=arg["type"]),
@@ -111,7 +121,7 @@ class AnonymousEventLogDecoder:
             "event_name": _to_serializable(self._signed_abis["events"]["anonymous"]["name"]),
             "event_layout": _to_serializable(event_layout),
             "executed_function": _to_serializable(
-                self._signed_abis["functions"][topics[0].hex()]["name"]
+                self._signed_abis["functions"][hex_topic]["name"]
             ),
         }
         return item

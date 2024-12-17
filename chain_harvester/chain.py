@@ -8,7 +8,7 @@ from eth_utils import event_abi_to_log_topic
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
+from web3.middleware import ExtraDataToPOAMiddleware
 
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester.constants import MULTICALL3_ADDRESSES
@@ -69,7 +69,7 @@ class Chain:
             self._w3 = Web3(
                 Web3.HTTPProvider(self.rpc, request_kwargs={"timeout": 60}, session=session)
             )
-            self._w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+            self._w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
         return self._w3
 
     @property
@@ -417,7 +417,7 @@ class Chain:
                     output_details["output_types"].append(i["type"])
                     output_details["output_names"].append(i["name"])
 
-        data = contract.encodeABI(fn_name=function_name, args=args)
+        data = contract.encode_abi(abi_element_identifier=function_name, args=args)
 
         if isinstance(block_identifier, int):
             block_identifier = hex(block_identifier)
@@ -475,7 +475,7 @@ class Chain:
         return response
 
     def to_hex_topic(self, topic):
-        return Web3.keccak(text=topic).hex()
+        return "0x" + Web3.keccak(text=topic).hex()
 
     def get_token_info(self, address, bytes32=False, retry=False):
         calls = []
