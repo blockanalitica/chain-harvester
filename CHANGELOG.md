@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/blockanalitica/chain-harvester/compare/v1.0.0...v1.0.1) (2024-12-17)
+
+
+### Bug Fixes
+
+* check for Web3ValueError ([#136](https://github.com/blockanalitica/chain-harvester/issues/136)) ([3047f57](https://github.com/blockanalitica/chain-harvester/commit/3047f57ebf427195687e320efa34ae32f7a57a2b))
+
 ## [1.0.0](https://github.com/blockanalitica/chain-harvester/compare/v0.38.1...v1.0.0) (2024-12-17)
 
 
