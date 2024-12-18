@@ -34,3 +34,9 @@ def normalize_to_decimal(value, decimals):
     if value is None:
         return None
     return Decimal(str(value)) / Decimal(str(10**decimals))
+
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i : i + n]
