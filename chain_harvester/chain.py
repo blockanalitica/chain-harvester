@@ -555,6 +555,18 @@ class Chain:
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
 
     def get_block_for_timestamp(self, timestamp):
+        """
+        Fetches the block number for a given timestamp.
+
+        Args:
+            timestamp (int): The timestamp for which to fetch the block number.
+
+        Returns:
+            int: The block number.
+
+        Raises:
+            ValueError: If the scan_url is not set.
+        """
         if not self.scan_url:
             raise ValueError("scan_url is not set")
         query_params = {
