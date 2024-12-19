@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.0](https://github.com/blockanalitica/chain-harvester/compare/v1.0.2...v1.1.0) (2024-12-19)
+
+
+### Features
+
+* add constants (stablecoins) and few apy utils functions ([#142](https://github.com/blockanalitica/chain-harvester/issues/142)) ([cc7d38c](https://github.com/blockanalitica/chain-harvester/commit/cc7d38c9542f4f24d65c237e9495984ed6d84212))
+* add defillama adapter ([#140](https://github.com/blockanalitica/chain-harvester/issues/140)) ([8b1d531](https://github.com/blockanalitica/chain-harvester/commit/8b1d5310e63e13639bfb8e9e955d43b1e90e7764))
+* add scan_url to chain models ([#141](https://github.com/blockanalitica/chain-harvester/issues/141)) ([36262a3](https://github.com/blockanalitica/chain-harvester/commit/36262a3eca55f4d290ba1e1f96f9f7bab1a67b76))
+
 ## [1.0.2](https://github.com/blockanalitica/chain-harvester/compare/v1.0.1...v1.0.2) (2024-12-17)
 
 
