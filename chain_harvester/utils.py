@@ -48,3 +48,9 @@ def apy_to_apr(value, periods=SECONDS_PER_YEAR):
     periods = Decimal(periods)
     value = Decimal(value)
     return periods * (pow((1 + value), 1 / periods) - 1)
+
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i : i + n]
