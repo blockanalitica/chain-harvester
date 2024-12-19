@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import urllib.parse
 
 import eth_abi
 import requests
@@ -49,6 +50,7 @@ class Chain:
 
         self.chain = None
         self.network = None
+        self.scan_url = None
 
     @property
     def w3(self):
@@ -86,7 +88,22 @@ class Chain:
         return self.eth.get_block_number() - 5
 
     def get_abi_source_url(self, contract_address):
-        raise NotImplementedError
+        """
+        Returns the URL for fetching the ABI of a contract from the scan API.
+
+        Args:
+            contract_address (str): The address of the contract.
+
+        Returns:
+            str: The URL for fetching the ABI.
+        """
+        query_params = {
+            "module": "contract",
+            "action": "getabi",
+            "address": contract_address,
+            "apikey": self.api_key,
+        }
+        return f"{self.scan_url}/api?{urllib.parse.urlencode(query_params)}"
 
     def get_abi_from_source(self, contract_address):
         log.error(
@@ -538,30 +555,28 @@ class Chain:
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
 
     def get_block_for_timestamp(self, timestamp):
-        if self.chain == "gnosis":
-            if self.network == "mainnet":
-                api_url = "https://api.gnosisscan.io/api"
-        elif self.chain == "optimism":
-            if self.network == "mainnet":
-                api_url = "https://api-optimistic.etherscan.io/api"
-        elif self.chain == "arbitrum":
-            if self.network == "mainnet":
-                api_url = "https://api.arbiscan.io/api"
-        elif self.chain == "linea":
-            if self.network == "mainnet":
-                api_url = "https://api.lineascan.build/api"
-        elif self.chain == "base":
-            if self.network == "mainnet":
-                api_url = "https://api.basescan.org/api"
-        else:
-            if self.network == "sepolia":
-                api_url = "https://api-sepolia.etherscan.io/api"
-            else:
-                api_url = "https://api.etherscan.io/api"
+        """
+        Fetches the block number for a given timestamp.
 
-        url = f"{api_url}?module=block&action=getblocknobytime&timestamp={timestamp}"
-        url += f"&closest=before&apikey={self.api_key}"
+        Args:
+            timestamp (int): The timestamp for which to fetch the block number.
+
+        Returns:
+            int: The block number.
+
+        Raises:
+            ValueError: If the scan_url is not set.
+        """
+        if not self.scan_url:
+            raise ValueError("scan_url is not set")
+        query_params = {
+            "module": "block",
+            "action": "getblocknobytime",
+            "timestamp": timestamp,
+            "closest": "before",
+            "apikey": self.api_key,
+        }
+        url = f"{self.scan_url}/api?{urllib.parse.urlencode(query_params)}"
         data = retry_get_json(url)
         result = int(data["result"])
-
         return result
