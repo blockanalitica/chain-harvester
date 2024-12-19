@@ -2,7 +2,7 @@ from decimal import Decimal, getcontext
 
 from web3 import Web3
 
-from .constants import RAY
+from .constants import RAY, SECONDS_PER_YEAR
 
 # interest bearing math
 getcontext().prec = 50
@@ -34,6 +34,20 @@ def normalize_to_decimal(value, decimals):
     if value is None:
         return None
     return Decimal(str(value)) / Decimal(str(10**decimals))
+
+
+def apr_to_apy(value, periods=SECONDS_PER_YEAR):
+    if value is None:
+        return None
+    return pow((1 + Decimal(value) / Decimal(periods)), Decimal(periods)) - 1
+
+
+def apy_to_apr(value, periods=SECONDS_PER_YEAR):
+    if value is None:
+        return None
+    periods = Decimal(periods)
+    value = Decimal(value)
+    return periods * (pow((1 + value), 1 / periods) - 1)
 
 
 def chunks(lst, n):
