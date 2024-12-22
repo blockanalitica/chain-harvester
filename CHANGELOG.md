@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/blockanalitica/chain-harvester/compare/v1.1.1...v1.2.0) (2024-12-22)
+
+
+### Features
+
+* global get_tokens_prices function ([#146](https://github.com/blockanalitica/chain-harvester/issues/146)) ([5b37be6](https://github.com/blockanalitica/chain-harvester/commit/5b37be6c4231d3f1f5f95505db17024e63ac00bf))
+
 ## [1.1.1](https://github.com/blockanalitica/chain-harvester/compare/v1.1.0...v1.1.1) (2024-12-22)
 
 
