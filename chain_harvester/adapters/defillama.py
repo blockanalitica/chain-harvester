@@ -16,7 +16,7 @@ def fetch_current_price(coins):
     Returns:
         dict: Price data for requested coins
     """
-    url = "prices/current/{}/".format(",".join(coins))
+    url = "prices/current/{}".format(",".join(coins))
     data = retry_get_json(f"{LLAMA_COINS_API_URL}{url}?searchWidth=12h")
     return data["coins"]
 
@@ -66,7 +66,7 @@ def fetch_price_for_timestamp(timestamp, coins):
     Returns:
         dict: Historical price data for requested coins
     """
-    url = "prices/historical/{}/{}/".format(int(timestamp), ",".join(coins))
+    url = "prices/historical/{}/{}".format(int(timestamp), ",".join(coins))
     data = retry_get_json(f"{LLAMA_COINS_API_URL}{url}?searchWidth=12h")
     return data["coins"]
 
