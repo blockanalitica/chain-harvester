@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/blockanalitica/chain-harvester/compare/v1.1.0...v1.1.1) (2024-12-22)
+
+
+### Bug Fixes
+
+* defillama urls ([#144](https://github.com/blockanalitica/chain-harvester/issues/144)) ([a4d1778](https://github.com/blockanalitica/chain-harvester/commit/a4d1778a9086b4304d92b13b51bf34dc6b7e8cea))
+
 ## [1.1.0](https://github.com/blockanalitica/chain-harvester/compare/v1.0.2...v1.1.0) (2024-12-19)
 
 
