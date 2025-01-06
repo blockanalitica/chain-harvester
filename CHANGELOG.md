@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/blockanalitica/chain-harvester/compare/v1.2.0...v1.2.1) (2025-01-06)
+
+
+### Bug Fixes
+
+* return value if decimals is 0 for normalize_to_decimal ([#148](https://github.com/blockanalitica/chain-harvester/issues/148)) ([0530df4](https://github.com/blockanalitica/chain-harvester/commit/0530df46ecdf35b763d2efdccd455cc80616e5eb))
+
 ## [1.2.0](https://github.com/blockanalitica/chain-harvester/compare/v1.1.1...v1.2.0) (2024-12-22)
 
 
