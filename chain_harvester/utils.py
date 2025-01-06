@@ -33,6 +33,10 @@ def ray_div(a, b):
 def normalize_to_decimal(value, decimals):
     if value is None:
         return None
+
+    if decimals == 0:
+        return Decimal(str(value))
+
     return Decimal(str(value)) / Decimal(str(10**decimals))
 
 
