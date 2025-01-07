@@ -90,8 +90,7 @@ def get_prices_for_timestamp(addresses, timestamp, network="ethereum"):
         return result
     for key, item in data.items():
         address = key.split(":")[1].lower()
-        price = item["price"]
-        result[address] = price
+        result[address] = Decimal(str(item["price"]))
     return result
 
 
