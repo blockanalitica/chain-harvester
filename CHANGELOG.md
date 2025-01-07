@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/blockanalitica/chain-harvester/compare/v1.2.1...v1.2.2) (2025-01-07)
+
+
+### Bug Fixes
+
+* return price as Decimal ([#150](https://github.com/blockanalitica/chain-harvester/issues/150)) ([290dac5](https://github.com/blockanalitica/chain-harvester/commit/290dac5d9e49103d68ea8e52bc63a5f71a01e720))
+
 ## [1.2.1](https://github.com/blockanalitica/chain-harvester/compare/v1.2.0...v1.2.1) (2025-01-06)
 
 
