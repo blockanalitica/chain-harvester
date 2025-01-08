@@ -17,12 +17,4 @@ class BlastMainnetChain(Chain):
         self.chain_id = CHAINS[self.chain][self.network]
         self.abis_path = abis_path or "abis/blast/"
         self.api_key = api_key or api_keys[self.chain][self.network]
-
-    def get_abi_source_url(self, contract_address):
-        url = (
-            "https://api.blastscan.io/api?module=contract&action=getabi&address="
-            + contract_address
-            + "&apikey="
-            + self.api_key
-        )
-        return url
+        self.scan_url = "https://api.blastscan.io"
