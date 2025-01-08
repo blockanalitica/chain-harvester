@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/blockanalitica/chain-harvester/compare/v1.2.2...v1.2.3) (2025-01-08)
+
+
+### Bug Fixes
+
+* scan_url for base and optimism ([#152](https://github.com/blockanalitica/chain-harvester/issues/152)) ([282a22e](https://github.com/blockanalitica/chain-harvester/commit/282a22ed8b60adfa1fd8d8efa1f2beebc9d0d231))
+
 ## [1.2.2](https://github.com/blockanalitica/chain-harvester/compare/v1.2.1...v1.2.2) (2025-01-07)
 
 
