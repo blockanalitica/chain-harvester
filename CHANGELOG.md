@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/blockanalitica/chain-harvester/compare/v1.2.3...v1.3.0) (2025-01-15)
+
+
+### Features
+
+* added avalanche network ([#157](https://github.com/blockanalitica/chain-harvester/issues/157)) ([31cfbc6](https://github.com/blockanalitica/chain-harvester/commit/31cfbc6f2aaa6e25fb97834a2bb55c57c9c017b4))
+
+
+### Bug Fixes
+
+* is_eoa ([#155](https://github.com/blockanalitica/chain-harvester/issues/155)) ([490715d](https://github.com/blockanalitica/chain-harvester/commit/490715dc51f731bc3a7e9d816003c77e6ca2e8e1))
+
 ## [1.2.3](https://github.com/blockanalitica/chain-harvester/compare/v1.2.2...v1.2.3) (2025-01-08)
 
 
