@@ -21,6 +21,7 @@ class Network(IntEnum):
     Scroll = 534352
     Linea = 59144
     Rari = 1380012617
+    Avalanche = 43114
 
 
 MULTICALL_ADDRESSES = {
@@ -51,6 +52,7 @@ MULTICALL3_ADDRESSES = {
     Network.Scroll: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Linea: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Rari: "0x4c753F58Ee9E83B38170abAbBEa8B47976C7ee1b",
+    Network.Avalanche: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -94,6 +96,9 @@ CHAINS = {
     },
     "rari": {
         "mainnet": Network.Rari,
+    },
+    "avalanche": {
+        "mainnet": Network.Avalanche,
     },
 }
 

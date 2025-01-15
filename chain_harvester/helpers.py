@@ -6,6 +6,7 @@ from chain_harvester.networks.optimism.mainnet import OptimismMainnetChain
 from chain_harvester.networks.polygon.mainnet import PolygonMainnetChain
 from chain_harvester.networks.rari.mainnet import RariMainnetChain
 from chain_harvester.networks.scroll.mainnet import ScrollMainnetChain
+from chain_harvester.networks.avalanche.mainnet import AvalancheMainnetChain
 
 
 def get_chain(network, *args, **kwargs):
@@ -26,5 +27,7 @@ def get_chain(network, *args, **kwargs):
             return FilecoinMainnetChain(*args, **kwargs)
         case "rari":
             return RariMainnetChain(*args, **kwargs)
+        case "avalanche":
+            return AvalancheMainnetChain(*args, **kwargs)
         case _:
             raise ValueError(f"Unknown network: {network}")
