@@ -186,7 +186,7 @@ class Chain:
         return self.eth.get_code(address).hex()
 
     def is_eoa(self, address):
-        return self.eth.get_code(address) == "0x"
+        return self.get_code(address) == ""
 
     def _yield_all_events(self, fetch_events_func, from_block, to_block):
         retries = 0
