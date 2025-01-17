@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/blockanalitica/chain-harvester/compare/v1.3.0...v1.3.1) (2025-01-17)
+
+
+### Bug Fixes
+
+* bump web3 7.6.1 -&gt; 7.7.0 ([#158](https://github.com/blockanalitica/chain-harvester/issues/158)) ([6d6a07e](https://github.com/blockanalitica/chain-harvester/commit/6d6a07eb8741819b425dec877b559320303355e7))
+
 ## [1.3.0](https://github.com/blockanalitica/chain-harvester/compare/v1.2.3...v1.3.0) (2025-01-15)
 
 
