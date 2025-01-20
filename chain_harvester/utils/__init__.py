@@ -2,7 +2,7 @@ from decimal import Decimal, getcontext
 
 from web3 import Web3
 
-from .constants import RAY, SECONDS_PER_YEAR
+from chain_harvester.constants import RAY, SECONDS_PER_YEAR
 
 # interest bearing math
 getcontext().prec = 50
