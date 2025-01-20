@@ -1,6 +1,7 @@
 import requests
 
 from chain_harvester.helpers import get_chain
+from chain_harvester.utils.graphql import call_graphql
 
 
 class Alchemy:
@@ -8,6 +9,7 @@ class Alchemy:
         self,
         chain,
         network,
+        subgraph_api_key=None,
         rpc=None,
         rpc_nodes=None,
         api_key=None,
@@ -15,16 +17,18 @@ class Alchemy:
         abis_path=None,
         **kwargs,
     ):
-        self.chain = get_chain(
-            chain,
-            rpc=rpc,
-            rpc_nodes=rpc_nodes,
-            api_key=api_key,
-            api_keys=api_keys,
-            abis_path=abis_path,
-            **kwargs,
-        )
-        self.rpc = rpc or rpc_nodes[chain][network]
+        if rpc or rpc_nodes:
+            self.chain = get_chain(
+                chain,
+                rpc=rpc,
+                rpc_nodes=rpc_nodes,
+                api_key=api_key,
+                api_keys=api_keys,
+                abis_path=abis_path,
+                **kwargs,
+            )
+            self.rpc = rpc or rpc_nodes[chain][network]
+        self.subgraph_api_key = subgraph_api_key
 
     def get_block_transactions(self, block_number):
         payload = {
@@ -66,3 +70,40 @@ class Alchemy:
                         "args": func_params,
                         "status": tx["status"],
                     }
+
+    def _get_blocks_query(self, to_block=None):
+        base_query = """
+            query ($first: Int!, $skip: Int!, $from_block: Int!{to_block_var}) {{
+                blocks (orderBy: number, first: $first, skip: $skip, where:
+                    {{number_gt: $from_block{to_block_filter}}}) {{
+                    number
+                    timestamp
+                }}
+            }}
+        """
+
+        to_block_var = ", $to_block: Int!" if to_block is not None else ""
+        to_block_filter = ", number_lte: $to_block" if to_block is not None else ""
+
+        query = base_query.format(to_block_var=to_block_var, to_block_filter=to_block_filter)
+        return query
+
+    def get_blocks(self, url, from_block, to_block=None, limit=10000):
+        first = limit
+        skip = 0
+        while True:
+            query = self._get_blocks_query(to_block)
+            response = call_graphql(
+                url,
+                query,
+                variables={
+                    "first": first,
+                    "skip": skip,
+                    "from_block": from_block,
+                    "to_block": to_block,
+                },
+            )
+            if not response.get("data", {}).get("blocks"):
+                break
+            yield from response["data"]["blocks"]
+            skip += first
