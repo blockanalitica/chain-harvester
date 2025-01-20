@@ -9,7 +9,6 @@ class Alchemy:
         self,
         chain,
         network,
-        subgraph_api_key=None,
         rpc=None,
         rpc_nodes=None,
         api_key=None,
@@ -28,7 +27,6 @@ class Alchemy:
                 **kwargs,
             )
             self.rpc = rpc or rpc_nodes[chain][network]
-        self.subgraph_api_key = subgraph_api_key
 
     def get_block_transactions(self, block_number):
         payload = {
