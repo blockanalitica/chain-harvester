@@ -18,9 +18,6 @@ class AdaptiveCurveIrm:
         self.rate_at_target = 0
         self.last_update = 0
 
-        # Memoization list for borrow rates and current time
-        self.memoized_rates = []
-
     def borrow_rate(
         self, total_borrow_assets: int, total_supply_assets: int, current_time: int
     ) -> int:
@@ -65,9 +62,6 @@ class AdaptiveCurveIrm:
         self.last_update = current_time
 
         rate = self._curve(avg_rate_at_target, err)
-
-        # Memoize the borrow rate and current time
-        self.memoized_rates.append((current_time, rate))
 
         return rate
 
