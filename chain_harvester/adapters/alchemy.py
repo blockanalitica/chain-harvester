@@ -78,6 +78,7 @@ class Alchemy:
                     {{number_gt: $from_block{to_block_filter}}}) {{
                     number
                     timestamp
+                    id
                 }}
             }}
         """
