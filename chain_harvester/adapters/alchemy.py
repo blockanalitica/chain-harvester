@@ -20,7 +20,7 @@ def _get_blocks_query(to_block=None):
     return query
 
 
-def get_blocks(url, from_block, to_block=None, limit=10000):
+def get_blocks(url, from_block, to_block=None, limit=10000, timeout=30, retries=3):
     first = limit
     skip = 0
     while True:
@@ -34,6 +34,8 @@ def get_blocks(url, from_block, to_block=None, limit=10000):
                 "from_block": from_block,
                 "to_block": to_block,
             },
+            timeout=timeout,
+            max_retries=retries,
         )
         if not response.get("data", {}).get("blocks"):
             break

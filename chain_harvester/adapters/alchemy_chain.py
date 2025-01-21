@@ -1,3 +1,6 @@
+import json
+import time
+
 import requests
 
 from chain_harvester.helpers import get_chain
@@ -7,12 +10,13 @@ class AlchemyChain:
     def __init__(
         self,
         chain,
-        network,
         rpc=None,
         rpc_nodes=None,
         api_key=None,
         api_keys=None,
         abis_path=None,
+        batch_timeout=30,
+        max_retries=3,
         **kwargs,
     ):
         self.chain = get_chain(
@@ -24,17 +28,48 @@ class AlchemyChain:
             abis_path=abis_path,
             **kwargs,
         )
-        self.rpc = rpc or rpc_nodes[chain][network]
+
+        self.batch_timeout = batch_timeout
+        self.max_retries = max_retries
+
+    def get_batch_codes(self, addresses):
+        data = []
+        for address in addresses:
+            payload = {
+                "id": self.chain.chain_id,
+                "jsonrpc": "2.0",
+                "params": [address, "latest"],
+                "method": "eth_getCode",
+            }
+            data.append(payload)
+        headers = {"content-type": "application/json"}
+
+        timeout = self.batch_timeout * (len(addresses) // 100 + 1)  # Scale with batch size
+
+        retries = 0
+        while retries < self.max_retries:
+            try:
+                response = requests.post(
+                    self.chain.rpc, json=data, headers=headers, timeout=timeout
+                )
+                response.raise_for_status()
+                break
+            except requests.exceptions.RequestException:
+                retries += 1
+                if retries == self.max_retries:
+                    raise
+                time.sleep(2**retries)  # Exponential backoff
+        return json.loads(response.text)
 
     def get_block_transactions(self, block_number):
         payload = {
-            "id": 1,
+            "id": self.chain.chain_id,
             "jsonrpc": "2.0",
             "method": "alchemy_getTransactionReceipts",
             "params": [{"blockNumber": str(block_number)}],
         }
         headers = {"accept": "application/json", "content-type": "application/json"}
-        response = requests.post(self.rpc, json=payload, headers=headers, timeout=10)
+        response = requests.post(self.chain.rpc, json=payload, headers=headers, timeout=10)
         return response.json()["result"]["receipts"]
 
     def get_transactions_for_contracts(
