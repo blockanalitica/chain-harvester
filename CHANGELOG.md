@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/blockanalitica/chain-harvester/compare/v1.4.0...v1.5.0) (2025-01-21)
+
+
+### Features
+
+* add batch_codes to Alchemy ([#164](https://github.com/blockanalitica/chain-harvester/issues/164)) ([66f1151](https://github.com/blockanalitica/chain-harvester/commit/66f1151e90f4d2f1096ea5992493ef7f20586049))
+
 ## [1.4.0](https://github.com/blockanalitica/chain-harvester/compare/v1.3.1...v1.4.0) (2025-01-21)
 
 
