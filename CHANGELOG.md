@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.0](https://github.com/blockanalitica/chain-harvester/compare/v1.3.1...v1.4.0) (2025-01-21)
+
+
+### Features
+
+* add morpho AdaptiveCurveIrm calculation ([#160](https://github.com/blockanalitica/chain-harvester/issues/160)) ([7cf5e61](https://github.com/blockanalitica/chain-harvester/commit/7cf5e61d16ce61c9ceec6294b89691c086e331ef))
+* calculate avg rate ([#162](https://github.com/blockanalitica/chain-harvester/issues/162)) ([247bcf1](https://github.com/blockanalitica/chain-harvester/commit/247bcf1688b786fbc379c475790559aad196095f))
+* get blocks from alchemy graphql ([#163](https://github.com/blockanalitica/chain-harvester/issues/163)) ([456811e](https://github.com/blockanalitica/chain-harvester/commit/456811eefd8fbb74e6678dde95c9065794377539))
+
 ## [1.3.1](https://github.com/blockanalitica/chain-harvester/compare/v1.3.0...v1.3.1) (2025-01-17)
 
 
