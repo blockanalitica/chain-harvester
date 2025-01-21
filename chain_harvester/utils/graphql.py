@@ -11,5 +11,7 @@ def call_graphql(url, query, variables=None, timeout=10, max_retries=3):
             return response.json()
         except requests.exceptions.RequestException as e:
             if attempt == max_retries - 1:
-                raise Exception(f"GraphQL request failed after {max_retries} attempts: {e!s}") from e
+                raise Exception(
+                    f"GraphQL request failed after {max_retries} attempts: {e!s}"
+                ) from e
             continue
