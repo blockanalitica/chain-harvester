@@ -17,6 +17,7 @@ from chain_harvester.constants import MULTICALL3_ADDRESSES
 from chain_harvester.decoders import AnonymousEventLogDecoder, EventLogDecoder
 from chain_harvester.http import retry_get_json
 from chain_harvester.multicall import Call, Multicall
+from chain_harvester.utils.codes import get_code_name
 
 log = logging.getLogger(__name__)
 
@@ -580,3 +581,152 @@ class Chain:
         data = retry_get_json(url)
         result = int(data["result"])
         return result
+
+    def get_owners_for_proxies(self, addresses, code):
+        code_name = get_code_name(code)
+        if code_name in ["GnosisSafeProxy", "Proxy", "SafeProxy"]:
+            return self.get_owners_for_gnosis_safe(addresses)
+        elif code_name in ["AccountImplementation", "DSProxy", "Vault", "CenoaCustomProxy"]:
+            return self.get_dsproxy_owners(addresses)
+        elif code_name in ["InstaAccountV2"]:
+            return self.get_insta_account_owners(addresses)
+        else:
+            return {}
+
+    def get_owners_for_gnosis_safe(self, addresses):
+        calls = []
+
+        results = {}
+        for address in addresses:
+            calls.append(
+                (
+                    address,
+                    ["getOwners()(address[])"],
+                    [address, None],
+                )
+            )
+            if len(calls) == 5000:
+                data = self.multicall(calls)
+                for address, value in data.items():
+                    owners = [owner.lower() for owner in value]
+                    results[address] = owners
+                calls = []
+        if calls:
+            data = self.multicall(calls)
+            for address, value in data.items():
+                owners = [owner.lower() for owner in value]
+                results[address] = owners
+        return results
+
+    def get_dsproxy_owners(self, addresses):
+        calls = []
+        results = {}
+        for address in addresses:
+            calls.append(
+                (
+                    address,
+                    ["owner()(address)"],
+                    [address, None],
+                )
+            )
+            if len(calls) == 5000:
+                data = self.multicall(calls)
+                for address, value in data.items():
+                    results[address] = [value.lower()]
+                calls = []
+        if calls:
+            data = self.multicall(calls)
+            for address, value in data.items():
+                results[address] = [value.lower()]
+        return results
+
+    def get_insta_account_owners(self, addresses):
+        calls = []
+        accounts = {}
+        for address in addresses:
+            calls.append(
+                (
+                    "0x4c8a1BEb8a87765788946D6B19C6C6355194AbEb",
+                    ["accountID(address)(uint64)", address],
+                    [f"{address}", None],
+                )
+            )
+        data = self.multicall(calls)
+
+        account_ids = []
+        for key, value in data.items():
+            account_ids.append(value)
+            accounts[value] = key
+
+        owners_mapping = {}
+        calls = []
+        for account_id in account_ids:
+            calls.append(
+                (
+                    "0x4c8a1BEb8a87765788946D6B19C6C6355194AbEb",
+                    ["accountLink(uint64)((address,address,uint64))", account_id],
+                    [f"{account_id}", None],
+                )
+            )
+            data = self.multicall(calls)
+            multiple_owners_insta_ids = []
+            for account_id, values in data.items():
+                count = values[2]
+                if count > 2:
+                    multiple_owners_insta_ids.append(
+                        {
+                            "account_id": account_id,
+                            "first": values[0],
+                            "last": values[1],
+                            "count": count,
+                        }
+                    )
+                else:
+                    owners = []
+                    for i in range(count):
+                        owners.append(values[i])
+                owners_mapping[int(account_id)] = owners
+
+            for proxy in multiple_owners_insta_ids:
+                count = proxy["count"]
+                account_id = proxy["account_id"]
+                first = proxy["first"]
+                last = proxy["last"]
+                owners = [proxy["first"], proxy["last"]]
+                calls = []
+                while len(owners) < count:
+                    calls.append(
+                        (
+                            "0x4c8a1BEb8a87765788946D6B19C6C6355194AbEb",
+                            [
+                                "accountList(uint64,address)((address,address))",
+                                int(account_id),
+                                first,
+                            ],
+                            ["first", None],
+                        )
+                    )
+                    calls.append(
+                        (
+                            "0x4c8a1BEb8a87765788946D6B19C6C6355194AbEb",
+                            [
+                                "accountList(uint64,address)((address,address))",
+                                int(account_id),
+                                last,
+                            ],
+                            ["last", None],
+                        )
+                    )
+                    account_list = self.multicall(calls)
+
+                    owners.append(account_list["first"][1])
+                    owners.append(account_list["last"][0])
+                    owners = list(set(owners))
+                    first = account_list["first"][1]
+                    last = account_list["last"][0]
+                owners_mapping[int(account_id)] = owners
+        results = {}
+        for account_id, owners in owners_mapping.items():
+            results[accounts[account_id]] = owners
+
+        return results
