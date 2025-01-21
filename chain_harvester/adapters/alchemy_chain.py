@@ -1,4 +1,5 @@
 import json
+import time
 
 import requests
 
@@ -14,6 +15,8 @@ class AlchemyChain:
         api_key=None,
         api_keys=None,
         abis_path=None,
+        batch_timeout=30,
+        max_retries=3,
         **kwargs,
     ):
         self.chain = get_chain(
@@ -26,6 +29,9 @@ class AlchemyChain:
             **kwargs,
         )
 
+        self.batch_timeout = batch_timeout
+        self.max_retries = max_retries
+
     def get_batch_codes(self, addresses):
         data = []
         for address in addresses:
@@ -37,8 +43,22 @@ class AlchemyChain:
             }
             data.append(payload)
         headers = {"content-type": "application/json"}
-        response = requests.post(self.chain.rpc, json=data, headers=headers, timeout=60)
-        response.raise_for_status()
+
+        timeout = self.batch_timeout * (len(addresses) // 100 + 1)  # Scale with batch size
+
+        retries = 0
+        while retries < self.max_retries:
+            try:
+                response = requests.post(
+                    self.chain.rpc, json=data, headers=headers, timeout=timeout
+                )
+                response.raise_for_status()
+                break
+            except requests.exceptions.RequestException:
+                retries += 1
+                if retries == self.max_retries:
+                    raise
+                time.sleep(2**retries)  # Exponential backoff
         return json.loads(response.text)
 
     def get_block_transactions(self, block_number):
