@@ -1,3 +1,5 @@
+import json
+
 import requests
 
 from chain_harvester.helpers import get_chain
@@ -25,6 +27,21 @@ class AlchemyChain:
             **kwargs,
         )
         self.rpc = rpc or rpc_nodes[chain][network]
+
+    def get_batch_codes(self, addresses):
+        data = []
+        for address in addresses:
+            payload = {
+                "id": 1,
+                "jsonrpc": "2.0",
+                "params": [address, "latest"],
+                "method": "eth_getCode",
+            }
+            data.append(payload)
+        headers = {"content-type": "application/json"}
+        response = requests.post(self.rpc, json=data, headers=headers, timeout=60)
+        response.raise_for_status()
+        return json.loads(response.text)
 
     def get_block_transactions(self, block_number):
         payload = {
