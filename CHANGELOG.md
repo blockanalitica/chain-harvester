@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.6.0](https://github.com/blockanalitica/chain-harvester/compare/v1.5.0...v1.6.0) (2025-01-23)
+
+
+### Features
+
+* codes mapping ([#166](https://github.com/blockanalitica/chain-harvester/issues/166)) ([c810e6e](https://github.com/blockanalitica/chain-harvester/commit/c810e6ef842c3889c893ce172799f53e4fade2b5))
+* get proxy owners ([#168](https://github.com/blockanalitica/chain-harvester/issues/168)) ([97f5e55](https://github.com/blockanalitica/chain-harvester/commit/97f5e558f480af14f7d6f0c7d8658ccbec018898))
+
+
+### Bug Fixes
+
+* skip unverified contracts + fix get_implementation_address ([#169](https://github.com/blockanalitica/chain-harvester/issues/169)) ([ff6d96e](https://github.com/blockanalitica/chain-harvester/commit/ff6d96ea8695f280340e7e815513653e5129704f))
+
 ## [1.5.0](https://github.com/blockanalitica/chain-harvester/compare/v1.4.0...v1.5.0) (2025-01-21)
 
 
