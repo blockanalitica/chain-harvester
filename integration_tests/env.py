@@ -20,6 +20,9 @@ API_KEYS = {
         "mainnet": os.environ.get("LINEASCAN_API_KEY"),
     },
     "rari": {"mainnet": "n/a"},
+    "base": {
+        "mainnet": os.environ.get("BASESCAN_API_KEY"),
+    },
 }
 
 RPC_NODES = {
@@ -38,6 +41,9 @@ RPC_NODES = {
     },
     "rari": {
         "mainnet": os.environ.get("RARI_MAINNET_RPC"),
+    },
+    "base": {
+        "mainnet": os.environ.get("BASE_MAINNET_RPC"),
     },
 }
 

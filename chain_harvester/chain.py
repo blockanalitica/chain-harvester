@@ -9,7 +9,7 @@ from eth_utils import event_abi_to_log_topic
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
-from web3.exceptions import Web3RPCError
+from web3.exceptions import ContractLogicError, Web3RPCError
 from web3.middleware import ExtraDataToPOAMiddleware
 
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
@@ -158,7 +158,18 @@ class Chain:
         contract_address = Web3.to_checksum_address(contract_address)
         slot = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
         impl_address = self.eth.get_storage_at(contract_address, int(slot, 16)).hex()
-        return Web3.to_checksum_address(impl_address[-40:])
+        address = Web3.to_checksum_address(impl_address[-40:])
+        if address == "0x0000000000000000000000000000000000000000":
+            try:
+                data = self.multicall(
+                    [
+                        (contract_address, "implementation()(address)", ["address", None]),
+                    ]
+                )
+                address = Web3.to_checksum_address(data["address"])
+            except ContractLogicError:
+                address = "0x0000000000000000000000000000000000000000"
+        return address
 
     def get_contract(self, contract_address):
         if Web3.is_address(contract_address):
@@ -386,7 +397,11 @@ class Chain:
 
             raw_logs = self.eth.get_logs(filters)
             for raw_log in raw_logs:
-                contract = self.get_contract(raw_log["address"].lower())
+                try:
+                    contract = self.get_contract(raw_log["address"].lower())
+                except ChainException:
+                    log.warning(f"Contract not verified for {raw_log['address']}")
+                    continue
                 if anonymous:
                     decoder = AnonymousEventLogDecoder(contract)
                 else:
