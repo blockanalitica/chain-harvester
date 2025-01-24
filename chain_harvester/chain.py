@@ -805,6 +805,14 @@ class Chain:
                 ],
                 ["total_supply", None],
             ),
+            (
+                address,
+                [
+                    "convertToAssets(uint256)(uint256)",
+                    10 ** (36 - 6),
+                ],
+                ["convert_to_assets", None],
+            ),
         ]
 
         data = self.multicall(calls, block_identifier=block_identifier)
