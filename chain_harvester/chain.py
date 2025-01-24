@@ -800,3 +800,15 @@ class Chain:
         data = self.multicall(calls, block_identifier=block_identifier)
 
         return data
+
+    def get_latest_event_before_block(self, address, topics, block_number, max_retries=5):
+        step = self.step
+        for _ in range(max_retries):
+            events = self.get_events_for_contract_topics(
+                address, topics, block_number - step + 1, to_block=block_number
+            )
+            items = list(events)
+            if items:
+                return items[-1]
+            self.step *= 2
+        return None
