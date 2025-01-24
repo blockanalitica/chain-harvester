@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/blockanalitica/chain-harvester/compare/v1.7.0...v1.7.1) (2025-01-24)
+
+
+### Bug Fixes
+
+* get_erc4626_info ([#173](https://github.com/blockanalitica/chain-harvester/issues/173)) ([ecd17db](https://github.com/blockanalitica/chain-harvester/commit/ecd17dbc09ed8cb37020b5d25fd50639920fe8e9))
+
 ## [1.7.0](https://github.com/blockanalitica/chain-harvester/compare/v1.6.0...v1.7.0) (2025-01-24)
 
 
