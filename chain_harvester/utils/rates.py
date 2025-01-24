@@ -7,7 +7,7 @@ def calculate_average_rate(previous_index, previous_time, current_index, current
     time_difference = current_time - previous_time
     seconds = Decimal(time_difference.total_seconds())
     period = SECONDS_PER_YEAR / seconds
-    return (current_index / previous_index) ** period - Decimal("1")
+    return (Decimal(str(current_index)) / Decimal(str(previous_index))) ** period - Decimal("1")
 
 
 def apr_to_apy(value, periods=SECONDS_PER_YEAR):
