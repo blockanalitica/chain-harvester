@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.0](https://github.com/blockanalitica/chain-harvester/compare/v1.7.1...v1.8.0) (2025-01-24)
+
+
+### Features
+
+* get_latest_event_before_block ([#175](https://github.com/blockanalitica/chain-harvester/issues/175)) ([0000932](https://github.com/blockanalitica/chain-harvester/commit/00009329a40feac96349e19dcf3dad80cf86ddf0))
+* get_multiple_erc4626_info ([#177](https://github.com/blockanalitica/chain-harvester/issues/177)) ([0537f7a](https://github.com/blockanalitica/chain-harvester/commit/0537f7a758c3dfca37432d76a635f03db08f7ae7))
+
 ## [1.7.1](https://github.com/blockanalitica/chain-harvester/compare/v1.7.0...v1.7.1) (2025-01-24)
 
 
