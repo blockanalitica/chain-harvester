@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import urllib.parse
-from collections import defaultdict
 
 import eth_abi
 import requests
@@ -747,65 +746,57 @@ class Chain:
 
         return results
 
-    def get_erc4626_info(self, addresses, block_identifier=None):
-        calls = []
-        for address in addresses:
-            calls.extend(
+    def get_erc4626_info(self, address, asset_decimals=18, block_identifier=None):
+        calls = [
+            (
+                address,
                 [
-                    (
-                        address,
-                        [
-                            "name()(string)",
-                        ],
-                        [f"{address}::name", None],
-                    ),
-                    (
-                        address,
-                        [
-                            "symbol()(string)",
-                        ],
-                        [f"{address}::symbol", None],
-                    ),
-                    (
-                        address,
-                        [
-                            "asset()(address)",
-                        ],
-                        [f"{address}::asset", None],
-                    ),
-                    (
-                        address,
-                        [
-                            "decimals()(uint8)",
-                        ],
-                        [f"{address}::decimals", None],
-                    ),
-                    (
-                        address,
-                        [
-                            "totalAssets()(uint256)",
-                        ],
-                        [f"{address}::total_assets", None],
-                    ),
-                    (
-                        address,
-                        [
-                            "totalSupply()(uint256)",
-                        ],
-                        [f"{address}::total_supply", None],
-                    ),
-                    (
-                        address,
-                        ["convertToAssets(uint256)(uint256)", 1000000000000000000],
-                        [f"{address}::convert_to_assets", None],
-                    ),
-                ]
-            )
+                    "name()(string)",
+                ],
+                ["name", None],
+            ),
+            (
+                address,
+                [
+                    "symbol()(string)",
+                ],
+                ["symbol", None],
+            ),
+            (
+                address,
+                [
+                    "asset()(address)",
+                ],
+                ["asset", None],
+            ),
+            (
+                address,
+                [
+                    "decimals()(uint8)",
+                ],
+                ["decimals", None],
+            ),
+            (
+                address,
+                [
+                    "totalAssets()(uint256)",
+                ],
+                ["total_assets", None],
+            ),
+            (
+                address,
+                [
+                    "totalSupply()(uint256)",
+                ],
+                ["total_supply", None],
+            ),
+            (
+                address,
+                ["convertToAssets(uint256)(uint256)", 10 ** (36 - asset_decimals)],
+                ["convert_to_assets", None],
+            ),
+        ]
 
         data = self.multicall(calls, block_identifier=block_identifier)
 
-        result = defaultdict(dict)
-        for key, value in data.items():
-            address, label = key.split("::")
-            result[address][label] = value
-        return result
+        return data
