@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/blockanalitica/chain-harvester/compare/v1.8.0...v1.8.1) (2025-01-31)
+
+
+### Bug Fixes
+
+* division by zero in rates calc ([#178](https://github.com/blockanalitica/chain-harvester/issues/178)) ([f0b6940](https://github.com/blockanalitica/chain-harvester/commit/f0b69402d3417820fc4f10b15d1c8e54d5f2caaf))
+
 ## [1.8.0](https://github.com/blockanalitica/chain-harvester/compare/v1.7.1...v1.8.0) (2025-01-24)
 
 
