@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/blockanalitica/chain-harvester/compare/v1.8.1...v1.9.0) (2025-02-05)
+
+
+### Features
+
+* merkle_proof ([#180](https://github.com/blockanalitica/chain-harvester/issues/180)) ([e49192e](https://github.com/blockanalitica/chain-harvester/commit/e49192e53b784f3d64f1f2f917179ea6db475ebe))
+
 ## [1.8.1](https://github.com/blockanalitica/chain-harvester/compare/v1.8.0...v1.8.1) (2025-01-31)
 
 
