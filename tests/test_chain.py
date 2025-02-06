@@ -38,7 +38,7 @@ def test__load_abi__abi():
 
         chain.get_abi_from_source = lambda address: sample_abi
         chain.get_implementation_address = (
-            lambda address: "0x0000000000000000000000000000000000000000"
+            lambda address, x: "0x0000000000000000000000000000000000000000"
         )
 
         loaded_abi = chain.load_abi(contract_address)
@@ -59,6 +59,9 @@ def test__load_abi__contract():
         chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, abis_path=temp_dir, api_keys=API_KEYS)
 
         chain.get_abi_from_source = lambda address: sample_abi
+        chain.get_implementation_address = (
+            lambda address, x: "0x0000000000000000000000000000000000000000"
+        )
 
         loaded_abi = chain.load_abi(contract_address)
         assert loaded_abi == sample_abi
