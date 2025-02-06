@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/blockanalitica/chain-harvester/compare/v1.9.0...v1.10.0) (2025-02-06)
+
+
+### Features
+
+* handle updated proxy contracts ([#182](https://github.com/blockanalitica/chain-harvester/issues/182)) ([a61fd19](https://github.com/blockanalitica/chain-harvester/commit/a61fd19f74da43639915bdac7664b4cd8d23bbd3))
+
 ## [1.9.0](https://github.com/blockanalitica/chain-harvester/compare/v1.8.1...v1.9.0) (2025-02-05)
 
 
