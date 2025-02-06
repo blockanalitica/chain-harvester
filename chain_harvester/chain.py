@@ -160,19 +160,19 @@ class Chain:
             if os.path.exists(file_path):
                 with open(file_path) as f:
                     self._abis[contract_address] = json.loads(f.read())
+            else:
+                if not os.path.isdir(self.abis_path):
+                    os.mkdir(self.abis_path)
 
-            if not os.path.isdir(self.abis_path):
-                os.mkdir(self.abis_path)
+                log.error(
+                    "ABI for %s was fetched from etherscan. Add it to abis folder!",
+                    contract_address,
+                )
+                abi = self._fetch_abi(contract_address, refetch_on_block)
 
-            log.error(
-                "ABI for %s was fetched from etherscan. Add it to abis folder!",
-                contract_address,
-            )
-            abi = self._fetch_abi(contract_address, refetch_on_block)
-
-            with open(file_path, "w") as f:
-                json.dump(abi, f)
-            self._abis[contract_address] = abi
+                with open(file_path, "w") as f:
+                    json.dump(abi, f)
+                self._abis[contract_address] = abi
 
         return self._abis[contract_address]
 
