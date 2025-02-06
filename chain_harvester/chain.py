@@ -3,6 +3,7 @@ import logging
 import os
 import urllib.parse
 from collections import defaultdict
+from hexbytes import HexBytes
 
 import eth_abi
 import requests
@@ -14,8 +15,13 @@ from web3.exceptions import ContractLogicError, Web3RPCError
 from web3.middleware import ExtraDataToPOAMiddleware
 
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
-from chain_harvester.constants import MULTICALL3_ADDRESSES
-from chain_harvester.decoders import AnonymousEventLogDecoder, EventLogDecoder
+from chain_harvester.constants import MULTICALL3_ADDRESSES, NULL_ADDRESS
+from chain_harvester.decoders import (
+    AnonymousEventLogDecoder,
+    EventLogDecoder,
+    EventRawLogDecoder,
+    MissingABIEventDecoderError,
+)
 from chain_harvester.http import retry_get_json
 from chain_harvester.multicall import Call, Multicall
 from chain_harvester.utils.codes import get_code_name
@@ -48,6 +54,7 @@ class Chain:
         self.rpc_nodes = rpc_nodes
 
         self._abis = {}
+        self._contracts = {}
         self.current_block = 0
 
         self.chain = None
@@ -108,10 +115,6 @@ class Chain:
         return f"{self.scan_url}/api?{urllib.parse.urlencode(query_params)}"
 
     def get_abi_from_source(self, contract_address):
-        log.error(
-            "ABI for %s was fetched from etherscan. Add it to abis folder!",
-            contract_address,
-        )
         try:
             response = requests.get(
                 self.get_abi_source_url(contract_address),
@@ -133,50 +136,85 @@ class Chain:
         abi = json.loads(data["result"])
         return abi
 
-    def load_abi(self, contract_address, abi_name=None):
+    def _fetch_abi(self, contract_address, refetch_on_block=None):
+        proxy_contract = self.get_implementation_address(contract_address, refetch_on_block)
+        if proxy_contract != NULL_ADDRESS:
+            abi = self.get_abi_from_source(proxy_contract)
+        else:
+            abi = self.get_abi_from_source(contract_address)
+        return abi
+
+    def load_abi(self, contract_address, abi_name=None, refetch_on_block=None):
         contract_address = contract_address.lower()
         abi_address = abi_name or contract_address
+
+        # if refetch_on_block is set, we should skip storing the ABI to file as it's
+        # usually only used when backpopulating stuff and storing it to the file will
+        # replace the current abi with an old one
+        if refetch_on_block:
+            log.info("Fetching new ABI on block %s without storing it", refetch_on_block)
+            return self._fetch_abi(contract_address, refetch_on_block)
+
         if contract_address not in self._abis:
             file_path = os.path.join(self.abis_path, f"{abi_address}.json")
             if os.path.exists(file_path):
                 with open(file_path) as f:
                     self._abis[contract_address] = json.loads(f.read())
-            else:
-                if not os.path.isdir(self.abis_path):
-                    os.mkdir(self.abis_path)
-                proxy_contract = self.get_implementation_address(contract_address)
-                if proxy_contract != "0x0000000000000000000000000000000000000000":
-                    abi = self.get_abi_from_source(proxy_contract)
-                else:
-                    abi = self.get_abi_from_source(contract_address)
-                with open(file_path, "w") as f:
-                    json.dump(abi, f)
-                self._abis[contract_address] = abi
+
+            if not os.path.isdir(self.abis_path):
+                os.mkdir(self.abis_path)
+
+            log.error(
+                "ABI for %s was fetched from etherscan. Add it to abis folder!",
+                contract_address,
+            )
+            abi = self._fetch_abi(contract_address, refetch_on_block)
+
+            with open(file_path, "w") as f:
+                json.dump(abi, f)
+            self._abis[contract_address] = abi
+
         return self._abis[contract_address]
 
-    def get_implementation_address(self, contract_address):
+    def get_implementation_address(self, contract_address, block_identifier=None):
         # EIP-1967 storage slot
         contract_address = Web3.to_checksum_address(contract_address)
+
+        # Logic contract address
         slot = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
-        impl_address = self.eth.get_storage_at(contract_address, int(slot, 16)).hex()
+        impl_address = self.eth.get_storage_at(
+            contract_address, int(slot, 16), block_identifier
+        ).hex()
         address = Web3.to_checksum_address(impl_address[-40:])
-        if address == "0x0000000000000000000000000000000000000000":
+
+        #  Beacon contract address
+        if address == NULL_ADDRESS:
             try:
                 data = self.multicall(
                     [
                         (contract_address, "implementation()(address)", ["address", None]),
-                    ]
+                    ],
+                    block_identifier=block_identifier,
                 )
                 address = Web3.to_checksum_address(data["address"])
             except ContractLogicError:
-                address = "0x0000000000000000000000000000000000000000"
+                pass
         return address
 
-    def get_contract(self, contract_address):
-        if Web3.is_address(contract_address):
-            contract_address = Web3.to_checksum_address(contract_address)
-        abi = self.load_abi(contract_address)
-        return self.eth.contract(address=contract_address, abi=abi)
+    def get_contract(self, contract_address, refetch_on_block=None):
+        # This function can be called many, many times, so we cache already instantiated
+        # contracts
+        contract_address = Web3.to_checksum_address(contract_address)
+
+        if refetch_on_block or contract_address not in self._contracts:
+            abi = self.load_abi(contract_address, refetch_on_block=refetch_on_block)
+            contract = self.eth.contract(
+                address=contract_address,
+                abi=abi,
+            )
+            self._contracts[contract_address] = contract
+
+        return self._contracts[contract_address]
 
     def call_contract_function(self, contract_address, function_name, *args, **kwargs):
         contract_address = Web3.to_checksum_address(contract_address)
@@ -240,24 +278,73 @@ class Chain:
             # Reset step back to self.step in case we did a retry
             step = self.step
 
+    def _decode_raw_log(self, contract, raw_log, mixed, anonymous):
+        # In order to not always instantiate new decoder, we store it under a specific
+        # key directly on contract in order to cache it
+        if hasattr(contract, "_ch_decoder"):
+            decoder = contract._ch_decoder
+        else:
+            decoder = EventRawLogDecoder(contract)
+            contract._ch_decoder = decoder
+
+        return decoder.decode_log(raw_log, mixed, anonymous)
+
+    def _generate_fetch_events_func(
+        self,
+        contracts,
+        from_block,
+        to_block,
+        topics,
+        anonymous,
+        mixed,
+    ):
+        def fetch_events_for_contracts_topics(from_block, to_block):
+            filters = {
+                "fromBlock": hex(from_block),
+                "toBlock": hex(to_block),
+                "address": contracts,
+            }
+            if topics:
+                filters["topics"] = topics
+
+            raw_logs = self.eth.get_logs(filters)
+            for raw_log in raw_logs:
+                if (
+                    HexBytes("0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b")
+                    in raw_log["topics"]
+                ):
+                    log.warning("Skipping Upgraded event on proxy contract %s", raw_log["address"])
+                    continue
+                # TODO: Skip BeaconUpgraded event in a similar fastion to the one above
+
+                contract = self.get_contract(raw_log["address"].lower())
+                try:
+                    data = self._decode_raw_log(contract, raw_log, mixed, anonymous)
+                except MissingABIEventDecoderError:
+                    log.warning(
+                        "Current contract ABI is missing an event definition. Fetching a new "
+                        "ABI on block %s",
+                        raw_log["blockNumber"],
+                    )
+                    contract = self.get_contract(
+                        raw_log["address"].lower(), refetch_on_block=raw_log["blockNumber"]
+                    )
+                    data = self._decode_raw_log(contract, raw_log, mixed, anonymous)
+
+                yield data
+
+        return fetch_events_for_contracts_topics
+
     def get_events_for_contract(self, contract_address, from_block, to_block=None, anonymous=False):
         if not to_block:
             to_block = self.get_latest_block()
         contract_address = Web3.to_checksum_address(contract_address)
-        contract = self.get_contract(contract_address)
-        decoder = AnonymousEventLogDecoder(contract) if anonymous else EventLogDecoder(contract)
 
-        def fetch_events_for_contract(from_block, to_block):
-            filters = {
-                "fromBlock": hex(from_block),
-                "toBlock": hex(to_block),
-                "address": contract_address,
-            }
-            raw_logs = self.eth.get_logs(filters)
-            for raw_log in raw_logs:
-                yield decoder.decode_log(raw_log)
+        fetch_events_func = self._generate_fetch_events_func(
+            contract_address, from_block, to_block, None, anonymous, False
+        )
 
-        return self._yield_all_events(fetch_events_for_contract, from_block, to_block)
+        return self._yield_all_events(fetch_events_func, from_block, to_block)
 
     def get_events_for_contract_topics(
         self, contract_address, topics, from_block, to_block=None, anonymous=False
@@ -269,23 +356,11 @@ class Chain:
         if not to_block:
             to_block = self.get_latest_block()
 
-        contract = self.get_contract(contract_address)
+        fetch_events_func = self._generate_fetch_events_func(
+            contract_address, from_block, to_block, topics, anonymous, False
+        )
 
-        decoder = AnonymousEventLogDecoder(contract) if anonymous else EventLogDecoder(contract)
-
-        def fetch_events_for_contract_topics(from_block, to_block):
-            filters = {
-                "fromBlock": hex(from_block),
-                "toBlock": hex(to_block),
-                "address": contract_address,
-                "topics": topics,
-            }
-
-            raw_logs = self.eth.get_logs(filters)
-            for raw_log in raw_logs:
-                yield decoder.decode_log(raw_log)
-
-        return self._yield_all_events(fetch_events_for_contract_topics, from_block, to_block)
+        return self._yield_all_events(fetch_events_func, from_block, to_block)
 
     def get_events_for_contracts(
         self,
@@ -305,32 +380,11 @@ class Chain:
             Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
         ]
 
-        def fetch_events_for_contracts(from_block, to_block):
-            filters = {
-                "fromBlock": hex(from_block),
-                "toBlock": hex(to_block),
-                "address": contracts,
-            }
-            raw_logs = self.eth.get_logs(filters)
-            for raw_log in raw_logs:
-                contract = self.get_contract(raw_log["address"].lower())
-                if mixed:
-                    try:
-                        decoder = EventLogDecoder(contract)
-                        data = decoder.decode_log(raw_log)
-                        yield data
-                    except KeyError:
-                        decoder = AnonymousEventLogDecoder(contract)
-                        data = decoder.decode_log(raw_log)
-                        yield data
-                else:
-                    if anonymous:
-                        decoder = AnonymousEventLogDecoder(contract)
-                    else:
-                        decoder = EventLogDecoder(contract)
-                    yield decoder.decode_log(raw_log)
+        fetch_events_func = self._generate_fetch_events_func(
+            contracts, from_block, to_block, None, anonymous, mixed
+        )
 
-        return self._yield_all_events(fetch_events_for_contracts, from_block, to_block)
+        return self._yield_all_events(fetch_events_func, from_block, to_block)
 
     def get_events_for_contracts_topics(
         self,
@@ -354,33 +408,11 @@ class Chain:
             Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
         ]
 
-        def fetch_events_for_contracts_topics(from_block, to_block):
-            filters = {
-                "fromBlock": hex(from_block),
-                "toBlock": hex(to_block),
-                "address": contracts,
-                "topics": topics,
-            }
-            raw_logs = self.eth.get_logs(filters)
-            for raw_log in raw_logs:
-                contract = self.get_contract(raw_log["address"].lower())
-                if mixed:
-                    try:
-                        decoder = EventLogDecoder(contract)
-                        data = decoder.decode_log(raw_log)
-                        yield data
-                    except KeyError:
-                        decoder = AnonymousEventLogDecoder(contract)
-                        data = decoder.decode_log(raw_log)
-                        yield data
-                else:
-                    if anonymous:
-                        decoder = AnonymousEventLogDecoder(contract)
-                    else:
-                        decoder = EventLogDecoder(contract)
-                    yield decoder.decode_log(raw_log)
+        fetch_events_func = self._generate_fetch_events_func(
+            contracts, from_block, to_block, topics, anonymous, mixed
+        )
 
-        return self._yield_all_events(fetch_events_for_contracts_topics, from_block, to_block)
+        return self._yield_all_events(fetch_events_func, from_block, to_block)
 
     def get_events_for_topics(self, topics, from_block, to_block=None, anonymous=False):
         if not isinstance(topics, list):
