@@ -7,6 +7,10 @@ from web3 import Web3
 from web3._utils.events import get_event_data
 
 
+class MissingABIEventDecoderError(KeyError):
+    pass
+
+
 def _to_serializable(val):
     """
     Recursively convert values that are instances of `bytes` or `Mapping`
@@ -31,6 +35,38 @@ def _to_serializable(val):
         return val
 
 
+class EventRawLogDecoder:
+    def __init__(self, contract):
+        self._contract = contract
+        self._decoders = {}
+
+    def _get_decoder(self, anonymous):
+        decoder = self._decoders.get(str(anonymous))
+        if decoder:
+            return decoder
+
+        if anonymous:
+            decoder = AnonymousEventLogDecoder(self._contract)
+        else:
+            decoder = EventLogDecoder(self._contract)
+
+        self._decoders[str(anonymous)] = decoder
+        return decoder
+
+    def decode_log(self, log_entry, mixed, anonymous):
+        if mixed:
+            try:
+                decoder = self._get_decoder(anonymous=False)
+                data = decoder.decode_log(log_entry)
+            except KeyError:
+                decoder = self._get_decoder(anonymous=True)
+                data = decoder.decode_log(log_entry)
+        else:
+            decoder = self._get_decoder(anonymous=anonymous)
+            data = decoder.decode_log(log_entry)
+        return data
+
+
 class EventLogDecoder:
     def __init__(self, contract):
         self._contract = contract
@@ -40,7 +76,11 @@ class EventLogDecoder:
     def decode_log(self, log_entry):
         data = b"".join(log_entry["topics"] + [log_entry["data"]])
         selector = data[:32]
-        func_abi = self._signed_abis[selector]
+
+        try:
+            func_abi = self._signed_abis[selector]
+        except KeyError as e:
+            raise MissingABIEventDecoderError from e
 
         event = get_event_data(self._contract.w3.codec, func_abi, log_entry)
         event = dict(event)
