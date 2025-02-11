@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/blockanalitica/chain-harvester/compare/v1.10.0...v1.10.1) (2025-02-11)
+
+
+### Bug Fixes
+
+* add multiproof ([#184](https://github.com/blockanalitica/chain-harvester/issues/184)) ([7d26f2f](https://github.com/blockanalitica/chain-harvester/commit/7d26f2f9aa4060d7382559fb6981db1f6db81425))
+
 ## [1.10.0](https://github.com/blockanalitica/chain-harvester/compare/v1.9.0...v1.10.0) (2025-02-06)
 
 
