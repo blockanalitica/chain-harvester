@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/blockanalitica/chain-harvester/compare/v1.10.2...v1.11.0) (2025-03-07)
+
+
+### Features
+
+* more stablecoins ([#188](https://github.com/blockanalitica/chain-harvester/issues/188)) ([e3c1f8c](https://github.com/blockanalitica/chain-harvester/commit/e3c1f8c520a7d0c14b35580d61480192aa518bac))
+
 ## [1.10.2](https://github.com/blockanalitica/chain-harvester/compare/v1.10.1...v1.10.2) (2025-03-07)
 
 
