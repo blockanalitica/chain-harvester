@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.2](https://github.com/blockanalitica/chain-harvester/compare/v1.10.1...v1.10.2) (2025-03-07)
+
+
+### Bug Fixes
+
+* better log ([#186](https://github.com/blockanalitica/chain-harvester/issues/186)) ([653d526](https://github.com/blockanalitica/chain-harvester/commit/653d526e196436c5bd5b1b8edb55da0aed8e3781))
+
 ## [1.10.1](https://github.com/blockanalitica/chain-harvester/compare/v1.10.0...v1.10.1) (2025-02-11)
 
 
