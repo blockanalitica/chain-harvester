@@ -315,15 +315,16 @@ class Chain:
                 ):
                     log.warning("Skipping Upgraded event on proxy contract %s", raw_log["address"])
                     continue
-                # TODO: Skip BeaconUpgraded event in a similar fastion to the one above
+                # TODO: Skip BeaconUpgraded event in a similar fashion to the one above
 
                 contract = self.get_contract(raw_log["address"].lower())
                 try:
                     data = self._decode_raw_log(contract, raw_log, mixed, anonymous)
                 except MissingABIEventDecoderError:
                     log.warning(
-                        "Current contract ABI is missing an event definition. Fetching a new "
+                        "Contract ABI (%s) is missing an event definition. Fetching a new "
                         "ABI on block %s",
+                        raw_log["address"].lower(),
                         raw_log["blockNumber"],
                     )
                     contract = self.get_contract(
