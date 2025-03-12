@@ -73,6 +73,9 @@ class Chain:
                 backoff_factor=0.5,
                 status_forcelist=(429,),
                 respect_retry_after_header=True,
+                allowed_methods=frozenset(
+                    {"DELETE", "GET", "HEAD", "OPTIONS", "PUT", "TRACE", "POST"}
+                ),
             )
             adapter = HTTPAdapter(max_retries=retry)
             session.mount("http://", adapter)
