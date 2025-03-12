@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1](https://github.com/blockanalitica/chain-harvester/compare/v1.11.0...v1.11.1) (2025-03-12)
+
+
+### Bug Fixes
+
+* retry on POST ([#191](https://github.com/blockanalitica/chain-harvester/issues/191)) ([8a3f021](https://github.com/blockanalitica/chain-harvester/commit/8a3f0218472eabfce3538803bfcac7b5c44d31fb))
+
 ## [1.11.0](https://github.com/blockanalitica/chain-harvester/compare/v1.10.2...v1.11.0) (2025-03-07)
 
 
