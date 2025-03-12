@@ -13,6 +13,11 @@ Chain Harvester is a utility for seamlessly interacting with Ethereum-like block
 - **Retry Mechanism**: Built-in retry mechanism for HTTP requests.
 - **ABI Management**: Load and cache ABI (Application Binary Interface) data for contracts.
 
+
+## Notes
+
+- **This should never be used to work with blockchain. Only for fetching data, not for doing transactions or equivalent.** The reason why is because of the retry logic on the chain itself. We're retrying POST requests which meas it could create multiple transactions or other action in case the request fails.
+
 ## Installation
 
 To install Chain Harvester, simply use `pip`:
