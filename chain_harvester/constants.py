@@ -22,6 +22,7 @@ class Network(IntEnum):
     Linea = 59144
     Rari = 1380012617
     Avalanche = 43114
+    Hyperliquid = 999
 
 
 MULTICALL_ADDRESSES = {
@@ -53,6 +54,7 @@ MULTICALL3_ADDRESSES = {
     Network.Linea: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Rari: "0x4c753F58Ee9E83B38170abAbBEa8B47976C7ee1b",
     Network.Avalanche: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Hyperliquid: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -99,6 +101,9 @@ CHAINS = {
     },
     "avalanche": {
         "mainnet": Network.Avalanche,
+    },
+    "hyperliquid": {
+        "mainnet": Network.Hyperliquid,
     },
 }
 

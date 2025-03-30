@@ -23,6 +23,9 @@ API_KEYS = {
     "base": {
         "mainnet": os.environ.get("BASESCAN_API_KEY"),
     },
+    "hyperliquid": {
+        "mainnet": os.environ.get("HYPERLIQUID_API_KEY"),
+    },
 }
 
 RPC_NODES = {
@@ -44,6 +47,9 @@ RPC_NODES = {
     },
     "base": {
         "mainnet": os.environ.get("BASE_MAINNET_RPC"),
+    },
+    "hyperliquid": {
+        "mainnet": os.environ.get("HYPERLIQUID_MAINNET_RPC"),
     },
 }
 
