@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.12.0](https://github.com/blockanalitica/chain-harvester/compare/v1.11.1...v1.12.0) (2025-03-31)
+
+
+### Features
+
+* add hyperliquid ([#194](https://github.com/blockanalitica/chain-harvester/issues/194)) ([765429a](https://github.com/blockanalitica/chain-harvester/commit/765429aed7578822425b8ef011aad53b15a3afce))
+
+
+### Bug Fixes
+
+* generator error ([#193](https://github.com/blockanalitica/chain-harvester/issues/193)) ([544a226](https://github.com/blockanalitica/chain-harvester/commit/544a226f8820ac36294afe250587c44293aa785f))
+
 ## [1.11.1](https://github.com/blockanalitica/chain-harvester/compare/v1.11.0...v1.11.1) (2025-03-12)
 
 
