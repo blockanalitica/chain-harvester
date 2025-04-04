@@ -1,3 +1,6 @@
+from decimal import Decimal
+
+
 class MathLib:
     # Define WAD constant as 10^18
 
@@ -71,3 +74,13 @@ class MathLib:
         if y == 0:
             raise ZeroDivisionError("Division by zero")
         return (x * MathLib.WAD) // y
+
+
+def from_wad(value):
+    """Convert a value from WAD (18 decimals) to a normal Decimal."""
+    return Decimal(value) / MathLib.WAD
+
+
+def to_wad(value):
+    """Convert a normal Decimal to WAD (18 decimals) representation."""
+    return Decimal(value) * MathLib.WAD
