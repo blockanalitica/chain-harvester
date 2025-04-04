@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.1](https://github.com/blockanalitica/chain-harvester/compare/v1.12.0...v1.12.1) (2025-04-04)
+
+
+### Bug Fixes
+
+* morpho adapter for rates ([#196](https://github.com/blockanalitica/chain-harvester/issues/196)) ([f0f9fff](https://github.com/blockanalitica/chain-harvester/commit/f0f9fffe991d1937edc8510cb12d08f5ada18d9e))
+
 ## [1.12.0](https://github.com/blockanalitica/chain-harvester/compare/v1.11.1...v1.12.0) (2025-03-31)
 
 
