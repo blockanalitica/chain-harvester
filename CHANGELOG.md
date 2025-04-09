@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/blockanalitica/chain-harvester/compare/v1.12.1...v1.13.0) (2025-04-09)
+
+
+### Features
+
+* use sink for fetching block for timestamp ([#198](https://github.com/blockanalitica/chain-harvester/issues/198)) ([bb95e05](https://github.com/blockanalitica/chain-harvester/commit/bb95e054419f790908586dcdb23ef7f961fc8f8a))
+
 ## [1.12.1](https://github.com/blockanalitica/chain-harvester/compare/v1.12.0...v1.12.1) (2025-04-04)
 
 
