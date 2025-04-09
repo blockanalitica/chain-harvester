@@ -14,6 +14,7 @@ from web3 import Web3
 from web3.exceptions import ContractLogicError, Web3RPCError
 from web3.middleware import ExtraDataToPOAMiddleware
 
+from chain_harvester.adapters import sink
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester.constants import MULTICALL3_ADDRESSES, NULL_ADDRESS
 from chain_harvester.decoders import (
@@ -634,6 +635,19 @@ class Chain:
         Raises:
             ValueError: If the scan_url is not set.
         """
+
+        # First try to fetch the block from sink.
+        # As a fallback use etherscan or other *scan apis
+        if sink.supports_chain(self.chain):
+            try:
+                return sink.fetch_nearest_block(self.chain, timestamp)
+            except Exception:
+                log.exception(
+                    "Couldn't fetch nearest block from sink. Timestamp: %s chain: %s",
+                    timestamp,
+                    self.chain,
+                )
+
         if not self.scan_url:
             raise ValueError("scan_url is not set")
         query_params = {
