@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/blockanalitica/chain-harvester/compare/v1.13.1...v1.14.0) (2025-04-11)
+
+
+### Features
+
+* add sFRAX to stablecoins ([#202](https://github.com/blockanalitica/chain-harvester/issues/202)) ([3910cd2](https://github.com/blockanalitica/chain-harvester/commit/3910cd2a207108b3818b44656665c47527b57df1))
+
 ## [1.13.1](https://github.com/blockanalitica/chain-harvester/compare/v1.13.0...v1.13.1) (2025-04-11)
 
 
