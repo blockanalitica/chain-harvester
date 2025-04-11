@@ -129,7 +129,7 @@ STABLECOIN_SYMBOLS = {
     "BUCK",
     "BUSD",
     "CEUR",
-    "CRVUSD",
+    "crvUSD",
     "CUSD",
     "DAI",
     "DAI+",
