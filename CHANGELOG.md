@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.1](https://github.com/blockanalitica/chain-harvester/compare/v1.13.0...v1.13.1) (2025-04-11)
+
+
+### Bug Fixes
+
+* crvUSD symbol ([#200](https://github.com/blockanalitica/chain-harvester/issues/200)) ([7bd400e](https://github.com/blockanalitica/chain-harvester/commit/7bd400ef91be6834296e3f93c9b1825ac78f3127))
+
 ## [1.13.0](https://github.com/blockanalitica/chain-harvester/compare/v1.12.1...v1.13.0) (2025-04-09)
 
 
