@@ -186,6 +186,7 @@ STABLECOIN_SYMBOLS = {
     "SCRVUSD",
     "sDAI",
     "SDAI",
+    "sFRAX",
     "SUSD",
     "sUSD",
     "sUSDe",
