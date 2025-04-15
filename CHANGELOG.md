@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0](https://github.com/blockanalitica/chain-harvester/compare/v1.14.0...v1.15.0) (2025-04-15)
+
+
+### Features
+
+* verify msg ([#205](https://github.com/blockanalitica/chain-harvester/issues/205)) ([d4f8ebd](https://github.com/blockanalitica/chain-harvester/commit/d4f8ebd857e328b57a903440ca01f01b928d97aa))
+
 ## [1.14.0](https://github.com/blockanalitica/chain-harvester/compare/v1.13.1...v1.14.0) (2025-04-12)
 
 
