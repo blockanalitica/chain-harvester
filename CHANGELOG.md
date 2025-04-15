@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/blockanalitica/chain-harvester/compare/v1.15.1...v1.16.0) (2025-04-15)
+
+
+### Features
+
+* add sign_message and rename verify to message ([#209](https://github.com/blockanalitica/chain-harvester/issues/209)) ([151f775](https://github.com/blockanalitica/chain-harvester/commit/151f775ba06febf3853d552dceecc25a54c80e6d))
+
 ## [1.15.1](https://github.com/blockanalitica/chain-harvester/compare/v1.15.0...v1.15.1) (2025-04-15)
 
 
