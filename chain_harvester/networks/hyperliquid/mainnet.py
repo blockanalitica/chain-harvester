@@ -1,5 +1,7 @@
 import logging
 
+import requests
+
 from chain_harvester.chain import Chain
 from chain_harvester.constants import CHAINS
 
@@ -17,4 +19,25 @@ class HyperliquidMainnetChain(Chain):
         self.chain_id = CHAINS[self.chain][self.network]
         self.abis_path = abis_path or f"abis/{self.chain}/{self.network}"
         self.api_key = api_key or api_keys[self.chain][self.network]
-        # self.scan_url = "https://api.gnosisscan.io"
+
+    def get_abi_from_source(self, contract_address):
+        log.error(
+            "ABI for %s was fetched from hyperscan.gas.zip. Add it to abis folder!",
+            contract_address,
+        )
+        url = f"https://hyperscan.gas.zip/api/v2/smart-contracts/{contract_address}"
+        try:
+            response = requests.get(
+                url,
+                timeout=5,
+            )
+        except requests.exceptions.Timeout:
+            log.exception(
+                "Timeout when get abi from explorer.mode.network",
+                extra={"contract_address": contract_address},
+            )
+            raise
+
+        response.raise_for_status()
+        data = response.json()
+        return data["abi"]
