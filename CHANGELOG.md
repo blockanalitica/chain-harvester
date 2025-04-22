@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.1](https://github.com/blockanalitica/chain-harvester/compare/v1.16.0...v1.16.1) (2025-04-22)
+
+
+### Bug Fixes
+
+* hyperliquid ABI fetching ([#211](https://github.com/blockanalitica/chain-harvester/issues/211)) ([66aefaf](https://github.com/blockanalitica/chain-harvester/commit/66aefaff70aba35f3456ffefea75ac6d5bde7919))
+
 ## [1.16.0](https://github.com/blockanalitica/chain-harvester/compare/v1.15.1...v1.16.0) (2025-04-15)
 
 
