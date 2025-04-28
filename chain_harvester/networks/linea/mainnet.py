@@ -15,6 +15,6 @@ class LineaMainnetChain(Chain):
         self.network = "mainnet"
         self.rpc = rpc or rpc_nodes[self.chain][self.network]
         self.chain_id = CHAINS[self.chain][self.network]
-        self.abis_path = abis_path or "abis/optimism/mainnet/"
+        self.abis_path = abis_path or f"abis/{self.chain}/{self.network}"
         self.api_key = api_key or api_keys[self.chain][self.network]
         self.scan_url = "https://api.lineascan.build"
