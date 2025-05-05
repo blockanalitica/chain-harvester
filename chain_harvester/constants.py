@@ -189,6 +189,7 @@ STABLECOIN_SYMBOLS = {
     "SUSD",
     "sUSD",
     "sUSDe",
+    "sUSDS",
     "TOR",
     "TRYB",
     "TUSD",
