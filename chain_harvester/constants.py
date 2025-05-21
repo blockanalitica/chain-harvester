@@ -23,7 +23,7 @@ class Network(IntEnum):
     Avalanche = 43114
     Hyperliquid = 999
     Unichain = 130
-    Hemi = 1234
+    Hemi = 43111
 
 
 MULTICALL_ADDRESSES = {
