@@ -96,7 +96,7 @@ class BlockscoutMixin:
 
 
 class RoutescanMixin:
-    def _get_url(self, chain_id):
+    def _get_url(self):
         return f"https://api.routescan.io/v2/network/mainnet/evm/{self.chain_id}/etherscan/api"
 
     def get_abi_from_source(self, contract_address):
@@ -105,7 +105,7 @@ class RoutescanMixin:
             "action": "getabi",
             "address": contract_address,
         }
-        url = f"{self._get_url(self.chain_id)}?{urllib.parse.urlencode(query_params)}"
+        url = f"{self._get_url()}?{urllib.parse.urlencode(query_params)}"
 
         try:
             data = retry_get_json(url, timeout=5)
@@ -129,7 +129,7 @@ class RoutescanMixin:
             "timestamp": timestamp,
             "closest": "before",
         }
-        url = f"{self._get_url(self.chain_id)}?{urllib.parse.urlencode(query_params)}"
+        url = f"{self._get_url()}?{urllib.parse.urlencode(query_params)}"
         data = retry_get_json(url)
         result = int(data["result"])
         return result
@@ -151,6 +151,15 @@ class FilfoxMixin:
 
         abi = json.loads(data["abi"])
         return abi
+
+    def get_block_for_timestamp_fallback(self, timestamp):
+        """
+        Filfox API does not support fetching blocks by timestamp.
+        Implemented to satisfy mixin interface.
+        """
+        raise NotImplementedError(
+            "FilfoxMixin: fetching a block by timestamp is not supported by Filfox API"
+        )
 
 
 class TenderlyMixin:

@@ -615,7 +615,7 @@ class Chain:
                 )
 
         # As a fallback use etherscan or other similar apis
-        nearest_block = self.get_block_for_timestamp_fallback()
+        nearest_block = self.get_block_for_timestamp_fallback(timestamp)
         return nearest_block
 
     def get_block_for_timestamp_fallback(self, timestamp):
