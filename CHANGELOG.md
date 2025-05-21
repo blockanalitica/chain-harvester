@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/blockanalitica/chain-harvester/compare/v1.18.0...v2.0.0) (2025-05-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* Etherscan v2 preparation, implemented mixins etc ([#217](https://github.com/blockanalitica/chain-harvester/issues/217))
+
+### Code Refactoring
+
+* Etherscan v2 preparation, implemented mixins etc ([#217](https://github.com/blockanalitica/chain-harvester/issues/217)) ([aa369a9](https://github.com/blockanalitica/chain-harvester/commit/aa369a9a4e4c4446b1e38fb09e84cc0fddcb0805))
+
 ## [1.18.0](https://github.com/blockanalitica/chain-harvester/compare/v1.17.0...v1.18.0) (2025-05-05)
 
 
