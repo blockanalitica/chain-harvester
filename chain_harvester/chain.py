@@ -26,8 +26,16 @@ from chain_harvester.decoders import (
 )
 from chain_harvester.multicall import Call, Multicall
 from chain_harvester.utils.codes import get_code_name
+from web3.middleware import validation
+from web3._utils.rpc_abi import RPC
+
 
 log = logging.getLogger(__name__)
+
+# Disable chain id validation on eth_call method as we're always just fetching data
+# and under current assumption we never run any important queries that modify
+# the chain
+validation.METHODS_TO_VALIDATE = set(validation.METHODS_TO_VALIDATE) - {RPC.eth_call}
 
 
 class Chain:
