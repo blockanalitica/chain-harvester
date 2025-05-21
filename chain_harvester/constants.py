@@ -7,7 +7,6 @@ MULTICALL3_BYTECODE = "0x6080604052600436106100f35760003560e01c80634d2301cc11610
 
 class Network(IntEnum):
     Mainnet = 1
-    Goerli = 5
     Gnosis = 100
     Sepolia = 11155111
     Base = 8453
@@ -23,23 +22,22 @@ class Network(IntEnum):
     Rari = 1380012617
     Avalanche = 43114
     Hyperliquid = 999
+    Unichain = 130
+    Hemi = 1234
 
 
 MULTICALL_ADDRESSES = {
     Network.Mainnet: "0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441",
-    Network.Goerli: "0x77dCa2C955b15e9dE4dbBCf1246B4B85b651e50e",
     Network.Gnosis: "0xb5b692a88BDFc81ca69dcB1d924f59f0413A602a",
 }
 
 MULTICALL2_ADDRESSES = {
     Network.Mainnet: "0x5ba1e12693dc8f9c48aad8770482f4739beed696",
-    Network.Goerli: "0x5ba1e12693dc8f9c48aad8770482f4739beed696",
     Network.Gnosis: "0x9903f30c1469d8A2f415D4E8184C93BD26992573",
 }
 
 MULTICALL3_ADDRESSES = {
     Network.Mainnet: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    Network.Goerli: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Gnosis: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Sepolia: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Base: "0xcA11bde05977b3631167028862bE2a173976CA11",
@@ -55,12 +53,13 @@ MULTICALL3_ADDRESSES = {
     Network.Rari: "0x4c753F58Ee9E83B38170abAbBEa8B47976C7ee1b",
     Network.Avalanche: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Hyperliquid: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Unichain: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Hemi: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
     "ethereum": {
         "mainnet": Network.Mainnet,
-        "goerli": Network.Goerli,
         "sepolia": Network.Sepolia,
     },
     "gnosis": {
@@ -104,6 +103,12 @@ CHAINS = {
     },
     "hyperliquid": {
         "mainnet": Network.Hyperliquid,
+    },
+    "unichain": {
+        "mainnet": Network.Unichain,
+    },
+    "hemi": {
+        "mainnet": Network.Hemi,
     },
 }
 

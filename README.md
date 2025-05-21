@@ -42,14 +42,6 @@ Chain Harvester provides specific implementations for different blockchains and 
   eth_main = EthereumMainnetChain(rpc="YOUR_RPC_ENDPOINT")
   ```
 
-- **Ethereum Goerli**: Located in `networks.ethereum.goerli`. This class is designed to interact with the Goerli testnet of Ethereum.
-
-  ```python
-  from networks.ethereum.goerli import EthereumGoerliChain
-  
-  eth_goerli = EthereumGoerliChain(rpc="YOUR_RPC_ENDPOINT")
-  ```
-
 ### Gnosis Chains
 
 - **Gnosis Mainnet**: Located in `networks.gnosis.mainnet`. This class is designed to interact with the Gnosis mainnet.
