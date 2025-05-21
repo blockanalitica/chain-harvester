@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import urllib.parse
 from collections import defaultdict
 from hexbytes import HexBytes
 
@@ -15,6 +14,8 @@ from web3.exceptions import ContractLogicError, Web3RPCError
 from web3.middleware import ExtraDataToPOAMiddleware
 
 from chain_harvester.adapters import sink
+from chain_harvester.constants import CHAINS
+from chain_harvester.exceptions import ChainException
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester.constants import MULTICALL3_ADDRESSES, NULL_ADDRESS
 from chain_harvester.decoders import (
@@ -23,44 +24,42 @@ from chain_harvester.decoders import (
     EventRawLogDecoder,
     MissingABIEventDecoderError,
 )
-from chain_harvester.http import retry_get_json
 from chain_harvester.multicall import Call, Multicall
 from chain_harvester.utils.codes import get_code_name
 
 log = logging.getLogger(__name__)
 
 
-class ChainException(Exception):
-    pass
-
-
 class Chain:
     def __init__(
         self,
+        chain,
+        network,
         rpc=None,
+        rpc_nodes=None,
+        abis_path=None,
+        chain_id=None,
         w3=None,
         step=None,
-        chain_id=None,
-        rpc_nodes=None,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
-        self.rpc = rpc
+        self.chain = chain
+        self.network = network
+        self.chain_id = chain_id or CHAINS[self.chain][self.network]
+        self.rpc = rpc or rpc_nodes[self.chain][self.network]
+        self.abis_path = abis_path or f"abis/{self.chain}/{self.network}/"
+        # Create the abis_path if it doesn't exist yet
+        os.makedirs(self.abis_path, exist_ok=True)
+
         self._w3 = w3
         self.step = step or 10_000
-        self.provider = rpc
-
-        self.chain_id = chain_id
-        self.rpc_nodes = rpc_nodes
+        self.provider = self.rpc
 
         self._abis = {}
         self._contracts = {}
         self.current_block = 0
-
-        self.chain = None
-        self.network = None
-        self.scan_url = None
 
     @property
     def w3(self):
@@ -100,45 +99,8 @@ class Chain:
             return self.eth.get_block_number()
         return self.eth.get_block_number() - 5
 
-    def get_abi_source_url(self, contract_address):
-        """
-        Returns the URL for fetching the ABI of a contract from the scan API.
-
-        Args:
-            contract_address (str): The address of the contract.
-
-        Returns:
-            str: The URL for fetching the ABI.
-        """
-        query_params = {
-            "module": "contract",
-            "action": "getabi",
-            "address": contract_address,
-            "apikey": self.api_key,
-        }
-        return f"{self.scan_url}/api?{urllib.parse.urlencode(query_params)}"
-
     def get_abi_from_source(self, contract_address):
-        try:
-            response = requests.get(
-                self.get_abi_source_url(contract_address),
-                timeout=5,
-            )
-        except requests.exceptions.Timeout:
-            log.exception(
-                "Timeout when get abi from etherscan",
-                extra={"contract_address": contract_address},
-            )
-            raise
-
-        response.raise_for_status()
-        data = response.json()
-
-        if data["status"] != "1":
-            raise ChainException("Request to etherscan failed: {}".format(data["result"]))
-
-        abi = json.loads(data["result"])
-        return abi
+        raise NotImplementedError
 
     def _fetch_abi(self, contract_address, refetch_on_block=None):
         proxy_contract = self.get_implementation_address(contract_address, refetch_on_block)
@@ -169,7 +131,7 @@ class Chain:
                     os.mkdir(self.abis_path)
 
                 log.error(
-                    "ABI for %s was fetched from etherscan. Add it to abis folder!",
+                    "ABI for %s was fetched from 3rd party service. Add it to abis folder!",
                     contract_address,
                 )
                 abi = self._fetch_abi(contract_address, refetch_on_block)
@@ -631,13 +593,9 @@ class Chain:
 
         Returns:
             int: The block number.
-
-        Raises:
-            ValueError: If the scan_url is not set.
         """
 
         # First try to fetch the block from sink.
-        # As a fallback use etherscan or other *scan apis
         if sink.supports_chain(self.chain):
             try:
                 return sink.fetch_nearest_block(self.chain, timestamp)
@@ -648,19 +606,12 @@ class Chain:
                     self.chain,
                 )
 
-        if not self.scan_url:
-            raise ValueError("scan_url is not set")
-        query_params = {
-            "module": "block",
-            "action": "getblocknobytime",
-            "timestamp": timestamp,
-            "closest": "before",
-            "apikey": self.api_key,
-        }
-        url = f"{self.scan_url}/api?{urllib.parse.urlencode(query_params)}"
-        data = retry_get_json(url)
-        result = int(data["result"])
-        return result
+        # As a fallback use etherscan or other similar apis
+        nearest_block = self.get_block_for_timestamp_fallback()
+        return nearest_block
+
+    def get_block_for_timestamp_fallback(self, timestamp):
+        raise NotImplementedError
 
     def get_owners_for_proxies(self, addresses, code):
         code_name = get_code_name(code)
