@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.18.0](https://github.com/blockanalitica/chain-harvester/compare/v1.17.0...v1.18.0) (2025-05-05)
+
+
+### Features
+
+* add sUSDS ([#215](https://github.com/blockanalitica/chain-harvester/issues/215)) ([20ab1a4](https://github.com/blockanalitica/chain-harvester/commit/20ab1a4f0dc34e0642b890dbbb4d553b2ce8874e))
+
+## [1.17.0](https://github.com/blockanalitica/chain-harvester/compare/v1.16.1...v1.17.0) (2025-04-28)
+
+
+### Features
+
+* changed LineaMainnetChain default abis path ([#213](https://github.com/blockanalitica/chain-harvester/issues/213)) ([b4d6c63](https://github.com/blockanalitica/chain-harvester/commit/b4d6c630e8d6deacd025d90be522045f60d727ab))
+
 ## [1.16.1](https://github.com/blockanalitica/chain-harvester/compare/v1.16.0...v1.16.1) (2025-04-22)
 
 
