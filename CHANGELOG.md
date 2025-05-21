@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/blockanalitica/chain-harvester/compare/v2.0.0...v2.0.1) (2025-05-21)
+
+
+### Bug Fixes
+
+* hemi chain id ([#219](https://github.com/blockanalitica/chain-harvester/issues/219)) ([b0049a0](https://github.com/blockanalitica/chain-harvester/commit/b0049a0c16471c861f8f8c3ca9c54cd40c4308b6))
+
 ## [2.0.0](https://github.com/blockanalitica/chain-harvester/compare/v1.18.0...v2.0.0) (2025-05-21)
 
 
