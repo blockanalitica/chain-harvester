@@ -6,22 +6,21 @@ from chain_harvester.chain import Chain
 from chain_harvester.networks.ethereum.mainnet import EthereumMainnetChain
 
 RPC_NODES = {"ethereum": {"mainnet": "http://localhost:8545"}}
-API_KEYS = {"ethereum": {"mainnet": None}}
 
 
 def test_chain():
-    chain = Chain(rpc="http://localhost:8545")
+    chain = Chain(chain="ethereum", network="mainnet", rpc="http://localhost:8545")
     assert chain.rpc == "http://localhost:8545"
     assert chain.step == 10_000
 
 
 def test__rpc():
-    chain = EthereumMainnetChain(rpc="http://localhost:8545", api_keys=API_KEYS)
+    chain = EthereumMainnetChain(rpc="http://localhost:8545", etherscan_api_key="1234")
     assert chain.rpc == "http://localhost:8545"
 
 
 def test__rpc_nodes():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key="1234")
     assert chain.rpc == RPC_NODES["ethereum"]["mainnet"]
 
 
@@ -34,7 +33,9 @@ def test__load_abi__abi():
         with open(abi_path, "w") as f:
             json.dump(sample_abi, f)
 
-        chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, abis_path=temp_dir, api_keys=API_KEYS)
+        chain = EthereumMainnetChain(
+            rpc_nodes=RPC_NODES, abis_path=temp_dir, etherscan_api_key="1234"
+        )
 
         chain.get_abi_from_source = lambda address: sample_abi
         chain.get_implementation_address = (
@@ -56,7 +57,9 @@ def test__load_abi__contract():
         with open(abi_path, "w") as f:
             json.dump(sample_abi, f)
 
-        chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, abis_path=temp_dir, api_keys=API_KEYS)
+        chain = EthereumMainnetChain(
+            rpc_nodes=RPC_NODES, abis_path=temp_dir, etherscan_api_key="1234"
+        )
 
         chain.get_abi_from_source = lambda address: sample_abi
         chain.get_implementation_address = (
@@ -70,7 +73,7 @@ def test__load_abi__contract():
 
 
 def test__to_hex_topic():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key="1234")
     assert (
         chain.to_hex_topic("File(bytes32,bytes32,uint256)")
         == "0x851aa1caf4888170ad8875449d18f0f512fd6deb2a6571ea1a41fb9f95acbcd1"
@@ -78,17 +81,17 @@ def test__to_hex_topic():
 
 
 def test__multicall_address():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key="1234")
     assert chain.get_multicall_address() == "0xcA11bde05977b3631167028862bE2a173976CA11"
 
 
 def test__chainlink_price_feed_for_asset_symbol():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key="1234")
     feed = chain.chainlink_price_feed_for_asset_symbol("DAI")
     assert feed == "0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9"
 
 
 def test__chainlink_price_feed_for_asset_symbol_mapping():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key="1234")
     feed = chain.chainlink_price_feed_for_asset_symbol("WETH")
     assert feed == "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
