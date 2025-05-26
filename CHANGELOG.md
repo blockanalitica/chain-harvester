@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/blockanalitica/chain-harvester/compare/v2.0.1...v2.0.2) (2025-05-26)
+
+
+### Bug Fixes
+
+* AlchemyChain ([#221](https://github.com/blockanalitica/chain-harvester/issues/221)) ([f9784a8](https://github.com/blockanalitica/chain-harvester/commit/f9784a8bce1b4aaf732cf07831f57aca0a16a7f1))
+
 ## [2.0.1](https://github.com/blockanalitica/chain-harvester/compare/v2.0.0...v2.0.1) (2025-05-21)
 
 
