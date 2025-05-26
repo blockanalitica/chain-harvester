@@ -1,29 +1,8 @@
 from chain_harvester.adapters.alchemy_chain import AlchemyChain
-from integration_tests.env import API_KEYS, RPC_NODES
+from integration_tests.env import RPC_NODES
 
 
-def test_get_block_transactions():
-    alchemy = AlchemyChain("ethereum", "mainnet", rpc_nodes=RPC_NODES, api_keys=API_KEYS)
-    data = alchemy.get_block_transactions(20192996)
-    assert len(data) == 131
-
-
-def test_get_transactions_for_contracts():
-    alchemy = AlchemyChain("ethereum", "mainnet", rpc_nodes=RPC_NODES, api_keys=API_KEYS)
-    data = alchemy.get_transactions_for_contracts(
-        ["0x89B78CfA322F6C5dE0aBcEecab66Aee45393cC5A"], 20391781, to_block=20391781
-    )
-    events = list(data)
-    assert len(events) == 1
-
-
-def test_get_transactions_for_contracts__failed():
-    alchemy = AlchemyChain("ethereum", "mainnet", rpc_nodes=RPC_NODES, api_keys=API_KEYS)
-    data = alchemy.get_transactions_for_contracts(
-        ["0x89B78CfA322F6C5dE0aBcEecab66Aee45393cC5A"],
-        20391781,
-        to_block=20391781,
-        failed=True,
-    )
-    events = list(data)
-    assert len(events) == 0
+def test_batch_codes():
+    alchemy = AlchemyChain("ethereum", rpc_nodes=RPC_NODES)
+    data = alchemy.get_batch_codes(["0xe8e8f41ed29e46f34e206d7d2a7d6f735a3ff2cb"])
+    assert data == "0x"
