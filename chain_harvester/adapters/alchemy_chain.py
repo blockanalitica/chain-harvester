@@ -10,22 +10,14 @@ class AlchemyChain:
     def __init__(
         self,
         chain,
-        rpc=None,
-        rpc_nodes=None,
-        api_key=None,
-        api_keys=None,
-        abis_path=None,
+        etherscan_api_key=None,
         batch_timeout=30,
         max_retries=3,
         **kwargs,
     ):
         self.chain = get_chain(
             chain,
-            rpc=rpc,
-            rpc_nodes=rpc_nodes,
-            api_key=api_key,
-            api_keys=api_keys,
-            abis_path=abis_path,
+            etherscan_api_key=etherscan_api_key,
             **kwargs,
         )
 
