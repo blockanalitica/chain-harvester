@@ -5,14 +5,7 @@ from chain_harvester.http import retry_get_json
 SINK_API_URL = "https://sink.blockanalitica.com/api/"
 
 
-SUPPORTED_CHAINS = {
-    "arbitrum",
-    "avalanche",
-    "base",
-    "ethereum",
-    "gnosis",
-    "optimism",
-}
+SUPPORTED_CHAINS = {"arbitrum", "avalanche", "base", "ethereum", "gnosis", "optimism", "unichain"}
 
 
 def supports_chain(chain):
