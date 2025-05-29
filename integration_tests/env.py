@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+ETHERSCAN_API_KEY = os.environ.get("ETHERSCAN_API_KEY")
 
 API_KEYS = {
     "ethereum": {

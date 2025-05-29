@@ -590,8 +590,16 @@ class Chain:
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
 
     def get_timestamp_for_block(self, block_number):
+        block_info = None
         if sink.supports_chain(self.chain):
-            block_info = sink.fetch_block_info(self.chain, block_number)
+            try:
+                block_info = sink.fetch_block_info(self.chain, block_number)
+            except Exception:
+                log.exception(
+                    "Couldn't fetch block info from sink. Block number: %s chain: %s",
+                    block_number,
+                    self.chain,
+                )
             if block_info:
                 return block_info["timestamp"]
         return self.get_block_info(block_number).timestamp
