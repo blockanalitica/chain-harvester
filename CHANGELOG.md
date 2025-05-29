@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/blockanalitica/chain-harvester/compare/v2.0.2...v2.1.0) (2025-05-29)
+
+
+### Features
+
+* get_timestamp_for_block ([#223](https://github.com/blockanalitica/chain-harvester/issues/223)) ([e5d95bb](https://github.com/blockanalitica/chain-harvester/commit/e5d95bb001597a20a0cb444606f8017c1a2a29dd))
+
 ## [2.0.2](https://github.com/blockanalitica/chain-harvester/compare/v2.0.1...v2.0.2) (2025-05-26)
 
 
