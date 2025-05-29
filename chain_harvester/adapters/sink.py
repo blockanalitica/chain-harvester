@@ -1,17 +1,11 @@
-from chain_harvester.http import retry_get_json
 import urllib.parse
+
+from chain_harvester.http import retry_get_json
 
 SINK_API_URL = "https://sink.blockanalitica.com/api/"
 
 
-SUPPORTED_CHAINS = {
-    "arbitrum",
-    "avalanche",
-    "base",
-    "ethereum",
-    "gnosis",
-    "optimism",
-}
+SUPPORTED_CHAINS = {"arbitrum", "avalanche", "base", "ethereum", "gnosis", "optimism", "unichain"}
 
 
 def supports_chain(chain):
@@ -31,3 +25,9 @@ def fetch_nearest_block(chain, timestamp, direction="before"):
 
     data = retry_get_json(url)
     return data["block_number"]
+
+
+def fetch_block_info(chain, block_number):
+    url = f"{SINK_API_URL}blocks/{chain}/{block_number}/"
+    data = retry_get_json(url)
+    return data
