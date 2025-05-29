@@ -354,3 +354,9 @@ def test__get_token_info__retry():
     data = chain.get_token_info("0x9f8f72aa9304c8b593d555f12ef6589cc3a579a3")
     assert data["name"] is None
     assert data["symbol"] is None
+
+
+def test__get_timestamp_for_block():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+    timestamp = chain.get_timestamp_for_block(17892782)
+    assert timestamp == 1666666666

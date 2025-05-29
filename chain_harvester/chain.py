@@ -2,33 +2,30 @@ import json
 import logging
 import os
 from collections import defaultdict
-from hexbytes import HexBytes
 
 import eth_abi
 import requests
 from eth_utils import event_abi_to_log_topic
+from hexbytes import HexBytes
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from web3 import Web3
+from web3._utils.rpc_abi import RPC
 from web3.exceptions import ContractLogicError, Web3RPCError
-from web3.middleware import ExtraDataToPOAMiddleware
+from web3.middleware import ExtraDataToPOAMiddleware, validation
 
 from chain_harvester.adapters import sink
-from chain_harvester.constants import CHAINS
-from chain_harvester.exceptions import ChainException
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
-from chain_harvester.constants import MULTICALL3_ADDRESSES, NULL_ADDRESS
+from chain_harvester.constants import CHAINS, MULTICALL3_ADDRESSES, NULL_ADDRESS
 from chain_harvester.decoders import (
     AnonymousEventLogDecoder,
     EventLogDecoder,
     EventRawLogDecoder,
     MissingABIEventDecoderError,
 )
+from chain_harvester.exceptions import ChainException
 from chain_harvester.multicall import Call, Multicall
 from chain_harvester.utils.codes import get_code_name
-from web3.middleware import validation
-from web3._utils.rpc_abi import RPC
-
 
 log = logging.getLogger(__name__)
 
@@ -591,6 +588,13 @@ class Chain:
 
     def chainlink_price_feed_for_asset_symbol(self, symbol):
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
+
+    def get_timestamp_for_block(self, block_number):
+        if sink.supports_chain(self.chain):
+            block_info = sink.fetch_block_info(self.chain, block_number)
+            if block_info:
+                return block_info["timestamp"]
+        return self.get_block_info(block_number).timestamp
 
     def get_block_for_timestamp(self, timestamp):
         """
