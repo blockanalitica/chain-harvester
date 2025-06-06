@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/blockanalitica/chain-harvester/compare/v2.1.0...v2.2.0) (2025-06-06)
+
+
+### Features
+
+* add USDbc to stablecoins ([#225](https://github.com/blockanalitica/chain-harvester/issues/225)) ([51d7b0b](https://github.com/blockanalitica/chain-harvester/commit/51d7b0b48202ba2ee15d52279eb8da4b078b83f3))
+
 ## [2.1.0](https://github.com/blockanalitica/chain-harvester/compare/v2.0.2...v2.1.0) (2025-05-29)
 
 
