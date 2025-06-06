@@ -410,7 +410,15 @@ class Chain:
                 if anonymous:
                     decoder = AnonymousEventLogDecoder(contract)
                 else:
-                    decoder = EventLogDecoder(contract)
+                    try:
+                        decoder = EventLogDecoder(contract)
+                    except MissingABIEventDecoderError:
+                        log.exception(
+                            "Contract ABI (%s) is missing an event definition on block %s.",
+                            raw_log["address"].lower(),
+                            raw_log["blockNumber"],
+                        )
+                        raise
                 yield decoder.decode_log(raw_log)
 
         return self._yield_all_events(fetch_events_for_topics, from_block, to_block)
