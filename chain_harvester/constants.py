@@ -204,6 +204,7 @@ STABLECOIN_SYMBOLS = {
     "USD1",
     "USDA",
     "USDB",
+    "USDbc",
     "USDC",
     "USDC.e",
     "USDCASH",
