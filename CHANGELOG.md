@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/blockanalitica/chain-harvester/compare/v2.2.0...v2.3.0) (2025-06-10)
+
+
+### Features
+
+* add wusdm stable ([#229](https://github.com/blockanalitica/chain-harvester/issues/229)) ([fd5f908](https://github.com/blockanalitica/chain-harvester/commit/fd5f908adcebdbb92e4a6df8ac5a3a28257886b9))
+
 ## [2.2.0](https://github.com/blockanalitica/chain-harvester/compare/v2.1.0...v2.2.0) (2025-06-10)
 
 
