@@ -242,6 +242,7 @@ STABLECOIN_SYMBOLS = {
     "vUSDC",
     "vUSDT",
     "WANUSDT",
+    "wUSDM",
     "WUSD",
     "WXDAI",
     "XCHF",
