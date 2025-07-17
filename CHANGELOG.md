@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.0](https://github.com/blockanalitica/chain-harvester/compare/v2.3.0...v2.4.0) (2025-07-17)
+
+
+### Features
+
+* add sdeUSD to stablecoin symbols ([#231](https://github.com/blockanalitica/chain-harvester/issues/231)) ([6f90cde](https://github.com/blockanalitica/chain-harvester/commit/6f90cde8bc724d7b156d63d18e9513e64f91c9ab))
+
 ## [2.3.0](https://github.com/blockanalitica/chain-harvester/compare/v2.2.0...v2.3.0) (2025-06-10)
 
 
