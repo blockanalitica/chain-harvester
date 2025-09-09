@@ -229,6 +229,7 @@ STABLECOIN_SYMBOLS = {
     "USDZ",
     "USR",
     "wstUSR",
+    "USDtb",
     "USN",
     "UST",
     "USTC",
