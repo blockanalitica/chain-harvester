@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/blockanalitica/chain-harvester/compare/v2.4.0...v2.5.0) (2025-09-09)
+
+
+### Features
+
+* added USDtb to stable coin symbols ([#233](https://github.com/blockanalitica/chain-harvester/issues/233)) ([c5d8b01](https://github.com/blockanalitica/chain-harvester/commit/c5d8b01a2607ae8b0a7766b0ed915d0110506025))
+
 ## [2.4.0](https://github.com/blockanalitica/chain-harvester/compare/v2.3.0...v2.4.0) (2025-07-17)
 
 
