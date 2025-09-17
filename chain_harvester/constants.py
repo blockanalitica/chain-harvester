@@ -24,6 +24,7 @@ class Network(IntEnum):
     Hyperliquid = 999
     Unichain = 130
     Hemi = 43111
+    Plume = 98866
 
 
 MULTICALL_ADDRESSES = {
@@ -55,6 +56,7 @@ MULTICALL3_ADDRESSES = {
     Network.Hyperliquid: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Unichain: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Hemi: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Plume: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -109,6 +111,9 @@ CHAINS = {
     },
     "hemi": {
         "mainnet": Network.Hemi,
+    },
+    "plume": {
+        "mainnet": Network.Plume,
     },
 }
 
