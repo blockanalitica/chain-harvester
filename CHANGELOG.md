@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.0](https://github.com/blockanalitica/chain-harvester/compare/v2.5.0...v2.6.0) (2025-09-17)
+
+
+### Features
+
+* added Plume chain ([#235](https://github.com/blockanalitica/chain-harvester/issues/235)) ([8d16bd9](https://github.com/blockanalitica/chain-harvester/commit/8d16bd9917be193a070e2bbc01d9fb7a67c4cc33))
+
 ## [2.5.0](https://github.com/blockanalitica/chain-harvester/compare/v2.4.0...v2.5.0) (2025-09-09)
 
 
