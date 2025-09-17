@@ -8,6 +8,6 @@ class PlumeMainnetChain(BlockscoutMixin, Chain):
             *args,
             chain="plume",
             network="mainnet",
-            blockscout_url="https://explorer.plume.org/",
+            blockscout_url="https://explorer.plume.org",
             **kwargs,
         )
