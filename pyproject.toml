@@ -16,6 +16,7 @@ web3 = "^7.7.0"
 requests = "^2.31.0"
 eth-abi = "^5.1.0"
 multiproof = "^0.1.10"
+boto3 = "^1.40.33"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
@@ -24,6 +25,7 @@ tox = "^4.6.4"
 python-dotenv = "^1.0.0"
 ruff = "^0.8.3"
 ipython = "^8.30.0"
+moto = "^5.1.12"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

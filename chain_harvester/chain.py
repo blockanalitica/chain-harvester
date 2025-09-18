@@ -3,6 +3,8 @@ import logging
 import os
 from collections import defaultdict
 
+from botocore.exceptions import ClientError
+
 import eth_abi
 import requests
 from eth_utils import event_abi_to_log_topic
@@ -26,6 +28,7 @@ from chain_harvester.decoders import (
 from chain_harvester.exceptions import ChainException
 from chain_harvester.multicall import Call, Multicall
 from chain_harvester.utils.codes import get_code_name
+import boto3
 
 log = logging.getLogger(__name__)
 
@@ -46,6 +49,7 @@ class Chain:
         chain_id=None,
         w3=None,
         step=None,
+        s3=None,
         *args,
         **kwargs,
     ):
@@ -59,6 +63,14 @@ class Chain:
         os.makedirs(self.abis_path, exist_ok=True)
 
         self._w3 = w3
+
+        s3_client = None
+        if s3 and s3.get("bucket_name") and s3.get("dir"):
+            self.s3_bucket_name = s3.get("bucket_name")
+            self.s3_dir = s3.get("dir")
+            s3_client = boto3.client("s3")
+        self.s3 = s3_client
+
         self.step = step or 10_000
         self.provider = self.rpc
 
@@ -107,7 +119,7 @@ class Chain:
     def get_abi_from_source(self, contract_address):
         raise NotImplementedError
 
-    def _fetch_abi(self, contract_address, refetch_on_block=None):
+    def _fetch_abi_from_chain(self, contract_address, refetch_on_block=None):
         proxy_contract = self.get_implementation_address(contract_address, refetch_on_block)
         if proxy_contract != NULL_ADDRESS:
             abi = self.get_abi_from_source(proxy_contract)
@@ -115,35 +127,67 @@ class Chain:
             abi = self.get_abi_from_source(contract_address)
         return abi
 
-    def load_abi(self, contract_address, abi_name=None, refetch_on_block=None):
+    def _fetch_abi_from_s3(self, contract_address):
+        key = f"{self.s3_dir}/{self.chain}/{self.network}/{contract_address}.json"
+        resp = self.s3.get_object(Bucket=self.s3_bucket_name, Key=key)
+        content = resp["Body"].read().decode()
+        return json.loads(content)
+
+    def _handle_abi_s3(self, contract_address):
+        """Fetch abi from s3 if it exists, otherwise fetch from chain and upload to s3"""
+        try:
+            abi = self._fetch_abi_from_s3(contract_address)
+        except ClientError as e:
+            if e.response["Error"]["Code"] != "NoSuchKey":
+                raise
+
+            abi = self._fetch_abi_from_chain(contract_address)
+
+            # upload to s3
+            key = f"{self.s3_dir}/{self.chain}/{self.network}/{contract_address}.json"
+            body = json.dumps(abi)
+            self.s3.put_object(
+                Bucket=self.s3_bucket_name, Key=key, Body=body, ContentType="application/json"
+            )
+
+        self._abis[contract_address] = abi
+
+    def _handle_abi_local_storage(self, contract_address):
+        """Fetch abi from local storage if it exists, otherwise fetch from chain and save to local
+        storage"""
+        file_path = os.path.join(self.abis_path, f"{contract_address}.json")
+        if os.path.exists(file_path):
+            with open(file_path) as f:
+                self._abis[contract_address] = json.loads(f.read())
+        else:
+            if not os.path.isdir(self.abis_path):
+                os.mkdir(self.abis_path)
+
+            log.error(
+                "ABI for %s was fetched from 3rd party service. Add it to abis folder!",
+                contract_address,
+            )
+            abi = self._fetch_abi_from_chain(contract_address)
+
+            with open(file_path, "w") as f:
+                json.dump(abi, f)
+            self._abis[contract_address] = abi
+
+    def load_abi(self, contract_address, refetch_on_block=None, **kwargs):
         contract_address = contract_address.lower()
-        abi_address = abi_name or contract_address
 
         # if refetch_on_block is set, we should skip storing the ABI to file as it's
         # usually only used when backpopulating stuff and storing it to the file will
         # replace the current abi with an old one
         if refetch_on_block:
             log.info("Fetching new ABI on block %s without storing it", refetch_on_block)
-            return self._fetch_abi(contract_address, refetch_on_block)
+            return self._fetch_abi_from_chain(contract_address, refetch_on_block)
 
         if contract_address not in self._abis:
-            file_path = os.path.join(self.abis_path, f"{abi_address}.json")
-            if os.path.exists(file_path):
-                with open(file_path) as f:
-                    self._abis[contract_address] = json.loads(f.read())
+            if self.s3:
+                self._handle_abi_s3(contract_address)
             else:
-                if not os.path.isdir(self.abis_path):
-                    os.mkdir(self.abis_path)
-
-                log.error(
-                    "ABI for %s was fetched from 3rd party service. Add it to abis folder!",
-                    contract_address,
-                )
-                abi = self._fetch_abi(contract_address, refetch_on_block)
-
-                with open(file_path, "w") as f:
-                    json.dump(abi, f)
-                self._abis[contract_address] = abi
+                self._handle_abi_local_storage(contract_address)
 
         return self._abis[contract_address]
 
