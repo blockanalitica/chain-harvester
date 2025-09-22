@@ -68,7 +68,7 @@ class Chain:
         if s3 and s3.get("bucket_name") and s3.get("dir"):
             self.s3_bucket_name = s3.get("bucket_name")
             self.s3_dir = s3.get("dir")
-            s3_client = boto3.client("s3")
+            s3_client = boto3.client("s3", region_name=s3.get("region", "eu-west-1"))
         self.s3 = s3_client
 
         self.step = step or 10_000

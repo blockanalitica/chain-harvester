@@ -99,9 +99,11 @@ def test__chainlink_price_feed_for_asset_symbol_mapping():
 def chain_with_s3(tmp_path):
     with mock_aws():
         # Set up fake S3
-        s3 = boto3.client("s3", region_name="us-east-1")
+        s3 = boto3.client("s3", region_name="eu-west-1")
         bucket = "test-bucket"
-        s3.create_bucket(Bucket=bucket)
+        s3.create_bucket(
+            Bucket=bucket, CreateBucketConfiguration={"LocationConstraint": "eu-west-1"}
+        )
 
         # Build chain with fake S3
         chain = Chain(
@@ -111,10 +113,13 @@ def chain_with_s3(tmp_path):
             rpc_nodes={"ethereum": {"mainnet": "http://fake-rpc"}},
             abis_path=str(tmp_path),
             chain_id=1,
+            s3={
+                "bucket_name": bucket,
+                "dir": "abis",
+                "region": "eu-west-1",
+            },
         )
         chain.s3 = s3
-        chain.s3_bucket_name = bucket
-        chain.s3_dir = "abis"
 
         yield chain, s3, bucket
 
