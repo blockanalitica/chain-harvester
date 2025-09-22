@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.0](https://github.com/blockanalitica/chain-harvester/compare/v2.6.0...v2.7.0) (2025-09-22)
+
+
+### Features
+
+* abis to use s3 instead of local storage ([#237](https://github.com/blockanalitica/chain-harvester/issues/237)) ([49a0897](https://github.com/blockanalitica/chain-harvester/commit/49a08971b09669f11c1f0c62c5f80959e8b0057f))
+
 ## [2.6.0](https://github.com/blockanalitica/chain-harvester/compare/v2.5.0...v2.6.0) (2025-09-17)
 
 
