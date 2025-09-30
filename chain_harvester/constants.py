@@ -25,6 +25,7 @@ class Network(IntEnum):
     Unichain = 130
     Hemi = 43111
     Plume = 98866
+    Plasma = 9745
 
 
 MULTICALL_ADDRESSES = {
@@ -57,6 +58,7 @@ MULTICALL3_ADDRESSES = {
     Network.Unichain: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Hemi: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Plume: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Plasma: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -114,6 +116,9 @@ CHAINS = {
     },
     "plume": {
         "mainnet": Network.Plume,
+    },
+    "plasma": {
+        "mainnet": Network.Plasma,
     },
 }
 
