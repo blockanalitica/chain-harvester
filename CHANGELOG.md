@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.0](https://github.com/blockanalitica/chain-harvester/compare/v2.7.0...v2.8.0) (2025-09-30)
+
+
+### Features
+
+* add plasma ([#239](https://github.com/blockanalitica/chain-harvester/issues/239)) ([da05d1f](https://github.com/blockanalitica/chain-harvester/commit/da05d1fae294c325146db587717235b344a2964a))
+
 ## [2.7.0](https://github.com/blockanalitica/chain-harvester/compare/v2.6.0...v2.7.0) (2025-09-22)
 
 
