@@ -26,6 +26,9 @@ API_KEYS = {
     "hyperliquid": {
         "mainnet": os.environ.get("HYPERLIQUID_API_KEY"),
     },
+    "plasma": {
+        "mainnet": os.environ.get("PLASMASCAN_API_KEY"),
+    },
 }
 
 RPC_NODES = {
@@ -49,6 +52,9 @@ RPC_NODES = {
     },
     "hyperliquid": {
         "mainnet": os.environ.get("HYPERLIQUID_MAINNET_RPC"),
+    },
+    "plasma": {
+        "mainnet": os.environ.get("PLASMA_MAINNET_RPC"),
     },
 }
 
