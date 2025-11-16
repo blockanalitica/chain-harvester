@@ -34,8 +34,8 @@ class MathLib:
     @staticmethod
     def w_taylor_compounded(x: int, n: int) -> int:
         """
-        Returns the sum of the first three non-zero terms of a Taylor expansion of e^(nx) - 1,
-        to approximate a continuous compound interest rate.
+        Returns the sum of the first three non-zero terms of a Taylor expansion
+        of e^(nx) - 1, to approximate a continuous compound interest rate.
         """
         first_term = x * n
         second_term = MathLib.mul_div_down(first_term, first_term, 2 * MathLib.WAD)
@@ -54,7 +54,9 @@ class MathLib:
         Returns:
             int: Result of (x * y) / WAD rounded towards 0
         """
-        return (x * y) // MathLib.WAD  # Using integer division '//' for rounding towards 0
+        return (
+            x * y
+        ) // MathLib.WAD  # Using integer division '//' for rounding towards 0
 
     @staticmethod
     def w_div_to_zero(x: int, y: int) -> int:

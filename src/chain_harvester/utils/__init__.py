@@ -9,7 +9,9 @@ getcontext().prec = 50
 
 
 def create_index(block, tx_index, log_index):
-    return "_".join((str(block).zfill(12), str(tx_index).zfill(6), str(log_index).zfill(6)))
+    return "_".join(
+        (str(block).zfill(12), str(tx_index).zfill(6), str(log_index).zfill(6))
+    )
 
 
 def to_hex_topic(topic):

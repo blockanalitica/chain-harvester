@@ -3,10 +3,10 @@ import logging
 import os
 from collections import defaultdict
 
-from botocore.exceptions import ClientError
-
+import boto3
 import eth_abi
 import requests
+from botocore.exceptions import ClientError
 from eth_utils import event_abi_to_log_topic
 from hexbytes import HexBytes
 from requests.adapters import HTTPAdapter
@@ -28,7 +28,6 @@ from chain_harvester.decoders import (
 from chain_harvester.exceptions import ChainException
 from chain_harvester.multicall import Call, Multicall
 from chain_harvester.utils.codes import get_code_name
-import boto3
 
 log = logging.getLogger(__name__)
 
@@ -99,7 +98,9 @@ class Chain:
             session.mount("https://", adapter)
 
             self._w3 = Web3(
-                Web3.HTTPProvider(self.rpc, request_kwargs={"timeout": 60}, session=session)
+                Web3.HTTPProvider(
+                    self.rpc, request_kwargs={"timeout": 60}, session=session
+                )
             )
             self._w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
         return self._w3
@@ -120,7 +121,9 @@ class Chain:
         raise NotImplementedError
 
     def _fetch_abi_from_chain(self, contract_address, refetch_on_block=None):
-        proxy_contract = self.get_implementation_address(contract_address, refetch_on_block)
+        proxy_contract = self.get_implementation_address(
+            contract_address, refetch_on_block
+        )
         if proxy_contract != NULL_ADDRESS:
             abi = self.get_abi_from_source(proxy_contract)
         else:
@@ -134,7 +137,8 @@ class Chain:
         return json.loads(content)
 
     def _handle_abi_s3(self, contract_address):
-        """Fetch abi from s3 if it exists, otherwise fetch from chain and upload to s3"""
+        """Fetch abi from s3 if it exists, otherwise fetch from chain and
+        upload to s3"""
         try:
             abi = self._fetch_abi_from_s3(contract_address)
         except ClientError as e:
@@ -147,14 +151,17 @@ class Chain:
             key = f"{self.s3_dir}/{self.chain}/{self.network}/{contract_address}.json"
             body = json.dumps(abi)
             self.s3.put_object(
-                Bucket=self.s3_bucket_name, Key=key, Body=body, ContentType="application/json"
+                Bucket=self.s3_bucket_name,
+                Key=key,
+                Body=body,
+                ContentType="application/json",
             )
 
         self._abis[contract_address] = abi
 
     def _handle_abi_local_storage(self, contract_address):
-        """Fetch abi from local storage if it exists, otherwise fetch from chain and save to local
-        storage"""
+        """Fetch abi from local storage if it exists, otherwise fetch from chain and
+        save to local storage"""
         file_path = os.path.join(self.abis_path, f"{contract_address}.json")
         if os.path.exists(file_path):
             with open(file_path) as f:
@@ -180,7 +187,9 @@ class Chain:
         # usually only used when backpopulating stuff and storing it to the file will
         # replace the current abi with an old one
         if refetch_on_block:
-            log.info("Fetching new ABI on block %s without storing it", refetch_on_block)
+            log.info(
+                "Fetching new ABI on block %s without storing it", refetch_on_block
+            )
             return self._fetch_abi_from_chain(contract_address, refetch_on_block)
 
         if contract_address not in self._abis:
@@ -207,7 +216,11 @@ class Chain:
             try:
                 data = self.multicall(
                     [
-                        (contract_address, "implementation()(address)", ["address", None]),
+                        (
+                            contract_address,
+                            "implementation()(address)",
+                            ["address", None],
+                        ),
                     ],
                     block_identifier=block_identifier,
                 )
@@ -260,7 +273,9 @@ class Chain:
 
         while True:
             end_block = min(from_block + step - 1, to_block)
-            log.debug(f"Fetching events from {from_block} to {end_block} with step {step}")
+            log.debug(
+                f"Fetching events from {from_block} to {end_block} with step {step}"
+            )
             events = fetch_events_func(from_block, end_block)
             if events is None:
                 break
@@ -325,10 +340,15 @@ class Chain:
             raw_logs = self.eth.get_logs(filters)
             for raw_log in raw_logs:
                 if (
-                    HexBytes("0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b")
+                    HexBytes(
+                        "0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b"
+                    )
                     in raw_log["topics"]
                 ):
-                    log.warning("Skipping Upgraded event on proxy contract %s", raw_log["address"])
+                    log.warning(
+                        "Skipping Upgraded event on proxy contract %s",
+                        raw_log["address"],
+                    )
                     continue
                 # TODO: Skip BeaconUpgraded event in a similar fashion to the one above
 
@@ -337,13 +357,14 @@ class Chain:
                     data = self._decode_raw_log(contract, raw_log, mixed, anonymous)
                 except MissingABIEventDecoderError:
                     log.warning(
-                        "Contract ABI (%s) is missing an event definition. Fetching a new "
-                        "ABI on block %s",
+                        "Contract ABI (%s) is missing an event definition. Fetching a "
+                        "new ABI on block %s",
                         raw_log["address"].lower(),
                         raw_log["blockNumber"],
                     )
                     contract = self.get_contract(
-                        raw_log["address"].lower(), refetch_on_block=raw_log["blockNumber"]
+                        raw_log["address"].lower(),
+                        refetch_on_block=raw_log["blockNumber"],
                     )
                     data = self._decode_raw_log(contract, raw_log, mixed, anonymous)
 
@@ -351,7 +372,9 @@ class Chain:
 
         return fetch_events_for_contracts_topics
 
-    def get_events_for_contract(self, contract_address, from_block, to_block=None, anonymous=False):
+    def get_events_for_contract(
+        self, contract_address, from_block, to_block=None, anonymous=False
+    ):
         if not to_block:
             to_block = self.get_latest_block()
         contract_address = Web3.to_checksum_address(contract_address)
@@ -393,7 +416,8 @@ class Chain:
             to_block = self.get_latest_block()
 
         contracts = [
-            Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
+            Web3.to_checksum_address(contract_address)
+            for contract_address in contract_addresses
         ]
 
         fetch_events_func = self._generate_fetch_events_func(
@@ -421,7 +445,8 @@ class Chain:
             to_block = self.get_latest_block()
 
         contracts = [
-            Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
+            Web3.to_checksum_address(contract_address)
+            for contract_address in contract_addresses
         ]
 
         fetch_events_func = self._generate_fetch_events_func(
@@ -459,7 +484,9 @@ class Chain:
 
         return self._yield_all_events(fetch_events_for_topics, from_block, to_block)
 
-    def get_latest_event_before_block(self, address, topics, block_number, max_retries=5):
+    def get_latest_event_before_block(
+        self, address, topics, block_number, max_retries=5
+    ):
         current_step = self.step
         for _ in range(max_retries):
             events = self.get_events_for_contract_topics(
@@ -478,7 +505,9 @@ class Chain:
         for address, function, response in calls:
             multicalls.append(Call(address, function, [response]))
 
-        multi = Multicall(multicalls, self.chain_id, _w3=self.w3, block_identifier=block_identifier)
+        multi = Multicall(
+            multicalls, self.chain_id, _w3=self.w3, block_identifier=block_identifier
+        )
 
         return multi()
 
@@ -494,18 +523,26 @@ class Chain:
             and (events is None or abi["name"] in events)
             and (ignore is None or abi["name"] not in ignore)
         ]
-        signed_abis = {f"0x{event_abi_to_log_topic(abi).hex()}": abi for abi in event_abis}
+        signed_abis = {
+            f"0x{event_abi_to_log_topic(abi).hex()}": abi for abi in event_abis
+        }
         return signed_abis
 
     def get_events_topics(self, contract_address, events=None, ignore=None):
-        return list(self.abi_to_event_topics(contract_address, events=events, ignore=ignore).keys())
+        return list(
+            self.abi_to_event_topics(
+                contract_address, events=events, ignore=ignore
+            ).keys()
+        )
 
     def address_to_topic(self, address):
         stripped_address = address[2:]
         topic_format = "0x" + stripped_address.lower().rjust(64, "0")
         return topic_format
 
-    def encode_eth_call_payload(self, contract_address, function_name, block_identifier, args):
+    def encode_eth_call_payload(
+        self, contract_address, function_name, block_identifier, args
+    ):
         contract = self.get_contract(contract_address)
         output_details = {"output_types": [], "output_names": []}
         for element in contract.abi:
@@ -628,7 +665,9 @@ class Chain:
         return MULTICALL3_ADDRESSES[self.chain_id] if self.chain_id else None
 
     def create_index(self, block, tx_index, log_index):
-        return "_".join((str(block).zfill(12), str(tx_index).zfill(6), str(log_index).zfill(6)))
+        return "_".join(
+            (str(block).zfill(12), str(tx_index).zfill(6), str(log_index).zfill(6))
+        )
 
     def chainlink_price_feed_for_asset_symbol(self, symbol):
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
@@ -681,7 +720,12 @@ class Chain:
         code_name = get_code_name(code)
         if code_name in ["GnosisSafeProxy", "Proxy", "SafeProxy"]:
             return self.get_owners_for_gnosis_safe(addresses)
-        elif code_name in ["AccountImplementation", "DSProxy", "Vault", "CenoaCustomProxy"]:
+        elif code_name in [
+            "AccountImplementation",
+            "DSProxy",
+            "Vault",
+            "CenoaCustomProxy",
+        ]:
             return self.get_dsproxy_owners(addresses)
         elif code_name in ["InstaAccountV2"]:
             return self.get_insta_account_owners(addresses)

@@ -1,9 +1,11 @@
 import json
-from chain_harvester.http import retry_get_json
-import requests
-import urllib.parse
 import logging
+import urllib.parse
+
+import requests
+
 from chain_harvester.exceptions import ChainException
+from chain_harvester.http import retry_get_json
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +41,9 @@ class EtherscanMixin:
             raise
 
         if data["status"] != "1":
-            raise ChainException("Request to etherscan failed: {}".format(data["result"]))
+            raise ChainException(
+                "Request to etherscan failed: {}".format(data["result"])
+            )
 
         abi = json.loads(data["result"])
         return abi
@@ -117,7 +121,9 @@ class RoutescanMixin:
             raise
 
         if data["status"] != "1":
-            raise ChainException("Request to routescan failed: {}".format(data["result"]))
+            raise ChainException(
+                "Request to routescan failed: {}".format(data["result"])
+            )
 
         abi = json.loads(data["result"])
         return abi
@@ -137,15 +143,20 @@ class RoutescanMixin:
 
 class FilfoxMixin:
     def get_abi_from_source(self, contract_address):
-        log.error("ABI for %s was fetched from filfox. Add it to abis folder!", contract_address)
+        log.error(
+            "ABI for %s was fetched from filfox. Add it to abis folder!",
+            contract_address,
+        )
 
         try:
             data = retry_get_json(
-                f"https://filfox.info/api/v1/address/{contract_address}/contract", timeout=5
+                f"https://filfox.info/api/v1/address/{contract_address}/contract",
+                timeout=5,
             )
         except requests.exceptions.Timeout:
             log.exception(
-                "Timeout when get abi from filfox", extra={"contract_address": contract_address}
+                "Timeout when get abi from filfox",
+                extra={"contract_address": contract_address},
             )
             raise
 
@@ -179,7 +190,10 @@ class TenderlyMixin:
         super().__init__(*args, **kwargs)
 
     def get_abi_from_source(self, contract_address):
-        log.error("ABI for %s was fetched from tenderly. Add it to abis folder!", contract_address)
+        log.error(
+            "ABI for %s was fetched from tenderly. Add it to abis folder!",
+            contract_address,
+        )
 
         url = (
             "https://api.tenderly.co/api/v1/"
@@ -194,7 +208,8 @@ class TenderlyMixin:
             )
         except requests.exceptions.Timeout:
             log.exception(
-                "Timeout when get abi from tenderly", extra={"contract_address": contract_address}
+                "Timeout when get abi from tenderly",
+                extra={"contract_address": contract_address},
             )
             raise
 

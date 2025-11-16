@@ -36,7 +36,9 @@ class AlchemyChain:
             data.append(payload)
         headers = {"content-type": "application/json"}
 
-        timeout = self.batch_timeout * (len(addresses) // 100 + 1)  # Scale with batch size
+        timeout = self.batch_timeout * (
+            len(addresses) // 100 + 1
+        )  # Scale with batch size
 
         retries = 0
         while retries < self.max_retries:
@@ -61,7 +63,9 @@ class AlchemyChain:
             "params": [{"blockNumber": str(block_number)}],
         }
         headers = {"accept": "application/json", "content-type": "application/json"}
-        response = requests.post(self.chain.rpc, json=payload, headers=headers, timeout=10)
+        response = requests.post(
+            self.chain.rpc, json=payload, headers=headers, timeout=10
+        )
         return response.json()["result"]["receipts"]
 
     def get_transactions_for_contracts(
@@ -83,7 +87,9 @@ class AlchemyChain:
                         continue
                     transaction = self.chain.eth.get_transaction(tx["transactionHash"])
                     contract = self.chain.get_contract(tx["to"])
-                    func_obj, func_params = contract.decode_function_input(transaction["input"])
+                    func_obj, func_params = contract.decode_function_input(
+                        transaction["input"]
+                    )
                     yield {
                         "tx": tx,
                         "transaction": transaction,

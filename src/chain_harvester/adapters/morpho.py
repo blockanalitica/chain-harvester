@@ -40,8 +40,8 @@ class AdaptiveCurveIrm:
             total_borrow_assets (int): Total borrowed assets in WAD (1 WAD = 10^18).
             total_supply_assets (int): Total supplied assets in WAD.
             current_time (int): Current timestamp in seconds.
-            rate_at_target (int, optional): Custom rate at target utilization in WAD per second.
-                                            If None, uses the internal state.
+            rate_at_target (int, optional): Custom rate at target utilization in WAD per
+                                            second. If None, uses the internal state.
 
         Returns:
             tuple: A tuple containing:
@@ -49,7 +49,8 @@ class AdaptiveCurveIrm:
                 - int: The updated rate at target utilization in WAD per second.
 
         Note:
-            All input values (except current_time) and the return value are in WAD units.
+            All input values (except current_time) and the return value are in
+            WAD units.
             The current_time is in seconds.
         """
         utilization = (
@@ -63,7 +64,9 @@ class AdaptiveCurveIrm:
             if utilization > self.TARGET_UTILIZATION
             else self.TARGET_UTILIZATION
         )
-        err = MathLib.w_div_to_zero(utilization - self.TARGET_UTILIZATION, err_norm_factor)
+        err = MathLib.w_div_to_zero(
+            utilization - self.TARGET_UTILIZATION, err_norm_factor
+        )
 
         start_rate_at_target = rate_at_target if rate_at_target else self.rate_at_target
 
@@ -105,28 +108,32 @@ class AdaptiveCurveIrm:
             if err < 0
             else self.CURVE_STEEPNESS - self.WAD
         )
-        return MathLib.w_mul_to_zero(MathLib.w_mul_to_zero(coeff, err) + self.WAD, rate_at_target)
+        return MathLib.w_mul_to_zero(
+            MathLib.w_mul_to_zero(coeff, err) + self.WAD, rate_at_target
+        )
 
     def _new_rate_at_target(self, start_rate_at_target, linear_adaptation):
-        new_rate = MathLib.w_mul_to_zero(start_rate_at_target, self._w_exp(linear_adaptation))
+        new_rate = MathLib.w_mul_to_zero(
+            start_rate_at_target, self._w_exp(linear_adaptation)
+        )
         return max(min(new_rate, self.MAX_RATE_AT_TARGET), self.MIN_RATE_AT_TARGET)
 
     def _w_exp(self, x):
-        LN_2_INT = 693147180559945309  # ln(2) * WAD
-        LN_WEI_INT = -41446531673892822312  # ln(1e-18) * WAD
+        ln_2_int = 693147180559945309  # ln(2) * WAD
+        ln_wei_int = -41446531673892822312  # ln(1e-18) * WAD
         # ln(type(int256).max / 1e36) * WAD
-        WEXP_UPPER_BOUND = 93859467695000404319
+        wexp_upper_bound = 93859467695000404319
         # wExp(WEXP_UPPER_BOUND)
-        WEXP_UPPER_VALUE = 57716089161558943949701069502944508345128422502756744429568
+        wexp_upper_value = 57716089161558943949701069502944508345128422502756744429568
 
-        if x < LN_WEI_INT:
+        if x < ln_wei_int:
             return 0
-        if x >= WEXP_UPPER_BOUND:
-            return WEXP_UPPER_VALUE
+        if x >= wexp_upper_bound:
+            return wexp_upper_value
 
-        rounding_adjustment = -LN_2_INT // 2 if x < 0 else LN_2_INT // 2
-        q = (x + rounding_adjustment) // LN_2_INT
-        r = x - q * LN_2_INT
+        rounding_adjustment = -ln_2_int // 2 if x < 0 else ln_2_int // 2
+        q = (x + rounding_adjustment) // ln_2_int
+        r = x - q * ln_2_int
 
         exp_r = self.WAD + r + (r * r) // self.WAD // 2
 
@@ -137,13 +144,17 @@ class AdaptiveCurveIrm:
 
 
 def calculate_morpho_apr(
-    total_borrow_assets, total_supply_assets, last_update=0, current_time=0, rate_at_target=None
+    total_borrow_assets,
+    total_supply_assets,
+    last_update=0,
+    current_time=0,
+    rate_at_target=None,
 ):
     """
     Calculate the Annual Percentage Rate (APR) for Morpho protocol.
 
-    This function uses the AdaptiveCurveIrm to calculate the borrow rate and converts it to
-    an annual rate.
+    This function uses the AdaptiveCurveIrm to calculate the borrow rate and converts it
+    to an annual rate.
 
     To get most similar behaviur to the one in the contract (https://github.com/morpho-org/morpho-blue-irm/blob/4f09910c8d13700d2a9e160847cd34c02717be72/src/adaptive-curve-irm/AdaptiveCurveIrm.sol#L76)
     you must pass last_update, current_time and rate_at_target values.
@@ -167,4 +178,6 @@ def calculate_morpho_apr(
         current_time=current_time,
         rate_at_target=int(to_wad(rate_at_target)) if rate_at_target else None,
     )
-    return from_wad(borrow_rate_lib_apr) * SECONDS_PER_YEAR, from_wad(new_rate_at_target)
+    return from_wad(borrow_rate_lib_apr) * SECONDS_PER_YEAR, from_wad(
+        new_rate_at_target
+    )

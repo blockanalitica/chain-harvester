@@ -96,7 +96,8 @@ def get_prices_for_timestamp(addresses, timestamp, network="ethereum"):
 
 def get_token_prices(addresses, timestamp, network="ethereum"):
     """
-    Gets historical prices for a large list of token addresses, processing them in chunks.
+    Gets historical prices for a large list of token addresses, processing them in
+    chunks.
 
     Args:
         addresses (list): List of token addresses

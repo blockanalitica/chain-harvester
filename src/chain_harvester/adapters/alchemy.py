@@ -16,7 +16,9 @@ def _get_blocks_query(to_block=None):
     to_block_var = ", $to_block: Int!" if to_block is not None else ""
     to_block_filter = ", number_lte: $to_block" if to_block is not None else ""
 
-    query = base_query.format(to_block_var=to_block_var, to_block_filter=to_block_filter)
+    query = base_query.format(
+        to_block_var=to_block_var, to_block_filter=to_block_filter
+    )
     return query
 
 

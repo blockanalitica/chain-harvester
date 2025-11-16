@@ -3,7 +3,12 @@ from multiproof import StandardMerkleTree
 
 def generate_merkle_proof_for_claims(claims):
     values = [
-        [claim["epoch"], claim["account"], claim["token"], int(claim["cumulativeAmount"])]
+        [
+            claim["epoch"],
+            claim["account"],
+            claim["token"],
+            int(claim["cumulativeAmount"]),
+        ]
         for claim in claims
     ]
 
@@ -12,7 +17,9 @@ def generate_merkle_proof_for_claims(claims):
     return generate_merkle_proof(claims, values, leaf_encoding)
 
 
-def generate_merkle_proof(claims, values, leaf_encoding, total_amount_field="cumulativeAmount"):
+def generate_merkle_proof(
+    claims, values, leaf_encoding, total_amount_field="cumulativeAmount"
+):
     tree = StandardMerkleTree.of(values, leaf_encoding)
     result = {
         "root": tree.root,

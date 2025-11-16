@@ -1,10 +1,10 @@
-class ChainlinkMissingAsset(Exception):
+class ChainlinkMissingAssetError(Exception):
     pass
 
 
-class ChainlinkMissingChain(Exception):
+class ChainlinkMissingChainError(Exception):
     pass
 
 
-class ChainlinkMissingMapping(Exception):
+class ChainlinkMissingMappingError(Exception):
     pass

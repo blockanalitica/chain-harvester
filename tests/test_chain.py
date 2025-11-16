@@ -3,9 +3,8 @@ import os
 import tempfile
 from unittest.mock import patch
 
-
-import pytest
 import boto3
+import pytest
 from moto import mock_aws
 
 from chain_harvester.chain import Chain
@@ -141,7 +140,8 @@ def test_upload_and_fetch_abi(chain_with_s3):
 
     assert chain._abis[address] == fake_abi
 
-    # Fetch again and make sure we only fetch from s3 and that _fetch_abi_from_chain is not called
+    # Fetch again and make sure we only fetch from s3 and that _fetch_abi_from_chain
+    # is not called
     chain._abis.clear()  # clear cached abis
     with patch.object(chain, "_fetch_abi_from_chain") as mock_fetch:
         chain.load_abi(address)

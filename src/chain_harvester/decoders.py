@@ -100,30 +100,40 @@ class AnonymousEventLogDecoder:
         mapping.setdefault("functions", {})
         for element in abi:
             if element["type"] == "function" and element["inputs"]:
-                e = f"{element['name']}({','.join([inp['type'] for inp in element['inputs']])})"
+                e_args = {",".join([inp["type"] for inp in element["inputs"]])}
+                e = f"{element['name']}({e_args})"
+
                 keccak256 = keccak.new(data=e.encode("utf-8"), digest_bits=256).digest()
                 mapping["functions"].setdefault(
-                    ("0x" + binascii.hexlify(keccak256).decode("utf-8"))[:10].ljust(66, "0"),
+                    ("0x" + binascii.hexlify(keccak256).decode("utf-8"))[:10].ljust(
+                        66, "0"
+                    ),
                     {},
                 )
                 mapping["functions"][
-                    ("0x" + binascii.hexlify(keccak256).decode("utf-8"))[:10].ljust(66, "0")
+                    ("0x" + binascii.hexlify(keccak256).decode("utf-8"))[:10].ljust(
+                        66, "0"
+                    )
                 ]["name"] = element["name"]
                 mapping["functions"][
-                    ("0x" + binascii.hexlify(keccak256).decode("utf-8"))[:10].ljust(66, "0")
+                    ("0x" + binascii.hexlify(keccak256).decode("utf-8"))[:10].ljust(
+                        66, "0"
+                    )
                 ]["inputs"] = element["inputs"]
             elif element["type"] == "event" and element["anonymous"]:
                 mapping["events"]["anonymous"].setdefault("inputs", element["inputs"])
                 mapping["events"]["anonymous"].setdefault("name", element["name"])
             elif element["type"] == "event" and not element["anonymous"]:
-                mapping["events"]["non-anonymous"].setdefault(element["name"], element["inputs"])
+                mapping["events"]["non-anonymous"].setdefault(
+                    element["name"], element["inputs"]
+                )
             else:
                 pass
         return mapping
 
     def decode_log(self, log_entry):
-        ARG_KEYS = ["arg1", "arg2", "arg3", "arg4", "arg5", "arg6"]
-        DATA_SKIP_BYTES = 136
+        arg_keys = ["arg1", "arg2", "arg3", "arg4", "arg5", "arg6"]
+        data_skip_bytes = 136
 
         topics = log_entry["topics"]
         data = log_entry["data"].hex()
@@ -132,19 +142,19 @@ class AnonymousEventLogDecoder:
         for idx, attribute in enumerate(event_attributes):
             # skip all arg-like attributes as they're not always matching
             # the data types defined in event specification in ABI
-            if attribute["indexed"] and attribute["name"] not in ARG_KEYS:
+            if attribute["indexed"] and attribute["name"] not in arg_keys:
                 event_layout.setdefault(
                     attribute["name"],
                     decode_value(value=topics[idx], value_type=attribute["type"]),
                 )
 
         # drop all arg-like topics / just to make sure we got rid of these
-        delete = [key for key in event_layout if key in ARG_KEYS]
+        delete = [key for key in event_layout if key in arg_keys]
         [event_layout.pop(key) for key in delete]
 
         # decode event data using function arguments from abi
         # skip 0x, first two sets of bytes and function signature (2 + 64 + 64 + 8)
-        data = data[DATA_SKIP_BYTES:]
+        data = data[data_skip_bytes:]
         parse_from = 0
         hex_topic = topics[0].hex()
         if not "0x".startswith(hex_topic):
@@ -152,13 +162,17 @@ class AnonymousEventLogDecoder:
         for arg in self._signed_abis["functions"][hex_topic]["inputs"]:
             event_layout.setdefault(
                 arg["name"],
-                decode_value(value=data[parse_from : parse_from + 64], value_type=arg["type"]),
+                decode_value(
+                    value=data[parse_from : parse_from + 64], value_type=arg["type"]
+                ),
             )
             parse_from += 64
 
         item = dict(log_entry)
         item["args"] = {
-            "event_name": _to_serializable(self._signed_abis["events"]["anonymous"]["name"]),
+            "event_name": _to_serializable(
+                self._signed_abis["events"]["anonymous"]["name"]
+            ),
             "event_layout": _to_serializable(event_layout),
             "executed_function": _to_serializable(
                 self._signed_abis["functions"][hex_topic]["name"]

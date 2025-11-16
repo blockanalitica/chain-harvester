@@ -1,5 +1,4 @@
 from chain_harvester.chain import Chain
-
 from chain_harvester.mixins import BlockscoutMixin
 
 

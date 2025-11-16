@@ -1,2 +1,2 @@
-class ChainException(Exception):
+class ChainException(Exception):  # noqa: N818
     pass

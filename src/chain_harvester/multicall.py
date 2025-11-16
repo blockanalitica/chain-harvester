@@ -120,7 +120,8 @@ class Multicall:
                 else MULTICALL2_ADDRESSES
             )
             self.multicall_sig = (
-                "tryBlockAndAggregate(bool,(address,bytes)[])(uint256,uint256,(bool,bytes)[])"
+                "tryBlockAndAggregate(bool,(address,bytes)[])"
+                "(uint256,uint256,(bool,bytes)[])"
             )
         self.multicall_address = multicall_map[self.chain_id]
 
@@ -128,11 +129,13 @@ class Multicall:
 
     def __call__(self):
         result = {}
-        for call, (success, output) in zip(self.calls, self.fetch_outputs(), strict=False):
+        for call, (success, output) in zip(
+            self.calls, self.fetch_outputs(), strict=False
+        ):
             result.update(call.decode_output(output, success))
         return result
 
-    def fetch_outputs(self, calls=None, ConnErr_retries=0):
+    def fetch_outputs(self, calls=None, retries=0):
         if calls is None:
             calls = self.calls
 
@@ -155,17 +158,18 @@ class Multicall:
             return outputs
         except requests.ConnectionError as e:
             if (
-                "('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
+                "('Connection aborted.', ConnectionResetError(104, "
+                "'Connection reset by peer'))"
                 not in str(e)
-                or ConnErr_retries > 5
+                or retries > 5
             ):
                 raise
         except requests.HTTPError as e:
             if "request entity too large" not in str(e).lower():
                 raise
         chunk_1, chunk_2 = split_calls(self.calls)
-        return list(self.fetch_outputs(chunk_1, ConnErr_retries=ConnErr_retries + 1)) + list(
-            self.fetch_outputs(chunk_2, ConnErr_retries=ConnErr_retries + 1)
+        return list(self.fetch_outputs(chunk_1, retries=retries + 1)) + list(
+            self.fetch_outputs(chunk_2, retries=retries + 1)
         )
 
     def get_args(self, calls):

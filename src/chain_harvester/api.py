@@ -5,7 +5,9 @@ from chain_harvester.helpers import get_chain
 def get_transactions_for_contracts(
     network, contract_addresses, from_block, to_block=None, failed=False, config=None
 ):
-    alchemy = Alchemy(network, "mainnet", rpc=config["rpc"], api_key=config["etherscan_api_key"])
+    alchemy = Alchemy(
+        network, "mainnet", rpc=config["rpc"], api_key=config["etherscan_api_key"]
+    )
     data = alchemy.get_transactions_for_contracts(
         contract_addresses, from_block, to_block=to_block, failed=failed
     )
