@@ -1,100 +1,107 @@
-[tool.poetry]
+[project]
 name = "chain_harvester"
-version = "0.0.1"
 description = "A Python library designed to interface with various blockchain networks, enabling the retrieval of data."
-authors = ["0xCommanderKeen <f91289621+0xCommanderKeen@users.noreply.github.com>"]
-repository = "https://github.com/blockanalitica/chain-harvester"
-documentation = "https://blockanalitica.github.io/chain-harvester/"
+authors = [
+    {name="0xCommanderKeen", email="f91289621+0xCommanderKeen@users.noreply.github.com"},
+    {name="tsifrer", email="3967564+tsifrer@users.noreply.github.com"}
+]
 readme = "README.md"
-packages = [
-  {include = "chain_harvester"}
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+dynamic = ["version"]
+dependencies = [
+    "boto3>=1.40.74",
+    "eth-abi>=5.2.0",
+    "multiproof>=0.1.10",
+    "requests>=2.32.5",
+    "web3>=7.14.0",
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.11,<4.0"
-web3 = "^7.7.0"
-requests = "^2.31.0"
-eth-abi = "^5.1.0"
-multiproof = "^0.1.10"
-boto3 = "^1.40.33"
+[dependency-groups]
+dev = [
+    "moto>=5.1.16",
+    "pytest-asyncio>=1.3.0",
+    "ruff>=0.14.5",
+]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
-pre-commit = "^4.0.1"
-tox = "^4.6.4"
-python-dotenv = "^1.0.0"
-ruff = "^0.8.3"
-ipython = "^8.30.0"
-moto = "^5.1.12"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.ruff]
-target-version = "py311"
-line-length = 100
-indent-width = 4
+[project.urls]
+homepage = "https://github.com/blockanalitica/chain-harvester"
+repository = "https://github.com/blockanalitica/chain-harvester.git"
+documentation = "https://github.com/blockanalitica/chain-harvester"
+issues = "https://github.com/blockanalitica/chain-harvester/issues"
 
 [tool.ruff.lint]
 fixable = ["ALL"]
 unfixable = []
-select = [
-    # flake8-2020
-    "YTT",
-    # flake8-bandit
-    "S",
-    # flake8-bugbear
-    "B",
-    # flake8-builtins
-    "A",
-    # flake8-comprehensions
-    "C4",
-    # flake8-debugger
-    "T10",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
-    # mccabe
-    "C90",
-    # pycodestyle
-    "E", "W",
-    # pyflakes
-    "F",
-    # pygrep-hooks
-    "PGH",
-    # pyupgrade
-    "UP",
-    # ruff
-    "RUF",
-    # tryceratops
-    "TRY",
-    "T201",
+extend-select = [
+    "YTT", # flake8-2020
+    "S", # flake8-bandit
+    "B", # flake8-bugbear
+    "A", # flake8-builtins
+    "C4", # flake8-comprehensions
+    "T10", # flake8-debugger
+    "T20", # flake8-print
+    "SIM", # flake8-simplify
+    "PIE", # flake8-pie
+    "COM", # flake8-commas
+    "PYI", # flake8-pyi
+    "PT", # flake8-pytest-style
+    "I", # isort
+    "C90", # mccabe
+    "E", # pycodestyle
+    "W", # pycodestyle
+    "F", # pyflakes
+    "PGH", # pygrep-hooks
+    "UP", # pyupgrade
+    "RUF", # ruff
+    "TRY", # tryceratops
+    "N", # pep8-naming
+    "PERF", # Perflint
 ]
 ignore = [
-    # DoNotAssignLambda
+    "C901",
+    "COM812",
     "E731",
-    "TRY300",
-    "TRY003",
+    "PERF401",
+    "PYI024",
     "RUF012",
     "S108",
-    "TRY002",
-    "C901",
-    "UP038",
+    "S608",
     "SIM108",
-    "I001",
+    "TRY002",
+    "TRY003",
+    "TRY300",
+    "S105",
+    "SIM110",
 ]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"]
-"integration_tests/*" = ["S101"]
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
-line-ending = "auto"
+line-ending = "lf"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*" = ["S101"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["chain_harvester"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/chain_harvester/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/chain_harvester"]
+
+[tool.semantic_release]
+commit_message = "chore(release): {version}"
+version_variables = ["src/chain_harvester/__init__.py:__version__"]
+allow_zero_version = true
