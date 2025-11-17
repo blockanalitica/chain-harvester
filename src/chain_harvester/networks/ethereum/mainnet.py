@@ -3,6 +3,8 @@ from chain_harvester.mixins import EtherscanMixin
 
 
 class EthereumMainnetChain(EtherscanMixin, Chain):
+    latest_block_offset = 5
+
     def __init__(self, etherscan_api_key, *args, **kwargs):
         super().__init__(
             *args,

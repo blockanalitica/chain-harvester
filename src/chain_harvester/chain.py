@@ -1,20 +1,25 @@
+import asyncio
 import json
 import logging
 import os
 from collections import defaultdict
 
+import aiohttp
 import boto3
 import eth_abi
 import requests
 from botocore.exceptions import ClientError
+from environs import env
 from eth_utils import event_abi_to_log_topic
 from hexbytes import HexBytes
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
-from web3 import Web3
+from web3 import AsyncWeb3, Web3
 from web3._utils.rpc_abi import RPC
 from web3.exceptions import ContractLogicError, Web3RPCError
 from web3.middleware import ExtraDataToPOAMiddleware, validation
+from web3.providers.rpc.utils import (
+    REQUEST_RETRY_ALLOWLIST,
+    ExceptionRetryConfiguration,
+)
 
 from chain_harvester.adapters import sink
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
@@ -25,7 +30,7 @@ from chain_harvester.decoders import (
     EventRawLogDecoder,
     MissingABIEventDecoderError,
 )
-from chain_harvester.exceptions import ChainException
+from chain_harvester.exceptions import ChainException, ConfigError
 from chain_harvester.multicall import Call, Multicall
 from chain_harvester.utils.codes import get_code_name
 
@@ -38,31 +43,42 @@ validation.METHODS_TO_VALIDATE = set(validation.METHODS_TO_VALIDATE) - {RPC.eth_
 
 
 class Chain:
+    latest_block_offset = 0
+
     def __init__(
         self,
         chain,
         network,
         rpc=None,
-        rpc_nodes=None,
-        abis_path=None,
         chain_id=None,
-        w3=None,
+        abis_path=None,
         step=None,
         s3=None,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
+        self._w3 = None
+
         self.chain = chain
         self.network = network
         self.chain_id = chain_id or CHAINS[self.chain][self.network]
-        self.rpc = rpc or rpc_nodes[self.chain][self.network]
-        self.abis_path = abis_path or f"abis/{self.chain}/{self.network}/"
+
+        rpc_env = f"{self.chain.upper()}_{self.network.upper()}_RPC"
+        self.rpc = rpc or env(rpc_env, None)
+        if not self.rpc:
+            raise ConfigError(
+                "Missing RPC configuration. Provide 'rpc' explicitly or set the "
+                f"environment variable '{rpc_env}'."
+            )
+
+        self.abis_path = (
+            abis_path or f"abis/{self.chain.lower()}/{self.network.lower()}/"
+        )
         # Create the abis_path if it doesn't exist yet
         os.makedirs(self.abis_path, exist_ok=True)
 
-        self._w3 = w3
-
+        # TODO: tests for s3 and make it async
         s3_client = None
         if s3 and s3.get("bucket_name") and s3.get("dir"):
             self.s3_bucket_name = s3.get("bucket_name")
@@ -70,36 +86,29 @@ class Chain:
             s3_client = boto3.client("s3", region_name=s3.get("region", "eu-west-1"))
         self.s3 = s3_client
 
-        self.step = step or 10_000
-        self.provider = self.rpc
+        step_env = f"{self.chain.upper()}_{self.network.upper()}_STEP"
+        self.step = step or env.int(step_env, 10_000)
 
         self._abis = {}
         self._contracts = {}
-        self.current_block = 0
 
     @property
     def w3(self):
         if not self._w3:
-            session = requests.Session()
-            retries = 3
-            retry = Retry(
-                total=retries,
-                read=retries,
-                connect=retries,
-                backoff_factor=0.5,
-                status_forcelist=(429,),
-                respect_retry_after_header=True,
-                allowed_methods=frozenset(
-                    {"DELETE", "GET", "HEAD", "OPTIONS", "PUT", "TRACE", "POST"}
-                ),
-            )
-            adapter = HTTPAdapter(max_retries=retry)
-            session.mount("http://", adapter)
-            session.mount("https://", adapter)
+            timeout = aiohttp.ClientTimeout(total=60)
 
-            self._w3 = Web3(
-                Web3.HTTPProvider(
-                    self.rpc, request_kwargs={"timeout": 60}, session=session
+            exception_retry_config = ExceptionRetryConfiguration(
+                errors=(ClientError, asyncio.TimeoutError),
+                retries=3,
+                backoff_factor=0.5,
+                method_allowlist=REQUEST_RETRY_ALLOWLIST,
+            )
+
+            self._w3 = AsyncWeb3(
+                AsyncWeb3.AsyncHTTPProvider(
+                    self.rpc,
+                    request_kwargs={"timeout": timeout},
+                    exception_retry_configuration=exception_retry_config,
                 )
             )
             self._w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
@@ -109,17 +118,18 @@ class Chain:
     def eth(self):
         return self.w3.eth
 
-    def get_block_info(self, block_number):
-        return self.eth.get_block(block_number)
+    async def get_block_info(self, block_number):
+        return await self.eth.get_block(block_number)
 
-    def get_latest_block(self, true_latest=False):
-        if true_latest:
-            return self.eth.get_block_number()
-        return self.eth.get_block_number() - 5
+    async def get_latest_block(self, offset=None):
+        latest_block = await self.eth.get_block_number()
+        effective_offset = offset if offset is not None else self.latest_block_offset
+        return latest_block - effective_offset
 
     def get_abi_from_source(self, contract_address):
         raise NotImplementedError
 
+    # TODO: test
     def _fetch_abi_from_chain(self, contract_address, refetch_on_block=None):
         proxy_contract = self.get_implementation_address(
             contract_address, refetch_on_block
@@ -130,12 +140,14 @@ class Chain:
             abi = self.get_abi_from_source(contract_address)
         return abi
 
+    # TODO: test
     def _fetch_abi_from_s3(self, contract_address):
         key = f"{self.s3_dir}/{self.chain}/{self.network}/{contract_address}.json"
         resp = self.s3.get_object(Bucket=self.s3_bucket_name, Key=key)
         content = resp["Body"].read().decode()
         return json.loads(content)
 
+    # TODO: test
     def _handle_abi_s3(self, contract_address):
         """Fetch abi from s3 if it exists, otherwise fetch from chain and
         upload to s3"""
@@ -159,6 +171,7 @@ class Chain:
 
         self._abis[contract_address] = abi
 
+    # TODO: test
     def _handle_abi_local_storage(self, contract_address):
         """Fetch abi from local storage if it exists, otherwise fetch from chain and
         save to local storage"""
@@ -180,6 +193,7 @@ class Chain:
                 json.dump(abi, f)
             self._abis[contract_address] = abi
 
+    # TODO: test
     def load_abi(self, contract_address, refetch_on_block=None, **kwargs):
         contract_address = contract_address.lower()
 
@@ -200,6 +214,7 @@ class Chain:
 
         return self._abis[contract_address]
 
+    # TODO: test
     def get_implementation_address(self, contract_address, block_identifier=None):
         # EIP-1967 storage slot
         contract_address = Web3.to_checksum_address(contract_address)
@@ -229,6 +244,7 @@ class Chain:
                 pass
         return address
 
+    # TODO: test
     def get_contract(self, contract_address, refetch_on_block=None):
         # This function can be called many, many times, so we cache already instantiated
         # contracts
@@ -244,6 +260,7 @@ class Chain:
 
         return self._contracts[contract_address]
 
+    # TODO: test
     def call_contract_function(self, contract_address, function_name, *args, **kwargs):
         contract_address = Web3.to_checksum_address(contract_address)
         contract = self.get_contract(contract_address)
@@ -253,6 +270,7 @@ class Chain:
         )
         return result
 
+    # TODO: test
     def get_storage_at(self, contract_address, position, block_identifier=None):
         contract_address = Web3.to_checksum_address(contract_address)
         content = self.eth.get_storage_at(
@@ -260,13 +278,16 @@ class Chain:
         ).hex()
         return content
 
+    # TODO: test
     def get_code(self, address):
         address = Web3.to_checksum_address(address)
         return self.eth.get_code(address).hex()
 
+    # TODO: test
     def is_eoa(self, address):
         return self.get_code(address) == ""
 
+    # TODO: test
     def _yield_all_events(self, fetch_events_func, from_block, to_block):
         retries = 0
         step = self.step
@@ -308,6 +329,7 @@ class Chain:
             # Reset step back to self.step in case we did a retry
             step = self.step
 
+    # TODO: test
     def _decode_raw_log(self, contract, raw_log, mixed, anonymous):
         # In order to not always instantiate new decoder, we store it under a specific
         # key directly on contract in order to cache it
@@ -319,6 +341,7 @@ class Chain:
 
         return decoder.decode_log(raw_log, mixed, anonymous)
 
+    # TODO: test
     def _generate_fetch_events_func(
         self,
         contracts,
@@ -372,6 +395,7 @@ class Chain:
 
         return fetch_events_for_contracts_topics
 
+    # TODO: test
     def get_events_for_contract(
         self, contract_address, from_block, to_block=None, anonymous=False
     ):
@@ -385,6 +409,7 @@ class Chain:
 
         return self._yield_all_events(fetch_events_func, from_block, to_block)
 
+    # TODO: test
     def get_events_for_contract_topics(
         self, contract_address, topics, from_block, to_block=None, anonymous=False
     ):
@@ -401,6 +426,7 @@ class Chain:
 
         return self._yield_all_events(fetch_events_func, from_block, to_block)
 
+    # TODO: test
     def get_events_for_contracts(
         self,
         contract_addresses,
@@ -426,6 +452,7 @@ class Chain:
 
         return self._yield_all_events(fetch_events_func, from_block, to_block)
 
+    # TODO: test
     def get_events_for_contracts_topics(
         self,
         contract_addresses,
@@ -455,6 +482,7 @@ class Chain:
 
         return self._yield_all_events(fetch_events_func, from_block, to_block)
 
+    # TODO: test
     def get_events_for_topics(self, topics, from_block, to_block=None, anonymous=False):
         if not isinstance(topics, list):
             raise TypeError("topics must be a list")
@@ -484,6 +512,7 @@ class Chain:
 
         return self._yield_all_events(fetch_events_for_topics, from_block, to_block)
 
+    # TODO: test
     def get_latest_event_before_block(
         self, address, topics, block_number, max_retries=5
     ):
@@ -500,6 +529,7 @@ class Chain:
         self.step = current_step
         return None
 
+    # TODO: test
     def multicall(self, calls, block_identifier=None):
         multicalls = []
         for address, function, response in calls:
@@ -511,6 +541,7 @@ class Chain:
 
         return multi()
 
+    # TODO: test
     def abi_to_event_topics(self, contract_address, events=None, ignore=None):
         if events and not isinstance(events, list):
             raise TypeError("events must be a list")
@@ -528,6 +559,7 @@ class Chain:
         }
         return signed_abis
 
+    # TODO: test
     def get_events_topics(self, contract_address, events=None, ignore=None):
         return list(
             self.abi_to_event_topics(
@@ -535,11 +567,13 @@ class Chain:
             ).keys()
         )
 
+    # TODO: test
     def address_to_topic(self, address):
         stripped_address = address[2:]
         topic_format = "0x" + stripped_address.lower().rjust(64, "0")
         return topic_format
 
+    # TODO: test
     def encode_eth_call_payload(
         self, contract_address, function_name, block_identifier, args
     ):
@@ -570,12 +604,14 @@ class Chain:
 
         return payload, output_details
 
+    # TODO: test
     def batch_eth_calls(self, data):
         headers = {"content-type": "application/json"}
         response = requests.post(self.rpc, json=data, headers=headers, timeout=60)
         response.raise_for_status()
         return response.json()
 
+    # TODO: test
     def eth_multicall(self, calls):
         if len(calls) > 100:
             raise ValueError("Batch request limit exceeded (limit: 100)")
@@ -608,9 +644,11 @@ class Chain:
             )
         return response
 
+    # TODO: test
     def to_hex_topic(self, topic):
         return "0x" + Web3.keccak(text=topic).hex()
 
+    # TODO: test
     def get_token_info(self, address, bytes32=False, retry=False):
         calls = []
         calls.append(
@@ -661,17 +699,21 @@ class Chain:
             data["name"] = data["name"].decode("utf-8").rstrip("\x00")
         return data
 
+    # TODO: test
     def get_multicall_address(self):
         return MULTICALL3_ADDRESSES[self.chain_id] if self.chain_id else None
 
+    # TODO: test
     def create_index(self, block, tx_index, log_index):
         return "_".join(
             (str(block).zfill(12), str(tx_index).zfill(6), str(log_index).zfill(6))
         )
 
+    # TODO: test
     def chainlink_price_feed_for_asset_symbol(self, symbol):
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
 
+    # TODO: test
     def get_timestamp_for_block(self, block_number):
         block_info = None
         if sink.supports_chain(self.chain):
@@ -687,6 +729,7 @@ class Chain:
                 return block_info["timestamp"]
         return self.get_block_info(block_number).timestamp
 
+    # TODO: test
     def get_block_for_timestamp(self, timestamp):
         """
         Fetches the block number for a given timestamp.
@@ -713,9 +756,11 @@ class Chain:
         nearest_block = self.get_block_for_timestamp_fallback(timestamp)
         return nearest_block
 
+    # TODO: test
     def get_block_for_timestamp_fallback(self, timestamp):
         raise NotImplementedError
 
+    # TODO: test
     def get_owners_for_proxies(self, addresses, code):
         code_name = get_code_name(code)
         if code_name in ["GnosisSafeProxy", "Proxy", "SafeProxy"]:
@@ -732,6 +777,7 @@ class Chain:
         else:
             return {}
 
+    # TODO: test
     def get_owners_for_gnosis_safe(self, addresses):
         calls = []
 
@@ -757,6 +803,7 @@ class Chain:
                 results[address] = owners
         return results
 
+    # TODO: test
     def get_dsproxy_owners(self, addresses):
         calls = []
         results = {}
@@ -779,6 +826,7 @@ class Chain:
                 results[address] = [value.lower()]
         return results
 
+    # TODO: test
     def get_insta_account_owners(self, addresses):
         calls = []
         accounts = {}
@@ -870,6 +918,7 @@ class Chain:
 
         return results
 
+    # TODO: test
     def get_erc4626_info(self, address, block_identifier=None):
         calls = [
             (
@@ -928,6 +977,7 @@ class Chain:
 
         return data
 
+    # TODO: test
     def get_multiple_erc4626_info(self, addresses, block_identifier=None):
         calls = []
         for address in addresses:

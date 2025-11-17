@@ -11,6 +11,7 @@ license-files = ["LICEN[CS]E*"]
 dynamic = ["version"]
 dependencies = [
     "boto3>=1.40.74",
+    "environs>=14.5.0",
     "eth-abi>=5.2.0",
     "multiproof>=0.1.10",
     "requests>=2.32.5",
@@ -46,6 +47,7 @@ extend-select = [
     "COM", # flake8-commas
     "PYI", # flake8-pyi
     "PT", # flake8-pytest-style
+    "TID", # flake8-tidy-imports
     "I", # isort
     "C90", # mccabe
     "E", # pycodestyle
@@ -87,6 +89,10 @@ line-ending = "lf"
 
 [tool.ruff.lint.isort]
 known-first-party = ["chain_harvester"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"requests" = { msg = "Do not use 'requests'; use an async client (e.g. aiohttp) instead." }
+
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
