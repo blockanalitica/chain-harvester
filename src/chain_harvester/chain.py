@@ -31,7 +31,8 @@ from chain_harvester.decoders import (
     MissingABIEventDecoderError,
 )
 from chain_harvester.exceptions import ChainException, ConfigError
-from chain_harvester.multicall import Call, Multicall
+from chain_harvester.multicall.call import Call
+from chain_harvester.multicall.multicall import Multicall
 from chain_harvester.utils.codes import get_code_name
 
 log = logging.getLogger(__name__)
@@ -530,16 +531,22 @@ class Chain:
         return None
 
     # TODO: test
-    def multicall(self, calls, block_identifier=None):
-        multicalls = []
+    async def multicall(
+        self, calls, block_identifier=None, require_success=True, origin=None
+    ):
+        call_objs = []
         for address, function, response in calls:
-            multicalls.append(Call(address, function, [response]))
+            call_objs.append(Call(address, function, returns=[response]))
 
-        multi = Multicall(
-            multicalls, self.chain_id, _w3=self.w3, block_identifier=block_identifier
+        mc = Multicall(
+            call_objs,
+            self.w3,
+            self.chain_id,
+            block_identifier=block_identifier,
+            require_success=require_success,
+            origin=origin,
         )
-
-        return multi()
+        return await mc
 
     # TODO: test
     def abi_to_event_topics(self, contract_address, events=None, ignore=None):

@@ -1,5 +1,10 @@
+import os
 from decimal import Decimal
 from enum import IntEnum
+
+# TODO: better env var
+GAS_LIMIT = int(os.environ.get("GAS_LIMIT", 50_000_000))
+
 
 RAY = Decimal("1e27")
 
@@ -125,7 +130,7 @@ CHAINS = {
     },
 }
 
-NO_STATE_OVERRIDE = [Network.Gnosis]
+NO_STATE_OVERRIDE = {Network.Gnosis}
 
 
 STABLECOIN_SYMBOLS = {
