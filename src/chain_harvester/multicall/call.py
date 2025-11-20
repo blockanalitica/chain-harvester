@@ -1,11 +1,12 @@
 import logging
 
+from eth_abi.exceptions import InsufficientDataBytes
 from web3 import Web3
 
 from chain_harvester.constants import Network
 from chain_harvester.multicall.exceptions import StateOverrideNotSupportedError
 from chain_harvester.multicall.signature import _get_signature
-from chain_harvester.multicall.utils import _get_semaphore, state_override_supported
+from chain_harvester.multicall.utils import state_override_supported
 
 log = logging.getLogger(__name__)
 
@@ -64,8 +65,8 @@ class Call:
         if success is None or success:
             try:
                 decoded = signature.decode_data(output)
-            except:  # noqa: E722
-                success, decoded = False, [None] * (len(returns) if returns else 1)
+            except InsufficientDataBytes:
+                decoded = [None] * (len(returns) if returns else 1)
         else:
             decoded = [None] * (len(returns) if returns else 1)
 
@@ -95,20 +96,20 @@ class Call:
                 f"on {Network(self.chain_id).__repr__()[1:-1]}."
             )
 
-        async with _get_semaphore():
-            output = await self.w3.eth.call(
-                *prep_args(
-                    self.target,
-                    self.signature,
-                    args or self.args,
-                    block_identifier or self.block_identifier,
-                    self.origin,
-                    self.gas_limit,
-                    self.state_override_code,
-                )
+        output = await self.w3.eth.call(
+            *prep_args(
+                self.target,
+                self.signature,
+                args or self.args,
+                block_identifier or self.block_identifier,
+                self.origin,
+                self.gas_limit,
+                self.state_override_code,
             )
+        )
 
         result = Call.decode_output(output, self.signature, self.returns)
+
         log.debug("%s returned %s", self, result)
         return result
 

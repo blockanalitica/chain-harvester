@@ -7,32 +7,32 @@ class MathLib:
     WAD = int(1e18)  # Since Python doesn't need separate int/uint types
 
     @staticmethod
-    def w_mul_down(x: int, y: int) -> int:
+    def w_mul_down(x, y):
         """Returns (x * y) / WAD rounded down."""
         return MathLib.mul_div_down(x, y, MathLib.WAD)
 
     @staticmethod
-    def w_div_down(x: int, y: int) -> int:
+    def w_div_down(x, y):
         """Returns (x * WAD) / y rounded down."""
         return MathLib.mul_div_down(x, MathLib.WAD, y)
 
     @staticmethod
-    def w_div_up(x: int, y: int) -> int:
+    def w_div_up(x, y):
         """Returns (x * WAD) / y rounded up."""
         return MathLib.mul_div_up(x, MathLib.WAD, y)
 
     @staticmethod
-    def mul_div_down(x: int, y: int, d: int) -> int:
+    def mul_div_down(x, y, d):
         """Returns (x * y) / d rounded down."""
         return (x * y) // d
 
     @staticmethod
-    def mul_div_up(x: int, y: int, d: int) -> int:
+    def mul_div_up(x, y, d):
         """Returns (x * y) / d rounded up."""
         return (x * y + (d - 1)) // d
 
     @staticmethod
-    def w_taylor_compounded(x: int, n: int) -> int:
+    def w_taylor_compounded(x, n):
         """
         Returns the sum of the first three non-zero terms of a Taylor expansion
         of e^(nx) - 1, to approximate a continuous compound interest rate.
@@ -43,7 +43,7 @@ class MathLib:
         return first_term + second_term + third_term
 
     @staticmethod
-    def w_mul_to_zero(x: int, y: int) -> int:
+    def w_mul_to_zero(x, y):
         """
         Returns the multiplication of x by y (in WAD) rounded towards 0.
 
@@ -59,7 +59,7 @@ class MathLib:
         ) // MathLib.WAD  # Using integer division '//' for rounding towards 0
 
     @staticmethod
-    def w_div_to_zero(x: int, y: int) -> int:
+    def w_div_to_zero(x, y):
         """
         Returns the division of x by y (in WAD) rounded towards 0.
 

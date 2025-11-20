@@ -54,7 +54,7 @@ class Call:
         self.signature = Signature(self.function)
 
     @property
-    def data(self) -> bytes:
+    def data(self):
         return self.signature.encode_data(self.args)
 
     def decode_output(self, output, success=None):
