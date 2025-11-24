@@ -14,7 +14,7 @@ async def chain():
     return DummyChain(
         chain="ethereum",
         network="mainnet",
-        chain_id=123,
+        chain_id=1,
         rpc="http://localhost:8545",
     )
 
@@ -30,6 +30,10 @@ def test_chain(chain):
 def test_get_abi_from_source(chain):
     with pytest.raises(NotImplementedError):
         chain.get_abi_from_source(USDS_CONTRACT)
+
+
+def test_get_multicall_address(chain):
+    assert chain.get_multicall_address() == "0xcA11bde05977b3631167028862bE2a173976CA11"
 
 
 # def test__load_abi__abi():

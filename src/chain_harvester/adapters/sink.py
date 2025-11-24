@@ -20,7 +20,7 @@ def supports_chain(chain):
     return chain in SUPPORTED_CHAINS
 
 
-def fetch_nearest_block(chain, timestamp, direction="before"):
+async def fetch_nearest_block(chain, timestamp, direction="before"):
     """
     Fetches blocks that's nearest to the timestamp based on direction
     """
@@ -31,11 +31,11 @@ def fetch_nearest_block(chain, timestamp, direction="before"):
     }
     url = f"{SINK_API_URL}blocks/nearest/?{urllib.parse.urlencode(query_params)}"
 
-    data = retry_get_json(url)
+    data = await retry_get_json(url)
     return data["block_number"]
 
 
-def fetch_block_info(chain, block_number):
+async def fetch_block_info(chain, block_number):
     url = f"{SINK_API_URL}blocks/{chain}/{block_number}/"
-    data = retry_get_json(url)
+    data = await retry_get_json(url)
     return data

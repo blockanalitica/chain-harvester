@@ -20,10 +20,15 @@ class DummyChain(EtherscanMixin, Chain):
             network="mainnet",
             abis_path="integration_tests/abis/ethereum/",
             etherscan_api_key=ETHERSCAN_API_KEY,
+            step=5,
             **kwargs,
         )
 
 
 @pytest.fixture
 async def chain():
-    return DummyChain()
+    chain = DummyChain()
+    try:
+        yield chain
+    finally:
+        await chain.aclose()

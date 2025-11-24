@@ -9,9 +9,9 @@ import aiofiles.os
 import aiofiles.ospath as ospath
 import aiohttp
 import eth_abi
-import requests
 from botocore.exceptions import ClientError
 from environs import env
+from eth_abi.exceptions import InvalidPointer
 from eth_utils import event_abi_to_log_topic
 from hexbytes import HexBytes
 from web3 import AsyncWeb3, Web3
@@ -34,6 +34,7 @@ from chain_harvester.decoders import (
 )
 from chain_harvester.exceptions import ChainException, ConfigError
 from chain_harvester.utils.codes import get_code_name
+from chain_harvester.utils.http import retry_post_json
 from chain_harvester.utils.s3 import fetch_abi_from_s3, save_abi_to_s3
 
 log = logging.getLogger(__name__)
@@ -121,6 +122,12 @@ class Chain:
     def eth(self):
         return self.w3.eth
 
+    async def aclose(self):
+        if not self._w3:
+            return
+
+        await self._w3.provider.disconnect()
+
     async def get_block_info(self, block_number):
         return await self.eth.get_block(block_number)
 
@@ -139,7 +146,6 @@ class Chain:
         latest_block = await self.eth.get_block_number()
         return latest_block - effective_offset
 
-    # TODO: reimplement this to async in mixins
     async def get_abi_from_source(self, contract_address):
         raise NotImplementedError
 
@@ -250,9 +256,11 @@ class Chain:
                     ],
                     block_identifier=block_identifier,
                 )
-                address = Web3.to_checksum_address(data["address"])
+                if data["address"]:
+                    address = Web3.to_checksum_address(data["address"])
             except ContractLogicError:
                 pass
+
         return address
 
     async def get_contract(self, contract_address, refetch_on_block=None):
@@ -294,30 +302,29 @@ class Chain:
         code = await self.eth.get_code(address)
         return code.hex()
 
-    # TODO: test
-    def _yield_all_events(self, fetch_events_func, from_block, to_block):
+    async def _yield_all_events(self, fetch_events_func, from_block, to_block):
         retries = 0
         step = self.step
 
         while True:
             end_block = min(from_block + step - 1, to_block)
             log.debug(
-                f"Fetching events from {from_block} to {end_block} with step {step}"
+                "Fetching events from %s to %s with step %s",
+                from_block,
+                end_block,
+                step,
             )
-            events = fetch_events_func(from_block, end_block)
-            if events is None:
-                break
-
             try:
-                yield from events
+                async for event in fetch_events_func(from_block, end_block):
+                    yield event
                 retries = 0
+
             except Web3RPCError as e:
                 # We're catching Web3RPCError as the limit for each response is either
                 # 2000 blocks or 10k logs. Since our step is bigger than 2k blocks, we
                 # catch the errors, and retry with smaller step (2k blocks)
 
                 err_code = e.rpc_response["error"]["code"]
-
                 if err_code in [-32602, -32005, -32000]:
                     if retries > 5:
                         raise
@@ -336,7 +343,6 @@ class Chain:
             # Reset step back to self.step in case we did a retry
             step = self.step
 
-    # TODO: test
     def _decode_raw_log(self, contract, raw_log, mixed, anonymous):
         # In order to not always instantiate new decoder, we store it under a specific
         # key directly on contract in order to cache it
@@ -348,7 +354,6 @@ class Chain:
 
         return decoder.decode_log(raw_log, mixed, anonymous)
 
-    # TODO: test
     def _generate_fetch_events_func(
         self,
         contracts,
@@ -358,7 +363,7 @@ class Chain:
         anonymous,
         mixed,
     ):
-        def fetch_events_for_contracts_topics(from_block, to_block):
+        async def fetch_events_for_contracts_topics(from_block, to_block):
             filters = {
                 "fromBlock": hex(from_block),
                 "toBlock": hex(to_block),
@@ -367,7 +372,7 @@ class Chain:
             if topics:
                 filters["topics"] = topics
 
-            raw_logs = self.eth.get_logs(filters)
+            raw_logs = await self.eth.get_logs(filters)
             for raw_log in raw_logs:
                 if (
                     HexBytes(
@@ -382,7 +387,7 @@ class Chain:
                     continue
                 # TODO: Skip BeaconUpgraded event in a similar fashion to the one above
 
-                contract = self.get_contract(raw_log["address"].lower())
+                contract = await self.get_contract(raw_log["address"].lower())
                 try:
                     data = self._decode_raw_log(contract, raw_log, mixed, anonymous)
                 except MissingABIEventDecoderError:
@@ -392,7 +397,7 @@ class Chain:
                         raw_log["address"].lower(),
                         raw_log["blockNumber"],
                     )
-                    contract = self.get_contract(
+                    contract = await self.get_contract(
                         raw_log["address"].lower(),
                         refetch_on_block=raw_log["blockNumber"],
                     )
@@ -402,39 +407,14 @@ class Chain:
 
         return fetch_events_for_contracts_topics
 
-    # TODO: test
     def get_events_for_contract(
         self, contract_address, from_block, to_block=None, anonymous=False
     ):
-        if not to_block:
-            to_block = self.get_latest_block()
-        contract_address = Web3.to_checksum_address(contract_address)
-
-        fetch_events_func = self._generate_fetch_events_func(
-            contract_address, from_block, to_block, None, anonymous, False
+        return self.get_events_for_contracts(
+            [contract_address], from_block, to_block=to_block, anonymous=anonymous
         )
 
-        return self._yield_all_events(fetch_events_func, from_block, to_block)
-
-    # TODO: test
-    def get_events_for_contract_topics(
-        self, contract_address, topics, from_block, to_block=None, anonymous=False
-    ):
-        contract_address = Web3.to_checksum_address(contract_address)
-        if not isinstance(topics, list):
-            raise TypeError("topics must be a list")
-
-        if not to_block:
-            to_block = self.get_latest_block()
-
-        fetch_events_func = self._generate_fetch_events_func(
-            contract_address, from_block, to_block, topics, anonymous, False
-        )
-
-        return self._yield_all_events(fetch_events_func, from_block, to_block)
-
-    # TODO: test
-    def get_events_for_contracts(
+    async def get_events_for_contracts(
         self,
         contract_addresses,
         from_block,
@@ -446,7 +426,7 @@ class Chain:
             raise TypeError("contract_addresses must be a list")
 
         if not to_block:
-            to_block = self.get_latest_block()
+            to_block = await self.get_latest_block()
 
         contracts = [
             Web3.to_checksum_address(contract_address)
@@ -457,10 +437,23 @@ class Chain:
             contracts, from_block, to_block, None, anonymous, mixed
         )
 
-        return self._yield_all_events(fetch_events_func, from_block, to_block)
+        async for event in self._yield_all_events(
+            fetch_events_func, from_block, to_block
+        ):
+            yield event
 
-    # TODO: test
-    def get_events_for_contracts_topics(
+    def get_events_for_contract_topics(
+        self, contract_address, topics, from_block, to_block=None, anonymous=False
+    ):
+        return self.get_events_for_contracts_topics(
+            [contract_address],
+            topics,
+            from_block,
+            to_block=to_block,
+            anonymous=anonymous,
+        )
+
+    async def get_events_for_contracts_topics(
         self,
         contract_addresses,
         topics,
@@ -476,7 +469,7 @@ class Chain:
             raise TypeError("topics must be a list")
 
         if not to_block:
-            to_block = self.get_latest_block()
+            to_block = await self.get_latest_block()
 
         contracts = [
             Web3.to_checksum_address(contract_address)
@@ -486,30 +479,33 @@ class Chain:
         fetch_events_func = self._generate_fetch_events_func(
             contracts, from_block, to_block, topics, anonymous, mixed
         )
+        async for event in self._yield_all_events(
+            fetch_events_func, from_block, to_block
+        ):
+            yield event
 
-        return self._yield_all_events(fetch_events_func, from_block, to_block)
-
-    # TODO: test
-    def get_events_for_topics(self, topics, from_block, to_block=None, anonymous=False):
+    async def get_events_for_topics(
+        self, topics, from_block, to_block=None, anonymous=False
+    ):
         if not isinstance(topics, list):
             raise TypeError("topics must be a list")
 
         if not to_block:
-            to_block = self.get_latest_block()
+            to_block = await self.get_latest_block()
 
-        def fetch_events_for_topics(from_block, to_block):
+        async def fetch_events_for_topics_func(from_block, to_block):
             filters = {
                 "fromBlock": hex(from_block),
                 "toBlock": hex(to_block),
                 "topics": topics,
             }
 
-            raw_logs = self.eth.get_logs(filters)
+            raw_logs = await self.eth.get_logs(filters)
             for raw_log in raw_logs:
                 try:
-                    contract = self.get_contract(raw_log["address"].lower())
+                    contract = await self.get_contract(raw_log["address"].lower())
                 except ChainException:
-                    log.warning(f"Contract not verified for {raw_log['address']}")
+                    log.warning("Contract not verified for %s", {raw_log["address"]})
                     continue
                 if anonymous:
                     decoder = AnonymousEventLogDecoder(contract)
@@ -517,23 +513,25 @@ class Chain:
                     decoder = EventLogDecoder(contract)
                 yield decoder.decode_log(raw_log)
 
-        return self._yield_all_events(fetch_events_for_topics, from_block, to_block)
+        async for event in self._yield_all_events(
+            fetch_events_for_topics_func, from_block, to_block
+        ):
+            yield event
 
-    # TODO: test
-    def get_latest_event_before_block(
-        self, address, topics, block_number, max_retries=5
+    async def get_latest_event_before_block(
+        self, address, topics, block_number, max_tries=5
     ):
-        current_step = self.step
-        for _ in range(max_retries):
+        step = self.step
+        current_step = step
+        for _ in range(max_tries):
             events = self.get_events_for_contract_topics(
-                address, topics, block_number - self.step + 1, to_block=block_number
+                address, topics, block_number - step + 1, to_block=block_number
             )
-            items = list(events)
+            items = [event async for event in events]
             if items:
-                self.step = current_step
                 return items[-1]
-            self.step *= 2
-        self.step = current_step
+            step *= 2
+        step = current_step
         return None
 
     async def multicall(
@@ -556,12 +554,11 @@ class Chain:
         )
         return await mc
 
-    # TODO: test
-    def abi_to_event_topics(self, contract_address, events=None, ignore=None):
+    async def abi_to_event_topics(self, contract_address, events=None, ignore=None):
         if events and not isinstance(events, list):
             raise TypeError("events must be a list")
 
-        contract = self.get_contract(contract_address)
+        contract = await self.get_contract(contract_address)
         event_abis = [
             abi
             for abi in contract.abi
@@ -569,30 +566,22 @@ class Chain:
             and (events is None or abi["name"] in events)
             and (ignore is None or abi["name"] not in ignore)
         ]
+
         signed_abis = {
             f"0x{event_abi_to_log_topic(abi).hex()}": abi for abi in event_abis
         }
         return signed_abis
 
-    # TODO: test
-    def get_events_topics(self, contract_address, events=None, ignore=None):
-        return list(
-            self.abi_to_event_topics(
-                contract_address, events=events, ignore=ignore
-            ).keys()
+    async def get_events_topics(self, contract_address, events=None, ignore=None):
+        topics = await self.abi_to_event_topics(
+            contract_address, events=events, ignore=ignore
         )
+        return list(topics.keys())
 
-    # TODO: test
-    def address_to_topic(self, address):
-        stripped_address = address[2:]
-        topic_format = "0x" + stripped_address.lower().rjust(64, "0")
-        return topic_format
-
-    # TODO: test
-    def encode_eth_call_payload(
+    async def encode_eth_call_payload(
         self, contract_address, function_name, block_identifier, args
     ):
-        contract = self.get_contract(contract_address)
+        contract = await self.get_contract(contract_address)
         output_details = {"output_types": [], "output_names": []}
         for element in contract.abi:
             if element["type"] == "function" and element["name"] == function_name:
@@ -619,15 +608,7 @@ class Chain:
 
         return payload, output_details
 
-    # TODO: test
-    def batch_eth_calls(self, data):
-        headers = {"content-type": "application/json"}
-        response = requests.post(self.rpc, json=data, headers=headers, timeout=60)
-        response.raise_for_status()
-        return response.json()
-
-    # TODO: test
-    def eth_multicall(self, calls):
+    async def batch_eth_calls(self, calls):
         if len(calls) > 100:
             raise ValueError("Batch request limit exceeded (limit: 100)")
 
@@ -636,14 +617,16 @@ class Chain:
         response = []
         request_id = 1
         for contract_address, function_name, block_identifier, args in calls:
-            payload, names_types = self.encode_eth_call_payload(
+            payload, names_types = await self.encode_eth_call_payload(
                 contract_address, function_name, block_identifier, args
             )
             payload["id"] = request_id
             payloads.append(payload)
             outputs_details[request_id] = names_types
             request_id += 1
-        batch_response = self.batch_eth_calls(payloads)
+
+        headers = {"content-type": "application/json"}
+        batch_response = await retry_post_json(self.rpc, json=payloads, headers=headers)
         for r in batch_response:
             decoded_response = eth_abi.abi.decode(
                 outputs_details[r["id"]]["output_types"], bytes.fromhex(r["result"][2:])
@@ -659,12 +642,7 @@ class Chain:
             )
         return response
 
-    # TODO: test
-    def to_hex_topic(self, topic):
-        return "0x" + Web3.keccak(text=topic).hex()
-
-    # TODO: test
-    def get_token_info(self, address, bytes32=False, retry=False):
+    async def get_token_info(self, address, bytes32=False, retry=False):
         calls = []
         calls.append(
             (
@@ -705,35 +683,28 @@ class Chain:
                     ["symbol", None],
                 )
             )
-        data = self.multicall(calls)
-        if data["symbol"] is None and not retry:
-            data = self.get_token_info(address, bytes32=True, retry=True)
+
+        try:
+            data = await self.multicall(calls)
+        except InvalidPointer:
+            data = await self.get_token_info(address, bytes32=True, retry=True)
             if data["symbol"] is None:
                 return data
             data["symbol"] = data["symbol"].decode("utf-8").rstrip("\x00")
             data["name"] = data["name"].decode("utf-8").rstrip("\x00")
         return data
 
-    # TODO: test
     def get_multicall_address(self):
         return MULTICALL3_ADDRESSES[self.chain_id] if self.chain_id else None
 
-    # TODO: test
-    def create_index(self, block, tx_index, log_index):
-        return "_".join(
-            (str(block).zfill(12), str(tx_index).zfill(6), str(log_index).zfill(6))
-        )
-
-    # TODO: test
     def chainlink_price_feed_for_asset_symbol(self, symbol):
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
 
-    # TODO: test
-    def get_timestamp_for_block(self, block_number):
+    async def get_timestamp_for_block(self, block_number):
         block_info = None
         if sink.supports_chain(self.chain):
             try:
-                block_info = sink.fetch_block_info(self.chain, block_number)
+                block_info = await sink.fetch_block_info(self.chain, block_number)
             except Exception:
                 log.exception(
                     "Couldn't fetch block info from sink. Block number: %s chain: %s",
@@ -744,8 +715,10 @@ class Chain:
                 return block_info["timestamp"]
         return self.get_block_info(block_number).timestamp
 
-    # TODO: test
-    def get_block_for_timestamp(self, timestamp):
+    async def get_block_for_timestamp_fallback(self, timestamp):
+        raise NotImplementedError
+
+    async def get_block_for_timestamp(self, timestamp):
         """
         Fetches the block number for a given timestamp.
 
@@ -755,11 +728,11 @@ class Chain:
         Returns:
             int: The block number.
         """
-
+        nearest_block = None
         # First try to fetch the block from sink.
         if sink.supports_chain(self.chain):
             try:
-                return sink.fetch_nearest_block(self.chain, timestamp)
+                nearest_block = await sink.fetch_nearest_block(self.chain, timestamp)
             except Exception:
                 log.exception(
                     "Couldn't fetch nearest block from sink. Timestamp: %s chain: %s",
@@ -768,32 +741,27 @@ class Chain:
                 )
 
         # As a fallback use etherscan or other similar apis
-        nearest_block = self.get_block_for_timestamp_fallback(timestamp)
+        if not nearest_block:
+            nearest_block = await self.get_block_for_timestamp_fallback(timestamp)
         return nearest_block
 
-    # TODO: test
-    def get_block_for_timestamp_fallback(self, timestamp):
-        raise NotImplementedError
-
-    # TODO: test
-    def get_owners_for_proxies(self, addresses, code):
+    async def get_owners_for_proxies(self, addresses, code):
         code_name = get_code_name(code)
+
         if code_name in ["GnosisSafeProxy", "Proxy", "SafeProxy"]:
-            return self.get_owners_for_gnosis_safe(addresses)
+            return await self.get_owners_for_gnosis_safe(addresses)
         elif code_name in [
             "AccountImplementation",
             "DSProxy",
             "Vault",
             "CenoaCustomProxy",
         ]:
-            return self.get_dsproxy_owners(addresses)
+            return await self.get_dsproxy_owners(addresses)
         elif code_name in ["InstaAccountV2"]:
-            return self.get_insta_account_owners(addresses)
-        else:
-            return {}
+            return await self.get_insta_account_owners(addresses)
+        return {}
 
-    # TODO: test
-    def get_owners_for_gnosis_safe(self, addresses):
+    async def get_owners_for_gnosis_safe(self, addresses):
         calls = []
 
         results = {}
@@ -806,20 +774,19 @@ class Chain:
                 )
             )
             if len(calls) == 5000:
-                data = self.multicall(calls)
+                data = await self.multicall(calls)
                 for address, value in data.items():
                     owners = [owner.lower() for owner in value]
                     results[address] = owners
                 calls = []
         if calls:
-            data = self.multicall(calls)
+            data = await self.multicall(calls)
             for address, value in data.items():
                 owners = [owner.lower() for owner in value]
                 results[address] = owners
         return results
 
-    # TODO: test
-    def get_dsproxy_owners(self, addresses):
+    async def get_dsproxy_owners(self, addresses):
         calls = []
         results = {}
         for address in addresses:
@@ -831,18 +798,17 @@ class Chain:
                 )
             )
             if len(calls) == 5000:
-                data = self.multicall(calls)
+                data = await self.multicall(calls)
                 for address, value in data.items():
                     results[address] = [value.lower()]
                 calls = []
         if calls:
-            data = self.multicall(calls)
+            data = await self.multicall(calls)
             for address, value in data.items():
                 results[address] = [value.lower()]
         return results
 
-    # TODO: test
-    def get_insta_account_owners(self, addresses):
+    async def get_insta_account_owners(self, addresses):
         calls = []
         accounts = {}
         for address in addresses:
@@ -853,7 +819,7 @@ class Chain:
                     [f"{address}", None],
                 )
             )
-        data = self.multicall(calls)
+        data = await self.multicall(calls)
 
         account_ids = []
         for key, value in data.items():
@@ -870,7 +836,7 @@ class Chain:
                     [f"{account_id}", None],
                 )
             )
-            data = self.multicall(calls)
+            data = await self.multicall(calls)
             multiple_owners_insta_ids = []
             for account_id, values in data.items():
                 count = values[2]
@@ -919,7 +885,7 @@ class Chain:
                             ["last", None],
                         )
                     )
-                    account_list = self.multicall(calls)
+                    account_list = await self.multicall(calls)
 
                     owners.append(account_list["first"][1])
                     owners.append(account_list["last"][0])
@@ -933,118 +899,74 @@ class Chain:
 
         return results
 
-    # TODO: test
-    def get_erc4626_info(self, address, block_identifier=None):
-        calls = [
-            (
-                address,
-                [
-                    "name()(string)",
-                ],
-                ["name", None],
-            ),
-            (
-                address,
-                [
-                    "symbol()(string)",
-                ],
-                ["symbol", None],
-            ),
-            (
-                address,
-                [
-                    "asset()(address)",
-                ],
-                ["asset", None],
-            ),
-            (
-                address,
-                [
-                    "decimals()(uint8)",
-                ],
-                ["decimals", None],
-            ),
-            (
-                address,
-                [
-                    "totalAssets()(uint256)",
-                ],
-                ["total_assets", None],
-            ),
-            (
-                address,
-                [
-                    "totalSupply()(uint256)",
-                ],
-                ["total_supply", None],
-            ),
-            (
-                address,
-                [
-                    "convertToAssets(uint256)(uint256)",
-                    10 ** (36 - 6),
-                ],
-                ["convert_to_assets", None],
-            ),
-        ]
-
-        data = self.multicall(calls, block_identifier=block_identifier)
-
-        return data
-
-    # TODO: test
-    def get_multiple_erc4626_info(self, addresses, block_identifier=None):
+    async def get_multiple_erc4626_info(self, addresses, block_identifier=None):
         calls = []
         for address in addresses:
-            calls.append(
-                (
-                    address,
-                    [
-                        "name()(string)",
-                    ],
-                    [f"{address}::name", None],
-                ),
-                (
-                    address,
-                    [
-                        "symbol()(string)",
-                    ],
-                    [f"{address}::symbol", None],
-                ),
-                (
-                    address,
-                    [
-                        "asset()(address)",
-                    ],
-                    [f"{address}::asset", None],
-                ),
-                (
-                    address,
-                    [
-                        "decimals()(uint8)",
-                    ],
-                    [f"{address}::decimals", None],
-                ),
-                (
-                    address,
-                    [
-                        "totalAssets()(uint256)",
-                    ],
-                    [f"{address}::total_assets", None],
-                ),
-                (
-                    address,
-                    [
-                        "totalSupply()(uint256)",
-                    ],
-                    [f"{address}::total_supply", None],
-                ),
+            calls.extend(
+                [
+                    (
+                        address,
+                        [
+                            "name()(string)",
+                        ],
+                        [f"{address}::name", None],
+                    ),
+                    (
+                        address,
+                        [
+                            "symbol()(string)",
+                        ],
+                        [f"{address}::symbol", None],
+                    ),
+                    (
+                        address,
+                        [
+                            "asset()(address)",
+                        ],
+                        [f"{address}::asset", None],
+                    ),
+                    (
+                        address,
+                        [
+                            "decimals()(uint8)",
+                        ],
+                        [f"{address}::decimals", None],
+                    ),
+                    (
+                        address,
+                        [
+                            "totalAssets()(uint256)",
+                        ],
+                        [f"{address}::total_assets", None],
+                    ),
+                    (
+                        address,
+                        [
+                            "totalSupply()(uint256)",
+                        ],
+                        [f"{address}::total_supply", None],
+                    ),
+                    (
+                        address,
+                        [
+                            "convertToAssets(uint256)(uint256)",
+                            10 ** (36 - 6),
+                        ],
+                        [f"{address}::convert_to_assets", None],
+                    ),
+                ]
             )
 
-        data = self.multicall(calls, block_identifier=block_identifier)
+        data = await self.multicall(calls, block_identifier=block_identifier)
 
         result = defaultdict(dict)
         for key, value in data.items():
             address, label = key.split("::")
             result[address][label] = value
         return result
+
+    async def get_erc4626_info(self, address, block_identifier=None):
+        info = await self.get_multiple_erc4626_info(
+            [address], block_identifier=block_identifier
+        )
+        return info[address]

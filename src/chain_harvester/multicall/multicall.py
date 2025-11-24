@@ -95,7 +95,6 @@ class Multicall:
 
     async def fetch_outputs(self, calls=None, retries=0, cid=""):
         log.debug("coroutine %s started", cid)
-        print("coroutine %s started" % cid)
 
         if calls is None:
             calls = self.calls

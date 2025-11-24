@@ -15,12 +15,12 @@ def create_index(block, tx_index, log_index):
 
 
 def to_hex_topic(topic):
-    return "0x" + Web3.keccak(text=topic).hex()
+    return f"0x{Web3.keccak(text=topic).hex()}"
 
 
 def address_to_topic(address):
-    stripped_address = address[2:]
-    topic_format = "0x" + stripped_address.lower().rjust(64, "0")
+    addr = address.lower()[2:]
+    topic_format = f"0x{addr.rjust(64, '0')}"
     return topic_format
 
 

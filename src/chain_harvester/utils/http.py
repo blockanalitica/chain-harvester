@@ -6,7 +6,8 @@ import aiohttp
 log = logging.getLogger(__name__)
 
 
-async def retry_get_json(
+async def retry_request_json(
+    method,
     url,
     retries=3,
     timeout=30,
@@ -23,7 +24,7 @@ async def retry_get_json(
     async with aiohttp.ClientSession(timeout=client_timeout) as session:
         for attempt in range(retries + 1):
             try:
-                async with session.get(url, **kwargs) as resp:
+                async with session.request(method, url, **kwargs) as resp:
                     if resp.status in status_forcelist:
                         # Handle Retry-After if present (mostly for 429)
                         if resp.status == 429:
@@ -71,3 +72,11 @@ async def retry_get_json(
                     await asyncio.sleep(delay)
                     continue
                 raise
+
+
+async def retry_get_json(url, **kwargs):
+    return await retry_request_json("GET", url, **kwargs)
+
+
+async def retry_post_json(url, **kwargs):
+    return await retry_request_json("POST", url, **kwargs)
