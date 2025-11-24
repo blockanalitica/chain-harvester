@@ -6,7 +6,9 @@ def test__call_contract_function():
     chain = GnosisMainnetChain(rpc=RPC_NODES["gnosis"]["mainnet"], api_keys=API_KEYS)
 
     assert chain.rpc == RPC_NODES["gnosis"]["mainnet"]
-    name = chain.call_contract_function("0xe91d153e0b41518a2ce8dd3d7944fa863463a97d", "name")
+    name = chain.call_contract_function(
+        "0xe91d153e0b41518a2ce8dd3d7944fa863463a97d", "name"
+    )
     assert name == "Wrapped XDAI"
 
 
@@ -64,7 +66,10 @@ def test__multicall__history():
     calls.append(
         (
             "0xe91d153e0b41518a2ce8dd3d7944fa863463a97d",
-            ["balanceOf(address)(uint256)", "0xe91d153e0b41518a2ce8dd3d7944fa863463a97d"],
+            [
+                "balanceOf(address)(uint256)",
+                "0xe91d153e0b41518a2ce8dd3d7944fa863463a97d",
+            ],
             ["balanceOf", None],
         )
     )
@@ -75,7 +80,10 @@ def test__multicall__history():
     calls.append(
         (
             "0xe91d153e0b41518a2ce8dd3d7944fa863463a97d",
-            ["balanceOf(address)(uint256)", "0xe91d153e0b41518a2ce8dd3d7944fa863463a97d"],
+            [
+                "balanceOf(address)(uint256)",
+                "0xe91d153e0b41518a2ce8dd3d7944fa863463a97d",
+            ],
             ["balanceOf", None],
         )
     )

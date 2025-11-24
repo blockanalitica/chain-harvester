@@ -3,7 +3,9 @@ from integration_tests.env import API_KEYS, RPC_NODES
 
 
 def test__latest_block():
-    chain = HyperliquidMainnetChain(rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS)
+    chain = HyperliquidMainnetChain(
+        rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS
+    )
 
     assert chain.rpc == RPC_NODES["hyperliquid"]["mainnet"]
     block = chain.get_latest_block()
@@ -11,16 +13,10 @@ def test__latest_block():
     assert block > 0
 
 
-# def test__call_contract_function():
-#     chain = HyperliquidMainnetChain(rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS)
-
-#     assert chain.rpc == RPC_NODES["hyperliquid"]["mainnet"]
-#     name = chain.call_contract_function("0xffaa4a3d97fe9107cef8a3f48c069f577ff76cc1", "name")
-#     assert name == "Staked HYPE"
-
-
 def test__multicall():
-    chain = HyperliquidMainnetChain(rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS)
+    chain = HyperliquidMainnetChain(
+        rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS
+    )
 
     calls = []
     calls.append(
@@ -43,7 +39,9 @@ def test__multicall():
 
 
 def test__get_events_for_contract():
-    chain = HyperliquidMainnetChain(rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS)
+    chain = HyperliquidMainnetChain(
+        rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS
+    )
 
     events = chain.get_events_for_contract(
         "0xffaa4a3d97fe9107cef8a3f48c069f577ff76cc1",
@@ -55,7 +53,9 @@ def test__get_events_for_contract():
 
 
 def test__multicall_archive():
-    chain = HyperliquidMainnetChain(rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS)
+    chain = HyperliquidMainnetChain(
+        rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS
+    )
 
     calls = []
     calls.append(
