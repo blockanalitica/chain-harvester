@@ -1,3 +1,5 @@
+from environs import env
+
 from chain_harvester.networks.arbitrum.mainnet import ArbitrumMainnetChain
 from chain_harvester.networks.avalanche.mainnet import AvalancheMainnetChain
 from chain_harvester.networks.base.mainnet import BaseMainnetChain
@@ -10,10 +12,14 @@ from chain_harvester.networks.rari.mainnet import RariMainnetChain
 from chain_harvester.networks.scroll.mainnet import ScrollMainnetChain
 
 
+# TODO: reimplement this
 def get_chain(network, *args, **kwargs):
+    etherscan_api_key = env("ETHERSCAN_API_KEY", None)
     match network:
         case "ethereum":
-            return EthereumMainnetChain(*args, **kwargs)
+            return EthereumMainnetChain(
+                *args, etherscan_api_key=etherscan_api_key, **kwargs
+            )
         case "polygon":
             return PolygonMainnetChain(*args, **kwargs)
         case "optimism":
