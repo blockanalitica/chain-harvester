@@ -231,10 +231,9 @@ class Chain:
 
         # Logic contract address
         slot = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
-        impl_address = await self.eth.get_storage_at(
+        impl_address = await self.get_storage_at(
             contract_address, int(slot, 16), block_identifier
         )
-        impl_address = impl_address.hex()
 
         address = Web3.to_checksum_address(impl_address[-40:])
 
@@ -256,48 +255,44 @@ class Chain:
                 pass
         return address
 
-    # TODO: test
-    def get_contract(self, contract_address, refetch_on_block=None):
+    async def get_contract(self, contract_address, refetch_on_block=None):
         # This function can be called many, many times, so we cache already instantiated
         # contracts
         contract_address = Web3.to_checksum_address(contract_address)
 
         if refetch_on_block or contract_address not in self._contracts:
-            abi = self.load_abi(contract_address, refetch_on_block=refetch_on_block)
+            abi = await self.load_abi(
+                contract_address, refetch_on_block=refetch_on_block
+            )
             contract = self.eth.contract(
                 address=contract_address,
                 abi=abi,
             )
             self._contracts[contract_address] = contract
-
         return self._contracts[contract_address]
 
-    # TODO: test
-    def call_contract_function(self, contract_address, function_name, *args, **kwargs):
+    async def call_contract_function(
+        self, contract_address, function_name, *args, **kwargs
+    ):
         contract_address = Web3.to_checksum_address(contract_address)
-        contract = self.get_contract(contract_address)
+        contract = await self.get_contract(contract_address)
         contract_function = contract.get_function_by_name(function_name)
-        result = contract_function(*args).call(
+        result = await contract_function(*args).call(
             block_identifier=kwargs.get("block_identifier", "latest")
         )
         return result
 
-    # TODO: test
-    def get_storage_at(self, contract_address, position, block_identifier=None):
+    async def get_storage_at(self, contract_address, position, block_identifier=None):
         contract_address = Web3.to_checksum_address(contract_address)
-        content = self.eth.get_storage_at(
+        content = await self.eth.get_storage_at(
             contract_address, position, block_identifier=block_identifier
-        ).hex()
-        return content
+        )
+        return content.hex()
 
-    # TODO: test
-    def get_code(self, address):
+    async def get_code(self, address):
         address = Web3.to_checksum_address(address)
-        return self.eth.get_code(address).hex()
-
-    # TODO: test
-    def is_eoa(self, address):
-        return self.get_code(address) == ""
+        code = await self.eth.get_code(address)
+        return code.hex()
 
     # TODO: test
     def _yield_all_events(self, fetch_events_func, from_block, to_block):
@@ -541,20 +536,6 @@ class Chain:
         self.step = current_step
         return None
 
-    # def multicall(
-    #     self, calls, block_identifier=None, require_success=True, origin=None
-    # ):
-    #     from chain_harvester.multicall import Call, Multicall
-
-    #     call_objs = []
-    #     for address, function, response in calls:
-    #         call_objs.append(Call(address, function, [response]))
-    #     multi = Multicall(
-    #         call_objs, self.chain_id, _w3=self.w3, block_identifier=block_identifier
-    #     )
-    #     return multi()
-
-    # TODO: test
     async def multicall(
         self, calls, block_identifier=None, require_success=True, origin=None
     ):

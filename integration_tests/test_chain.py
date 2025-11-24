@@ -4,7 +4,7 @@ import aiofiles
 import aiofiles.os
 import aiofiles.ospath as ospath
 
-from integration_tests.constants import DEMO_ABI
+from integration_tests.constants import DEMO_ABI, USDS_CONTRACT
 
 
 async def test_get_latest_block(chain):
@@ -58,3 +58,30 @@ async def test_load_abi_from_s3(chain):
 
     abi = await chain.load_abi(address)
     assert abi == DEMO_ABI
+
+
+async def test_get_contract(chain):
+    contract = await chain.get_contract(USDS_CONTRACT)
+    assert contract.address.lower() == USDS_CONTRACT
+
+
+async def test_call_contract_function(chain):
+    symbol = await chain.call_contract_function(USDS_CONTRACT, "symbol")
+    assert symbol == "USDS"
+
+
+async def test_get_storage_at(chain):
+    slot = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+    content = await chain.get_storage_at(USDS_CONTRACT, int(slot, 16), 23865574)
+    assert content == "0000000000000000000000001923dfee706a8e78157416c29cbccfde7cdf4102"
+
+
+async def test_get_code(chain):
+    code = await chain.get_code(USDS_CONTRACT)
+    assert code == (
+        "6080604052600a600c565b005b60186014601a565b6051565b565b6000604c7f360894a13ba1a"
+        "3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc546001600160a01b031690565b"
+        "905090565b3660008037600080366000845af43d6000803e808015606f573d6000f35b3d6000f"
+        "dfea2646970667358221220fb4fe6c40bd8fec38fd16b0ec231b1d502f3cbafe4e1c2483e3b4a"
+        "61e9b3a17264736f6c63430008150033"
+    )

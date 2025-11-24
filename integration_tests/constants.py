@@ -2,6 +2,7 @@ from environs import env
 
 ETHERSCAN_API_KEY = env("ETHERSCAN_API_KEY", None)
 
+USDS_CONTRACT = "0xdc035d45d973e3ec169d2276ddab16f1e407384f"
 
 DEMO_ABI = [
     {
