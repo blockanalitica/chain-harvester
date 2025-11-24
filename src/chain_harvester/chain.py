@@ -4,8 +4,10 @@ import logging
 import os
 from collections import defaultdict
 
+import aiofiles
+import aiofiles.os
+import aiofiles.ospath as ospath
 import aiohttp
-import boto3
 import eth_abi
 import requests
 from botocore.exceptions import ClientError
@@ -32,6 +34,7 @@ from chain_harvester.decoders import (
 )
 from chain_harvester.exceptions import ChainException, ConfigError
 from chain_harvester.utils.codes import get_code_name
+from chain_harvester.utils.s3 import fetch_abi_from_s3, save_abi_to_s3
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +45,8 @@ validation.METHODS_TO_VALIDATE = set(validation.METHODS_TO_VALIDATE) - {RPC.eth_
 
 
 class Chain:
-    latest_block_offset = 0
+    # TODO: do this in clients
+    latest_block_offset = 5
 
     def __init__(
         self,
@@ -74,16 +78,16 @@ class Chain:
         self.abis_path = (
             abis_path or f"abis/{self.chain.lower()}/{self.network.lower()}/"
         )
-        # Create the abis_path if it doesn't exist yet
-        os.makedirs(self.abis_path, exist_ok=True)
 
-        # TODO: tests for s3 and make it async
-        s3_client = None
+        self.s3_config = None
         if s3 and s3.get("bucket_name") and s3.get("dir"):
-            self.s3_bucket_name = s3.get("bucket_name")
-            self.s3_dir = s3.get("dir")
-            s3_client = boto3.client("s3", region_name=s3.get("region", "eu-west-1"))
-        self.s3 = s3_client
+            self.s3_config = {
+                "bucket_name": s3["bucket_name"],
+                "dir": s3["dir"],
+                "region": s3.get("region", "eu-west-1"),
+                "chain": chain,
+                "network": network,
+            }
 
         step_env = f"{self.chain.upper()}_{self.network.upper()}_STEP"
         self.step = step or env.int(step_env, 10_000)
@@ -121,79 +125,70 @@ class Chain:
         return await self.eth.get_block(block_number)
 
     async def get_latest_block(self, offset=None):
-        latest_block = await self.eth.get_block_number()
+        """
+        Return the latest block number adjusted by an offset.
+
+        If `offset` is provided, it is used directly. Otherwise the chain's
+        predefined `latest_block_offset` value is applied. This is useful for
+        chains whose RPC endpoints lag behind the true latest block and require
+        querying a safely-confirmed block height instead.
+
+        Returns the block number after subtracting the effective offset.
+        """
         effective_offset = offset if offset is not None else self.latest_block_offset
+        latest_block = await self.eth.get_block_number()
         return latest_block - effective_offset
 
-    def get_abi_from_source(self, contract_address):
+    # TODO: reimplement this to async in mixins
+    async def get_abi_from_source(self, contract_address):
         raise NotImplementedError
 
-    # TODO: test
-    def _fetch_abi_from_chain(self, contract_address, refetch_on_block=None):
-        proxy_contract = self.get_implementation_address(
+    async def _fetch_abi_from_web(self, contract_address, refetch_on_block=None):
+        proxy_contract = await self.get_implementation_address(
             contract_address, refetch_on_block
         )
-        if proxy_contract != NULL_ADDRESS:
-            abi = self.get_abi_from_source(proxy_contract)
-        else:
-            abi = self.get_abi_from_source(contract_address)
+        abi_address = (
+            contract_address if proxy_contract == NULL_ADDRESS else proxy_contract
+        )
+        abi = await self.get_abi_from_source(abi_address)
         return abi
 
-    # TODO: test
-    def _fetch_abi_from_s3(self, contract_address):
-        key = f"{self.s3_dir}/{self.chain}/{self.network}/{contract_address}.json"
-        resp = self.s3.get_object(Bucket=self.s3_bucket_name, Key=key)
-        content = resp["Body"].read().decode()
-        return json.loads(content)
-
-    # TODO: test
-    def _handle_abi_s3(self, contract_address):
-        """Fetch abi from s3 if it exists, otherwise fetch from chain and
-        upload to s3"""
+    async def _handle_abi_s3(self, contract_address, file_path):
+        """Fetch abi from s3 if it exists, otherwise fetch from web and upload to s3"""
+        log.debug("Attempting to fetch ABI for contract %s from S3", contract_address)
         try:
-            abi = self._fetch_abi_from_s3(contract_address)
+            abi = await fetch_abi_from_s3(self.s3_config, contract_address)
         except ClientError as e:
             if e.response["Error"]["Code"] != "NoSuchKey":
                 raise
 
-            abi = self._fetch_abi_from_chain(contract_address)
-
-            # upload to s3
-            key = f"{self.s3_dir}/{self.chain}/{self.network}/{contract_address}.json"
-            body = json.dumps(abi)
-            self.s3.put_object(
-                Bucket=self.s3_bucket_name,
-                Key=key,
-                Body=body,
-                ContentType="application/json",
-            )
-
-        self._abis[contract_address] = abi
-
-    # TODO: test
-    def _handle_abi_local_storage(self, contract_address):
-        """Fetch abi from local storage if it exists, otherwise fetch from chain and
-        save to local storage"""
-        file_path = os.path.join(self.abis_path, f"{contract_address}.json")
-        if os.path.exists(file_path):
-            with open(file_path) as f:
-                self._abis[contract_address] = json.loads(f.read())
-        else:
-            if not os.path.isdir(self.abis_path):
-                os.mkdir(self.abis_path)
-
-            log.error(
-                "ABI for %s was fetched from 3rd party service. Add it to abis folder!",
+            log.debug(
+                "Couldn't fetch ABI for contract %s from S3. Fetching from web instead",
                 contract_address,
             )
-            abi = self._fetch_abi_from_chain(contract_address)
+            abi = await self._fetch_abi_from_web(contract_address)
+            # First save it to s3
+            log.debug("Saving ABI for contract %s to S3", contract_address)
+            await save_abi_to_s3(self.s3_config, contract_address, abi)
+            # Then save it to local storage
+            log.debug("Saving ABI for contract %s to local storage", contract_address)
+            async with aiofiles.open(file_path, "w") as f:
+                await f.write(json.dumps(abi))
+        return abi
 
-            with open(file_path, "w") as f:
-                json.dump(abi, f)
-            self._abis[contract_address] = abi
+    async def _handle_abi_local_storage(self, contract_address, file_path):
+        """Fetch ABI from web and save to local storage"""
+        log.error(
+            "ABI for %s was fetched from 3rd party service. Add it to abis folder!",
+            contract_address,
+        )
+        abi = await self._fetch_abi_from_web(contract_address)
 
-    # TODO: test
-    def load_abi(self, contract_address, refetch_on_block=None, **kwargs):
+        async with aiofiles.open(file_path, "w") as f:
+            await f.write(json.dumps(abi))
+        return abi
+
+    async def load_abi(self, contract_address, refetch_on_block=None, **kwargs):
         contract_address = contract_address.lower()
 
         # if refetch_on_block is set, we should skip storing the ABI to file as it's
@@ -201,34 +196,52 @@ class Chain:
         # replace the current abi with an old one
         if refetch_on_block:
             log.info(
-                "Fetching new ABI on block %s without storing it", refetch_on_block
+                "Fetching new ABI on block %s without storing it to file",
+                refetch_on_block,
             )
-            return self._fetch_abi_from_chain(contract_address, refetch_on_block)
+            abi = await self._fetch_abi_from_web(contract_address, refetch_on_block)
+            self._abis[contract_address] = abi
+            return abi
 
-        if contract_address not in self._abis:
-            if self.s3:
-                self._handle_abi_s3(contract_address)
-            else:
-                self._handle_abi_local_storage(contract_address)
+        if contract_address in self._abis:
+            return self._abis[contract_address]
 
-        return self._abis[contract_address]
+        file_path = os.path.join(self.abis_path, f"{contract_address}.json")
+        if await ospath.exists(file_path):
+            async with aiofiles.open(file_path) as f:
+                data = await f.read()
 
-    # TODO: test
-    def get_implementation_address(self, contract_address, block_identifier=None):
+            abi = json.loads(data)
+            self._abis[contract_address] = abi
+            return abi
+        else:
+            # Create the abis_path if it doesn't exist yet
+            await aiofiles.os.makedirs(self.abis_path, exist_ok=True)
+
+        if self.s3_config:
+            abi = await self._handle_abi_s3(contract_address, file_path)
+        else:
+            abi = await self._handle_abi_local_storage(contract_address, file_path)
+        self._abis[contract_address] = abi
+        return abi
+
+    async def get_implementation_address(self, contract_address, block_identifier=None):
         # EIP-1967 storage slot
         contract_address = Web3.to_checksum_address(contract_address)
 
         # Logic contract address
         slot = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
-        impl_address = self.eth.get_storage_at(
+        impl_address = await self.eth.get_storage_at(
             contract_address, int(slot, 16), block_identifier
-        ).hex()
+        )
+        impl_address = impl_address.hex()
+
         address = Web3.to_checksum_address(impl_address[-40:])
 
         #  Beacon contract address
         if address == NULL_ADDRESS:
             try:
-                data = self.multicall(
+                data = await self.multicall(
                     [
                         (
                             contract_address,

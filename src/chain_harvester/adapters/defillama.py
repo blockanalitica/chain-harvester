@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from chain_harvester.http import retry_get_json
 from chain_harvester.utils import chunks
+from chain_harvester.utils.http import retry_get_json
 
 LLAMA_COINS_API_URL = "https://coins.llama.fi/"
 

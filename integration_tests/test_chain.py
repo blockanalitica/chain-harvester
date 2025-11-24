@@ -1,15 +1,10 @@
-import pytest
+import os
 
-from chain_harvester.chain import Chain
+import aiofiles
+import aiofiles.os
+import aiofiles.ospath as ospath
 
-
-class DummyChain(Chain):
-    latest_block_offset = 50
-
-
-@pytest.fixture
-async def chain():
-    return DummyChain(chain="ethereum", network="mainnet")
+from integration_tests.constants import DEMO_ABI
 
 
 async def test_get_latest_block(chain):
@@ -34,3 +29,32 @@ async def test_get_block_info(chain):
         block.hash.to_0x_hex()
         == "0x7452a43b26b41f70df0c59e53f5bf447df8e9f5587d312b90e0aeafc9655b7e4"
     )
+
+
+async def test_load_abi_from_web(chain):
+    address = "0xA9c3D3a366466Fa809d1Ae982Fb2c46E5fC41101"
+    # Make sure to delete the file first
+    file_path = os.path.join(chain.abis_path, f"{address.lower()}.json")
+    if await ospath.exists(file_path):
+        await aiofiles.os.remove(file_path)
+
+    abi = await chain.load_abi(address)
+    assert abi == DEMO_ABI
+
+
+async def test_load_abi_from_s3(chain):
+    address = "0xA9c3D3a366466Fa809d1Ae982Fb2c46E5fC41101"
+    chain.s3_config = {
+        "bucket_name": "abis-787309967787",
+        "dir": "test",
+        "chain": "ethereum",
+        "network": "mainnet",
+        "region": "eu-west-1",
+    }
+    # Make sure to delete the file first
+    file_path = os.path.join(chain.abis_path, f"{address.lower()}.json")
+    if await ospath.exists(file_path):
+        await aiofiles.os.remove(file_path)
+
+    abi = await chain.load_abi(address)
+    assert abi == DEMO_ABI
