@@ -159,6 +159,7 @@ class AnonymousEventLogDecoder:
         hex_topic = topics[0].hex()
         if not "0x".startswith(hex_topic):
             hex_topic = "0x" + hex_topic
+        print(self._signed_abis["functions"])
         for arg in self._signed_abis["functions"][hex_topic]["inputs"]:
             event_layout.setdefault(
                 arg["name"],
