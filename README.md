@@ -4,6 +4,14 @@ Chain Harvester is a utility for seamlessly interacting with Ethereum-like block
 
 - **Github repository**: <https://github.com/blockanalitica/chain-harvester/>
 
+
+# Env vars:
+
+- ETHERSCAN_API_KEY
+- f"{self.chain.upper()}_{self.network.upper()}_RPC"
+- f"{self.chain.upper()}_{self.network.upper()}_STEP"
+- GAS_LIMIT???
+
 ## Features
 
 - **Web3 Integration**: Direct integration with the Web3.py library for querying Ethereum nodes.
@@ -106,4 +114,3 @@ We primarily use the following commit types:
 - **test**: Adding missing tests or correcting existing ones.
 
 For more details, visit the [Conventional Commits website](https://www.conventionalcommits.org/).
-

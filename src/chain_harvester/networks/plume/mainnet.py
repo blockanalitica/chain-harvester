@@ -3,6 +3,8 @@ from chain_harvester.mixins import BlockscoutMixin
 
 
 class PlumeMainnetChain(BlockscoutMixin, Chain):
+    latest_block_offset = 30
+
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,

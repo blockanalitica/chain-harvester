@@ -1,5 +1,5 @@
 from chain_harvester.adapters import defillama
 
 
-def get_tokens_prices(addresses, timestamp, network="ethereum"):
-    return defillama.get_token_prices(addresses, timestamp, network)
+async def get_tokens_price(addresses, timestamp, network="ethereum"):
+    return await defillama.get_tokens_price(addresses, timestamp, network)

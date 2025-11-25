@@ -46,7 +46,6 @@ validation.METHODS_TO_VALIDATE = set(validation.METHODS_TO_VALIDATE) - {RPC.eth_
 
 
 class Chain:
-    # TODO: do this in clients
     latest_block_offset = 5
 
     def __init__(

@@ -3,11 +3,7 @@ from chain_harvester.mixins import EtherscanMixin
 
 
 class ScrollMainnetChain(EtherscanMixin, Chain):
-    def __init__(self, etherscan_api_key, *args, **kwargs):
-        super().__init__(
-            *args,
-            chain="scroll",
-            network="mainnet",
-            etherscan_api_key=etherscan_api_key,
-            **kwargs,
-        )
+    latest_block_offset = 30
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, chain="scroll", network="mainnet", **kwargs)

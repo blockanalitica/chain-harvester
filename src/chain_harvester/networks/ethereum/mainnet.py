@@ -3,13 +3,7 @@ from chain_harvester.mixins import EtherscanMixin
 
 
 class EthereumMainnetChain(EtherscanMixin, Chain):
-    latest_block_offset = 5
+    latest_block_offset = 12
 
-    def __init__(self, etherscan_api_key, *args, **kwargs):
-        super().__init__(
-            *args,
-            chain="ethereum",
-            network="mainnet",
-            etherscan_api_key=etherscan_api_key,
-            **kwargs,
-        )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, chain="ethereum", network="mainnet", **kwargs)

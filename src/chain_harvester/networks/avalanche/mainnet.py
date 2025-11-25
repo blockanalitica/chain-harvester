@@ -3,5 +3,7 @@ from chain_harvester.mixins import RoutescanMixin
 
 
 class AvalancheMainnetChain(RoutescanMixin, Chain):
+    latest_block_offset = 30
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, chain="avalanche", network="mainnet", **kwargs)
