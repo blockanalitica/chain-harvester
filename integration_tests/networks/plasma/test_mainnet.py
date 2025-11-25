@@ -1,11 +1,20 @@
+import pytest
+
 from chain_harvester.networks.plasma.mainnet import PlasmaMainnetChain
-from integration_tests.env import RPC_NODES
 
 
-def test__latest_block():
-    chain = PlasmaMainnetChain(rpc=RPC_NODES["plasma"]["mainnet"])
+@pytest.fixture
+async def plasma_chain():
+    chain = PlasmaMainnetChain(
+        abis_path="integration_tests/abis/plasma/",
+    )
+    try:
+        yield chain
+    finally:
+        await chain.aclose()
 
-    assert chain.rpc == RPC_NODES["plasma"]["mainnet"]
-    block = chain.get_latest_block()
+
+async def test_latest_block(plasma_chain):
+    block = await plasma_chain.get_latest_block()
     assert block is not None
     assert block > 0

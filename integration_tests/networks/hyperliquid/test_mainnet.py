@@ -1,80 +1,69 @@
+import pytest
+
 from chain_harvester.networks.hyperliquid.mainnet import HyperliquidMainnetChain
-from integration_tests.env import API_KEYS, RPC_NODES
 
 
-def test__latest_block():
+@pytest.fixture
+async def hype_chain():
     chain = HyperliquidMainnetChain(
-        rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS
+        abis_path="integration_tests/abis/hyperliquid/",
     )
+    try:
+        yield chain
+    finally:
+        await chain.aclose()
 
-    assert chain.rpc == RPC_NODES["hyperliquid"]["mainnet"]
-    block = chain.get_latest_block()
+
+async def test_latest_block(hype_chain):
+    block = await hype_chain.get_latest_block()
     assert block is not None
     assert block > 0
 
 
-def test__multicall():
-    chain = HyperliquidMainnetChain(
-        rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS
+async def test_get_events_for_contract(hype_chain):
+    events = hype_chain.get_events_for_contract(
+        "0x5555555555555555555555555555555555555555",
+        from_block=1814581,
+        to_block=1814590,
     )
+    assert len([e async for e in events]) == 21
 
-    calls = []
-    calls.append(
+
+async def test_multicall(hype_chain):
+    calls = [
         (
             "0xffaa4a3d97fe9107cef8a3f48c069f577ff76cc1",
             ["symbol()(string)"],
             ["symbol", None],
-        )
-    )
-    calls.append(
+        ),
         (
             "0xffaa4a3d97fe9107cef8a3f48c069f577ff76cc1",
             ["name()(string)"],
             ["name", None],
-        )
-    )
-    result = chain.multicall(calls)
+        ),
+    ]
+    result = await hype_chain.multicall(calls)
     assert result["symbol"] == "stHYPE"
     assert result["name"] == "Staked HYPE"
 
 
-def test__get_events_for_contract():
-    chain = HyperliquidMainnetChain(
-        rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS
-    )
-
-    events = chain.get_events_for_contract(
-        "0xffaa4a3d97fe9107cef8a3f48c069f577ff76cc1",
-        from_block=1814581,
-        to_block=1814681,
-    )
-
-    assert len(list(events)) == 14
-
-
-def test__multicall_archive():
-    chain = HyperliquidMainnetChain(
-        rpc=RPC_NODES["hyperliquid"]["mainnet"], api_keys=API_KEYS
-    )
-
-    calls = []
-    calls.append(
+async def test_multicall_archive(hype_chain):
+    calls = [
         (
             "0xffaa4a3d97fe9107cef8a3f48c069f577ff76cc1",
             ["totalSupplyRaw()(uint256)"],
             ["supply", None],
         )
-    )
-    result = chain.multicall(calls, block_identifier=1814581)
+    ]
+    result = await hype_chain.multicall(calls, block_identifier=1814581)
     assert result["supply"] == 3153934590558314965411152859903
 
-    calls = []
-    calls.append(
+    calls = [
         (
             "0xffaa4a3d97fe9107cef8a3f48c069f577ff76cc1",
             ["totalSupplyRaw()(uint256)"],
             ["supply", None],
         )
-    )
-    result = chain.multicall(calls, block_identifier=1814681)
+    ]
+    result = await hype_chain.multicall(calls, block_identifier=1814681)
     assert result["supply"] == 3153935026734015671971104550724

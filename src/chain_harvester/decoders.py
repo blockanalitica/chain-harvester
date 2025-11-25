@@ -1,10 +1,10 @@
-import binascii
 from collections.abc import Mapping
 
-from Crypto.Hash import keccak
 from eth_utils import event_abi_to_log_topic, to_int
 from web3 import Web3
 from web3._utils.events import get_event_data
+
+from chain_harvester.utils import to_hex_topic
 
 
 class MissingABIEventDecoderError(KeyError):
@@ -100,26 +100,15 @@ class AnonymousEventLogDecoder:
         mapping.setdefault("functions", {})
         for element in abi:
             if element["type"] == "function" and element["inputs"]:
-                e_args = {",".join([inp["type"] for inp in element["inputs"]])}
-                e = f"{element['name']}({e_args})"
+                e_arg = ",".join(inp["type"] for inp in element["inputs"])
+                e = f"{element['name']}({e_arg})"
 
-                keccak256 = keccak.new(data=e.encode("utf-8"), digest_bits=256).digest()
-                mapping["functions"].setdefault(
-                    ("0x" + binascii.hexlify(keccak256).decode("utf-8"))[:10].ljust(
-                        66, "0"
-                    ),
-                    {},
-                )
-                mapping["functions"][
-                    ("0x" + binascii.hexlify(keccak256).decode("utf-8"))[:10].ljust(
-                        66, "0"
-                    )
-                ]["name"] = element["name"]
-                mapping["functions"][
-                    ("0x" + binascii.hexlify(keccak256).decode("utf-8"))[:10].ljust(
-                        66, "0"
-                    )
-                ]["inputs"] = element["inputs"]
+                encoded = to_hex_topic(e)
+                func_key = encoded[:10].ljust(66, "0")
+                mapping["functions"].setdefault(func_key, {})
+                mapping["functions"][func_key]["name"] = element["name"]
+                mapping["functions"][func_key]["inputs"] = element["inputs"]
+
             elif element["type"] == "event" and element["anonymous"]:
                 mapping["events"]["anonymous"].setdefault("inputs", element["inputs"])
                 mapping["events"]["anonymous"].setdefault("name", element["name"])
@@ -156,10 +145,7 @@ class AnonymousEventLogDecoder:
         # skip 0x, first two sets of bytes and function signature (2 + 64 + 64 + 8)
         data = data[data_skip_bytes:]
         parse_from = 0
-        hex_topic = topics[0].hex()
-        if not "0x".startswith(hex_topic):
-            hex_topic = "0x" + hex_topic
-        print(self._signed_abis["functions"])
+        hex_topic = topics[0].to_0x_hex()
         for arg in self._signed_abis["functions"][hex_topic]["inputs"]:
             event_layout.setdefault(
                 arg["name"],

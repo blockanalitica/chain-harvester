@@ -2,7 +2,7 @@ import pytest
 from eth_account import Account
 from eth_account.messages import encode_defunct
 
-from chain_harvester.message import sign_message, verify_signature
+from chain_harvester.utils.message import sign_message, verify_signature
 
 
 @pytest.fixture

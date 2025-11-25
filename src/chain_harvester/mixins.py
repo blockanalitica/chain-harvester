@@ -76,7 +76,7 @@ class BlockscoutMixin:
         super().__init__(*args, **kwargs)
 
     async def get_abi_from_source(self, contract_address):
-        url = f"{self.blockscout_url}/api/v2/smart-contracts/{contract_address}"
+        url = f"{self.blockscout_url}/api/v2/smart-contracts/{contract_address.lower()}"
         try:
             data = await retry_get_json(url, timeout=5)
         except asyncio.TimeoutError:
