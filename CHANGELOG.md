@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.1](https://github.com/blockanalitica/chain-harvester/compare/v2.9.0...v2.9.1) (2025-11-25)
+
+
+### Bug Fixes
+
+* add monad to CHAINS ([#245](https://github.com/blockanalitica/chain-harvester/issues/245)) ([2943731](https://github.com/blockanalitica/chain-harvester/commit/2943731384cd1a17454d0b73b0ce6b8e3f2ecb42))
+
 ## [2.9.0](https://github.com/blockanalitica/chain-harvester/compare/v2.8.0...v2.9.0) (2025-11-24)
 
 
