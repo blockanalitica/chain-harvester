@@ -122,6 +122,9 @@ CHAINS = {
     "plasma": {
         "mainnet": Network.Plasma,
     },
+    "monad": {
+        "mainnet": Network.Monad,
+    },
 }
 
 NO_STATE_OVERRIDE = [Network.Gnosis]
