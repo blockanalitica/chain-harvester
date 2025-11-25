@@ -1,4 +1,4 @@
-from chain_harvester.utils.graphql import call_graphql
+from chain_harvester.utils.http import retry_post_json
 
 
 def _get_blocks_query(to_block=None):
@@ -22,24 +22,32 @@ def _get_blocks_query(to_block=None):
     return query
 
 
-def get_blocks(url, from_block, to_block=None, limit=10000, timeout=30, retries=3):
+async def get_blocks(
+    url, from_block, to_block=None, limit=10000, timeout=30, retries=3
+):
+    headers = {"accept": "application/json", "content-type": "application/json"}
     first = limit
     skip = 0
     while True:
         query = _get_blocks_query(to_block)
-        response = call_graphql(
-            url,
-            query,
-            variables={
+
+        payload = {
+            "query": query,
+            "variables": {
                 "first": first,
                 "skip": skip,
                 "from_block": from_block,
                 "to_block": to_block,
             },
-            timeout=timeout,
-            max_retries=retries,
+        }
+        response = await retry_post_json(
+            url, json=payload, headers=headers, timeout=timeout, retries=retries
         )
+
         if not response.get("data", {}).get("blocks"):
             break
-        yield from response["data"]["blocks"]
+
+        for block in response["data"]["blocks"]:
+            yield block
+
         skip += first

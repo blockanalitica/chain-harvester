@@ -283,7 +283,6 @@ dependencies = [
     { name = "environs" },
     { name = "eth-abi" },
     { name = "multiproof" },
-    { name = "requests" },
     { name = "web3" },
 ]
 
@@ -301,7 +300,6 @@ requires-dist = [
     { name = "environs", specifier = ">=14.5.0" },
     { name = "eth-abi", specifier = ">=5.2.0" },
     { name = "multiproof", specifier = ">=0.1.10" },
-    { name = "requests", specifier = ">=2.32.5" },
     { name = "web3", specifier = ">=7.14.0" },
 ]
 
