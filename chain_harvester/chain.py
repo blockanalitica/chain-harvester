@@ -281,7 +281,7 @@ class Chain:
                         raise
 
                     step /= 5
-                    step = min_step
+                    step = max(int(step), min_step)
                     retries += 1
                     continue
                 else:
