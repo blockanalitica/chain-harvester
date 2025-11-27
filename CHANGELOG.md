@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.2](https://github.com/blockanalitica/chain-harvester/compare/v2.9.1...v2.9.2) (2025-11-27)
+
+
+### Bug Fixes
+
+* set min step to be lower than 2000 ([#247](https://github.com/blockanalitica/chain-harvester/issues/247)) ([991bb71](https://github.com/blockanalitica/chain-harvester/commit/991bb711ec55884b03171c24aee92587925d1595))
+
 ## [2.9.1](https://github.com/blockanalitica/chain-harvester/compare/v2.9.0...v2.9.1) (2025-11-25)
 
 
