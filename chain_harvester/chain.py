@@ -3,10 +3,10 @@ import logging
 import os
 from collections import defaultdict
 
-from botocore.exceptions import ClientError
-
+import boto3
 import eth_abi
 import requests
+from botocore.exceptions import ClientError
 from eth_utils import event_abi_to_log_topic
 from hexbytes import HexBytes
 from requests.adapters import HTTPAdapter
@@ -28,7 +28,6 @@ from chain_harvester.decoders import (
 from chain_harvester.exceptions import ChainException
 from chain_harvester.multicall import Call, Multicall
 from chain_harvester.utils.codes import get_code_name
-import boto3
 
 log = logging.getLogger(__name__)
 
@@ -258,6 +257,8 @@ class Chain:
         retries = 0
         step = self.step
 
+        min_step = min(int(self.step), 2000)
+
         while True:
             end_block = min(from_block + step - 1, to_block)
             log.debug(f"Fetching events from {from_block} to {end_block} with step {step}")
@@ -280,7 +281,7 @@ class Chain:
                         raise
 
                     step /= 5
-                    step = max(int(step), 2000)
+                    step = min_step
                     retries += 1
                     continue
                 else:
