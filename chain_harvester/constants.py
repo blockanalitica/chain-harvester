@@ -268,4 +268,6 @@ STABLECOIN_SYMBOLS = {
     "ZARP",
     "ZUSD",
     "sdeUSD",
+    "eUSDe",
+    "mUSD",
 }
