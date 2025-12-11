@@ -89,7 +89,10 @@ def get_prices_for_timestamp(addresses, timestamp, network="ethereum"):
     if not data:
         return result
     for key, item in data.items():
-        address = key.split(":")[1].lower()
+        if network == "solana":
+            address = key.split(":")[1]
+        else:
+            address = key.split(":")[1].lower()
         result[address] = Decimal(str(item["price"]))
     return result
 
