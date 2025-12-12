@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.10.0](https://github.com/blockanalitica/chain-harvester/compare/v2.9.2...v2.10.0) (2025-12-11)
+
+
+### Features
+
+* defillama for solana ([#251](https://github.com/blockanalitica/chain-harvester/issues/251)) ([9d9f192](https://github.com/blockanalitica/chain-harvester/commit/9d9f19277f02ad2c56a0cc01e9668c194a0de038))
+* update stable ([#249](https://github.com/blockanalitica/chain-harvester/issues/249)) ([6e96c35](https://github.com/blockanalitica/chain-harvester/commit/6e96c35f470dbd5ba806f040d14d7cccbfe0fc8d))
+
 ## [2.9.2](https://github.com/blockanalitica/chain-harvester/compare/v2.9.1...v2.9.2) (2025-11-27)
 
 
