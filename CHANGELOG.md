@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.1](https://github.com/blockanalitica/chain-harvester/compare/v2.10.0...v2.10.1) (2026-01-22)
+
+
+### Bug Fixes
+
+* defillama not always returning price ([#252](https://github.com/blockanalitica/chain-harvester/issues/252)) ([66e5970](https://github.com/blockanalitica/chain-harvester/commit/66e5970bda5898676b332ae65c83fae2d0cf0c59))
+
 ## [2.10.0](https://github.com/blockanalitica/chain-harvester/compare/v2.9.2...v2.10.0) (2025-12-11)
 
 
