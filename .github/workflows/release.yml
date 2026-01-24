@@ -25,15 +25,15 @@ jobs:
 
       # Logic below handles pypi release
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         if: ${{ steps.release.outputs.release_created }}
       - name: Set up the environment
-        uses: ./.github/actions/setup-poetry-env
+        uses: ./.github/actions/setup-uv-env
         if: ${{ steps.release.outputs.release_created }}
       - name: Build and publish
         run: |
           source .venv/bin/activate
-          poetry version $RELEASE_VERSION
+          uv version $RELEASE_VERSION
           make build-and-publish
         env: 
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}

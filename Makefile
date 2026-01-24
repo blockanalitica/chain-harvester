@@ -1,40 +1,39 @@
 .PHONY: install
-install: ## Install the poetry environment and install the pre-commit hooks
-	@echo "🚀 Creating virtual environment using pyenv and poetry"
-	@poetry install	
-	@poetry run pre-commit install
-	@poetry shell
+install: ## Install the environment and the pre-commit hooks
+	@echo "🚀 Creating virtual environment"
+	@uv sync
+	@uv run pre-commit install
 
 .PHONY: check
 check: ## Run code quality tools.
-	@echo "🚀 Checking Poetry lock file consistency with 'pyproject.toml': Running poetry lock --check"
-	@poetry check --lock
+	@echo "🚀 Checking uv lock file consistency with 'pyproject.toml': Running uv lock --check"
+	@uv sync --locked
 	@echo "🚀 Linting code: Running pre-commit"
-	@poetry run pre-commit run -a
+	@uv run pre-commit run -a
 
 .PHONY: format
 format: ## Format code based on code quality tools.
-	@echo "🚀 Checking Poetry lock file consistency with 'pyproject.toml': Running poetry lock --check"
-	@poetry check --lock
+	@echo "🚀 Checking uv lock file consistency with 'pyproject.toml': Running uv lock --check"
+	@uv sync --check
 	@echo "🚀 Linting code: Running ruff format"
-	@poetry run ruff format .
+	@uv run ruff format .
 	@echo "🚀 Linting code: Running ruff check"
-	@poetry run ruff check --fix .
+	@uv run ruff check --fix .
 
 .PHONY: test
 test: ## Test the code with pytest
 	@echo "🚀 Testing code: Running pytest"
-	@poetry run pytest tests
+	@uv run pytest tests
 
 .PHONY: tox
 tox: ## Test the code with pytest
 	@echo "🚀 Testing code: Running tox"
-	@poetry run tox 
+	@uv run tox 
 
 .PHONY: build
-build: clean-build ## Build wheel file using poetry
+build: clean-build ## Build wheel file using uv
 	@echo "🚀 Creating wheel file"
-	@poetry build
+	@uv build
 
 .PHONY: clean-build
 clean-build: ## clean build artifacts
@@ -43,10 +42,9 @@ clean-build: ## clean build artifacts
 .PHONY: publish
 publish: ## publish a release to pypi.
 	@echo "🚀 Publishing: Dry run."
-	@poetry config pypi-token.pypi $(PYPI_TOKEN)
-	@poetry publish --dry-run
+	@UV_PYPI_TOKEN="$(PYPI_TOKEN)" uv publish --dry-run
 	@echo "🚀 Publishing."
-	@poetry publish
+	@UV_PYPI_TOKEN="$(PYPI_TOKEN)" uv publish
 
 .PHONY: build-and-publish
 build-and-publish: build publish ## Build and publish.

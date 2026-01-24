@@ -1,35 +1,49 @@
-[tool.poetry]
+[project]
 name = "chain_harvester"
 version = "0.0.1"
 description = "A Python library designed to interface with various blockchain networks, enabling the retrieval of data."
-authors = ["0xCommanderKeen <f91289621+0xCommanderKeen@users.noreply.github.com>"]
-repository = "https://github.com/blockanalitica/chain-harvester"
-documentation = "https://blockanalitica.github.io/chain-harvester/"
+authors = [{ name = "0xCommanderKeen", email = "f91289621+0xCommanderKeen@users.noreply.github.com" }]
+requires-python = ">=3.11,<4.0"
 readme = "README.md"
-packages = [
-  {include = "chain_harvester"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "web3>=7.7.0,<8",
+    "requests>=2.31.0,<3",
+    "eth-abi>=5.1.0,<6",
+    "multiproof>=0.1.10,<0.2",
+    "boto3>=1.40.33,<2",
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.11,<4.0"
-web3 = "^7.7.0"
-requests = "^2.31.0"
-eth-abi = "^5.1.0"
-multiproof = "^0.1.10"
-boto3 = "^1.40.33"
+[project.urls]
+Repository = "https://github.com/blockanalitica/chain-harvester"
+Documentation = "https://blockanalitica.github.io/chain-harvester/"
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
-pre-commit = "^4.0.1"
-tox = "^4.6.4"
-python-dotenv = "^1.0.0"
-ruff = "^0.8.3"
-ipython = "^8.30.0"
-moto = "^5.1.12"
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4,<9",
+    "pre-commit>=4.0.1,<5",
+    "tox>=4.6.4,<5",
+    "python-dotenv>=1.0.0,<2",
+    "ruff>=0.8.3,<0.9",
+    "ipython>=8.30.0,<9",
+    "moto>=5.1.12,<6",
+]
+
+[tool.uv]
+
+[tool.uv.build-backend]
+module-name = ["chain_harvester"]
+module-root = ""
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.9.24,<0.10.0"]
+build-backend = "uv_build"
 
 [tool.ruff]
 target-version = "py311"

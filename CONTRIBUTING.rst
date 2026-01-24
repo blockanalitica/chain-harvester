@@ -58,7 +58,7 @@ Get Started!
 
 Ready to contribute? Here's how to set up `chain-harvester` for local
 development. Please note this documentation assumes you already have
-`poetry` and `Git` installed and ready to go.
+`uv` and `Git` installed and ready to go.
 
 | 1. Fork the `chain-harvester` repo on GitHub. 
 
@@ -86,14 +86,22 @@ development. Please note this documentation assumes you already have
 
    .. code-block:: bash
 
-        poetry install
-        poetry shell
+        uv sync --group dev
+        source .venv/bin/activate
 
-| 4. Install pre-commit to run linters/formatters at commit time:
+   To stop using the virtual environment, run:
 
    .. code-block:: bash
 
-        poetry run pre-commit install
+        deactivate
+
+   If you prefer not to activate the environment, you can run tools with ``uv run``.
+
+   | 4. Install pre-commit to run linters/formatters at commit time:
+
+   .. code-block:: bash
+
+        uv run pre-commit install
 
 | 5. Create a branch for local development:
 
