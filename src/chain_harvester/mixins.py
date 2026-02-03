@@ -3,6 +3,7 @@ from chain_harvester.http import retry_get_json
 import requests
 import urllib.parse
 import logging
+from environs import env
 from chain_harvester.exceptions import ChainException
 
 log = logging.getLogger(__name__)
@@ -11,11 +12,11 @@ log = logging.getLogger(__name__)
 class EtherscanMixin:
     def __init__(
         self,
-        etherscan_api_key,
+        etherscan_api_key=None,
         *args,
         **kwargs,
     ):
-        self.etherscan_api_key = etherscan_api_key
+        self.etherscan_api_key = etherscan_api_key or env("ETHERSCAN_API_KEY", None)
         self.etherscan_url = "https://api.etherscan.io/v2"
         super().__init__(*args, **kwargs)
 

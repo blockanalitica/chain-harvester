@@ -18,6 +18,9 @@ dependencies = [
     "eth-abi>=5.1.0,<6",
     "multiproof>=0.1.10,<0.2",
     "boto3>=1.40.33,<2",
+    "aiofiles>=25.1.0",
+    "aiobotocore>=3.1.1",
+    "environs>=14.5.0",
 ]
 
 [project.urls]
@@ -39,7 +42,7 @@ dev = [
 
 [tool.uv.build-backend]
 module-name = ["chain_harvester"]
-module-root = ""
+module-root = "src"
 
 [build-system]
 requires = ["uv_build>=0.9.24,<0.10.0"]

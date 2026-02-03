@@ -1,2 +1,0 @@
-class ChainException(Exception):
-    pass
