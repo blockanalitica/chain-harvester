@@ -23,8 +23,8 @@ from web3.providers.rpc.utils import (
     ExceptionRetryConfiguration,
 )
 
-from chain_harvester.adapters import sink
-from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
+from chain_harvester_async.adapters import sink
+from chain_harvester_async.chainlink.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester.constants import CHAINS, MULTICALL3_ADDRESSES, NULL_ADDRESS
 from chain_harvester.decoders import (
     AnonymousEventLogDecoder,
@@ -36,6 +36,9 @@ from chain_harvester.exceptions import ChainException, ConfigError
 from chain_harvester.utils.codes import get_code_name
 from chain_harvester_async.utils.http import retry_post_json
 from chain_harvester_async.utils.s3 import fetch_abi_from_s3, save_abi_to_s3
+
+from chain_harvester_async.multicall.call import Call
+from chain_harvester_async.multicall.multicall import Multicall
 
 log = logging.getLogger(__name__)
 
@@ -508,9 +511,6 @@ class Chain:
         return None
 
     async def multicall(self, calls, block_identifier=None, require_success=True, origin=None):
-        from chain_harvester.multicall.call import Call
-        from chain_harvester.multicall.multicall import Multicall
-
         call_objs = []
         for address, function, response in calls:
             call_objs.append(Call(address, function, returns=[response]))

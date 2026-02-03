@@ -1,5 +1,5 @@
-from chain_harvester.helpers import get_chain
-from chain_harvester.utils.http import retry_post_json
+from chain_harvester_async.helpers import get_chain
+from chain_harvester_async.utils.http import retry_post_json
 
 
 class AlchemyChain:

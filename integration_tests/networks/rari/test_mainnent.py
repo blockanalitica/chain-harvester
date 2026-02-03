@@ -2,8 +2,8 @@ from chain_harvester.networks.rari.mainnet import RariMainnetChain
 from integration_tests.env import API_KEYS, RPC_NODES
 
 
-def test__multicall():
-    chain = RariMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+def test_multicall():
+    chain = RariMainnetChain(rpc=RPC_NODES["rari"]["mainnet"], api_key=API_KEYS["rari"]["mainnet"])
 
     calls = []
     calls.append(

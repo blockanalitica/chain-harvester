@@ -1,4 +1,3 @@
-import json
 import time
 
 import requests
@@ -51,7 +50,10 @@ class AlchemyChain:
                 if retries == self.max_retries:
                     raise
                 time.sleep(2**retries)  # Exponential backoff
-        return json.loads(response.text)
+
+        return [res["result"] for res in response.json()]
+
+        # return json.loads(response.text)
 
     def get_block_transactions(self, block_number):
         payload = {

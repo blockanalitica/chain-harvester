@@ -4,9 +4,9 @@ from eth_abi.exceptions import InsufficientDataBytes
 from web3 import Web3
 
 from chain_harvester.constants import Network
-from chain_harvester.multicall.exceptions import StateOverrideNotSupportedError
-from chain_harvester.multicall.signature import _get_signature
-from chain_harvester.multicall.utils import state_override_supported
+from chain_harvester_async.multicall.exceptions import StateOverrideNotSupportedError
+from chain_harvester_async.multicall.signature import _get_signature
+from chain_harvester_async.multicall.utils import state_override_supported
 
 log = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ import boto3
 import eth_abi
 import requests
 from botocore.exceptions import ClientError
-from eth_utils import event_abi_to_log_topic
+from eth_utils.abi import event_abi_to_log_topic
 from hexbytes import HexBytes
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
@@ -52,7 +52,6 @@ class Chain:
         *args,
         **kwargs,
     ):
-        super().__init__(*args, **kwargs)
         self.chain = chain
         self.network = network
         self.chain_id = chain_id or CHAINS[self.chain][self.network]
@@ -162,11 +161,11 @@ class Chain:
             if not os.path.isdir(self.abis_path):
                 os.mkdir(self.abis_path)
 
-            log.error(
+            abi = self._fetch_abi_from_chain(contract_address)
+            log.info(
                 "ABI for %s was fetched from 3rd party service. Add it to abis folder!",
                 contract_address,
             )
-            abi = self._fetch_abi_from_chain(contract_address)
 
             with open(file_path, "w") as f:
                 json.dump(abi, f)
@@ -210,7 +209,8 @@ class Chain:
                     ],
                     block_identifier=block_identifier,
                 )
-                address = Web3.to_checksum_address(data["address"])
+                if data["address"]:
+                    address = Web3.to_checksum_address(data["address"])
             except ContractLogicError:
                 pass
         return address

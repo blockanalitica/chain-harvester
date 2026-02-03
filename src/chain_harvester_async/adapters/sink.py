@@ -1,6 +1,6 @@
 import urllib.parse
 
-from chain_harvester.utils.http import retry_get_json
+from chain_harvester_async.utils.http import retry_get_json
 
 SINK_API_URL = "https://sink.blockanalitica.com/api/"
 
