@@ -45,7 +45,7 @@ dev = [
 [tool.uv]
 
 [tool.uv.build-backend]
-module-name = ["chain_harvester"]
+module-name = ["chain_harvester", "chain_harvester_async"]
 module-root = "src"
 
 [build-system]
@@ -118,7 +118,7 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.ruff.lint.isort]
-known-first-party = ["chain_harvester"]
+known-first-party = ["chain_harvester", "chain_harvester_async"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
