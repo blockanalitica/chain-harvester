@@ -11,7 +11,7 @@ from chain_harvester.constants import (
 )
 from chain_harvester_async.multicall.call import Call
 from chain_harvester_async.multicall.utils import (
-    gather,
+    gather_raise,
     state_override_supported,
 )
 
@@ -75,7 +75,7 @@ class Multicall:
         )
 
     async def coroutine(self):
-        batches = await gather(
+        batches = await gather_raise(
             (
                 self.fetch_outputs(batch, cid=str(i))
                 for i, batch in enumerate(batcher.batch_calls(self.calls, batcher.step))
@@ -112,7 +112,7 @@ class Multicall:
             _raise_or_proceed(e, len(calls), retries=retries)
 
         # Failed, we need to rebatch the calls and try again.
-        batch_results = await gather(
+        batch_results = await gather_raise(
             (
                 self.fetch_outputs(chunk, retries + 1, f"{cid}_{i}")
                 for i, chunk in enumerate(batcher.rebatch(calls))

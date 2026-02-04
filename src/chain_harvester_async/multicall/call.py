@@ -81,7 +81,7 @@ class Call:
     def __await__(self):
         return self.coroutine().__await__()
 
-    # TODO @eth_retry.auto_retry(min_sleep_time=1, max_sleep_time=3)
+    # TODO: @eth_retry.auto_retry(min_sleep_time=1, max_sleep_time=3)
     async def coroutine(self, args=None, *, block_identifier=None):
         if not self.w3 or not self.chain_id:
             raise ValueError(
@@ -89,7 +89,6 @@ class Call:
             )
 
         if self.state_override_code and not state_override_supported(self.chain_id):
-            # TODO: test this
             raise StateOverrideNotSupportedError(
                 f"State override is not supported on {Network(self.chain_id).__repr__()[1:-1]}."
             )

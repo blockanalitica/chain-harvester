@@ -331,7 +331,16 @@ class Chain:
                 ):
                     log.warning("Skipping Upgraded event on proxy contract %s", raw_log["address"])
                     continue
-                # TODO: Skip BeaconUpgraded event in a similar fashion to the one above
+
+                if (
+                    HexBytes("0x1cf3b03a6cf19fa2baba4df148e9dcabedea7f8a5c07840e207e5c089be95d3e")
+                    in raw_log["topics"]
+                ):
+                    log.warning(
+                        "Skipping BeaconUpgraded event on proxy contract %s",
+                        raw_log["address"],
+                    )
+                    continue
 
                 contract = self.get_contract(raw_log["address"].lower())
                 try:
