@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ETHERSCAN_API_KEY = os.environ.get("ETHERSCAN_API_KEY")
+ALCHEMY_SUBGRAPH_QUERY_KEY = os.environ.get("ALCHEMY_SUBGRAPH_QUERY_KEY")
 
 API_KEYS = {
     "ethereum": {

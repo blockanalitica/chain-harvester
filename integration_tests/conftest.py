@@ -7,7 +7,7 @@ from chain_harvester_async.mixins import EtherscanMixin
 env.read_env()
 # Constants need to be imported AFTER we read the env file as we use env variables
 # in constants file
-from integration_tests.constants import ETHERSCAN_API_KEY  # noqa: E402
+from integration_tests.env import ETHERSCAN_API_KEY  # noqa: E402
 
 
 class DummyChain(EtherscanMixin, Chain):

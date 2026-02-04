@@ -1,6 +1,6 @@
 import pytest
 from chain_harvester_async.adapters.alchemy import get_blocks
-from integration_tests.constants import ALCHEMY_SUBGRAPH_QUERY_KEY
+from integration_tests.env import ALCHEMY_SUBGRAPH_QUERY_KEY
 
 
 # TODO: i get some endpoint error, so i think i might not have correct credentials
