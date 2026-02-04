@@ -1,15 +1,12 @@
 import pytest
 
 from chain_harvester.networks.gnosis.mainnet import GnosisMainnetChain
-from integration_tests.env import ETHERSCAN_API_KEY, RPC_NODES
+from integration_tests.env import RPC_NODES
 
 
 @pytest.fixture
 def gnosis_chain():
-    chain = GnosisMainnetChain(
-        rpc=RPC_NODES["gnosis"]["mainnet"],
-        etherscan_api_key=ETHERSCAN_API_KEY,
-    )
+    chain = GnosisMainnetChain(rpc_nodes=RPC_NODES)
     return chain
 
 

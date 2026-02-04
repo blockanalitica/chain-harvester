@@ -2,14 +2,12 @@ import pytest
 from web3 import Web3
 
 from chain_harvester.networks.ethereum.mainnet import EthereumMainnetChain
-from integration_tests.env import ETHERSCAN_API_KEY, RPC_NODES
+from integration_tests.env import RPC_NODES
 
 
 @pytest.fixture
 def eth_chain():
-    chain = EthereumMainnetChain(
-        rpc=RPC_NODES["ethereum"]["mainnet"], etherscan_api_key=ETHERSCAN_API_KEY
-    )
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES)
     return chain
 
 

@@ -5,9 +5,7 @@ from integration_tests.env import RPC_NODES
 
 @pytest.fixture
 def hyperliquid_chain():
-    chain = HyperliquidMainnetChain(
-        rpc=RPC_NODES["hyperliquid"]["mainnet"],
-    )
+    chain = HyperliquidMainnetChain(rpc_nodes=RPC_NODES)
     return chain
 
 
