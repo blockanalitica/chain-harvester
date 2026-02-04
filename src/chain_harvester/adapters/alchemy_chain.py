@@ -51,7 +51,7 @@ class AlchemyChain:
                     raise
                 time.sleep(2**retries)  # Exponential backoff
 
-        return [res["result"] for res in response.json()]
+        return response.json()
 
     def get_block_transactions(self, block_number):
         payload = {
