@@ -53,8 +53,6 @@ class AlchemyChain:
 
         return [res["result"] for res in response.json()]
 
-        # return json.loads(response.text)
-
     def get_block_transactions(self, block_number):
         payload = {
             "id": self.chain.chain_id,
