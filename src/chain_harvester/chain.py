@@ -49,8 +49,6 @@ class Chain:
         w3=None,
         step=None,
         s3=None,
-        *args,
-        **kwargs,
     ):
         self.chain = chain
         self.network = network
