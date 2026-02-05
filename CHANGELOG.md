@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.11.2](https://github.com/blockanalitica/chain-harvester/compare/v2.11.1...v2.11.2) (2026-02-05)
+
+
+### Bug Fixes
+
+* add rpc_nodes support and remove variadic args in async Chain init ([#260](https://github.com/blockanalitica/chain-harvester/issues/260)) ([8df1e74](https://github.com/blockanalitica/chain-harvester/commit/8df1e74fc707b315ac4785105f928b814e94cae2))
+
 ## [2.11.1](https://github.com/blockanalitica/chain-harvester/compare/v2.11.0...v2.11.1) (2026-02-05)
 
 
