@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.11.1](https://github.com/blockanalitica/chain-harvester/compare/v2.11.0...v2.11.1) (2026-02-05)
+
+
+### Bug Fixes
+
+* publish package ([#258](https://github.com/blockanalitica/chain-harvester/issues/258)) ([eaaee91](https://github.com/blockanalitica/chain-harvester/commit/eaaee91c9ede30a9124263e9343875c74668b7cd))
+
 ## [2.11.0](https://github.com/blockanalitica/chain-harvester/compare/v2.10.1...v2.11.0) (2026-02-05)
 
 
