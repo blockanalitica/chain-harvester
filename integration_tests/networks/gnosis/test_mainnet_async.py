@@ -1,6 +1,6 @@
 import pytest
 
-from chain_harvester_async.networks.gnosis import GnosisMainnetChain
+from chain_harvester_async.networks import GnosisMainnetChain
 
 
 @pytest.fixture

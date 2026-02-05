@@ -1,6 +1,6 @@
 import pytest
 
-from chain_harvester_async.networks.linea import LineaMainnetChain
+from chain_harvester_async.networks import LineaMainnetChain
 
 
 @pytest.fixture

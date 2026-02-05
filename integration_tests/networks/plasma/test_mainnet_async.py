@@ -1,6 +1,6 @@
 import pytest
 
-from chain_harvester_async.networks.plasma import PlasmaMainnetChain
+from chain_harvester_async.networks import PlasmaMainnetChain
 
 
 @pytest.fixture

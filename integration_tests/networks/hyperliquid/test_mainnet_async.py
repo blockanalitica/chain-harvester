@@ -1,6 +1,6 @@
 import pytest
 
-from chain_harvester_async.networks.hyperliquid import HyperliquidMainnetChain
+from chain_harvester_async.networks import HyperliquidMainnetChain
 
 
 @pytest.fixture

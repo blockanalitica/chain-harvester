@@ -1,7 +1,7 @@
 import pytest
 from web3 import Web3
 
-from chain_harvester_async.networks.ethereum import EthereumMainnetChain
+from chain_harvester_async.networks import EthereumMainnetChain
 from integration_tests.constants import DAI_CONTRACT
 
 

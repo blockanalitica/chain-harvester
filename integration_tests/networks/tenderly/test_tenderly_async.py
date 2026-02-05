@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from chain_harvester_async.networks.tenderly import TenderlyTestnetChain
+from chain_harvester_async.networks import TenderlyTestnetChain
 
 
 @pytest.fixture
