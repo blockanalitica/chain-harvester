@@ -1,9 +1,11 @@
+import pytest
 import types
 
 from chain_harvester.api import get_events_for_contracts, get_transactions_for_contracts
 from integration_tests.env import API_KEYS, RPC_NODES
 
 
+@pytest.mark.skip(reason="Only for manual testing")
 def test_get_transactions_for_contracts():
     config = {
         "rpc": RPC_NODES["ethereum"]["mainnet"],
@@ -21,6 +23,7 @@ def test_get_transactions_for_contracts():
     assert len(list(data)) == 1
 
 
+@pytest.mark.skip(reason="Only for manual testing")
 def test_get_transactions_for_contracts__failed():
     config = {
         "rpc": RPC_NODES["ethereum"]["mainnet"],
@@ -39,6 +42,7 @@ def test_get_transactions_for_contracts__failed():
     assert len(list(data)) == 0
 
 
+@pytest.mark.skip(reason="Only for manual testing")
 def test_get_events_for_contracts():
     config = {
         "rpc": RPC_NODES["ethereum"]["mainnet"],

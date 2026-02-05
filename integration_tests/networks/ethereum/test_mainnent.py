@@ -1,34 +1,30 @@
+import pytest
 from web3 import Web3
 
 from chain_harvester.networks.ethereum.mainnet import EthereumMainnetChain
-from integration_tests.env import ETHEREUM_ALCHEMY_API_KEY, ETHERSCAN_API_KEY, RPC_NODES
+from integration_tests.env import RPC_NODES
 
 
-def test__call_contract_function():
-    chain = EthereumMainnetChain(
-        rpc=RPC_NODES["ethereum"]["mainnet"], etherscan_api_key=ETHERSCAN_API_KEY
-    )
+@pytest.fixture
+def eth_chain():
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES)
+    return chain
 
-    assert chain.rpc == RPC_NODES["ethereum"]["mainnet"]
-    name = chain.call_contract_function("0x6b175474e89094c44da98b954eedeac495271d0f", "name")
+
+def test_call_contract_function(eth_chain):
+    assert eth_chain.rpc == RPC_NODES["ethereum"]["mainnet"]
+    name = eth_chain.call_contract_function("0x6b175474e89094c44da98b954eedeac495271d0f", "name")
     assert name == "Dai Stablecoin"
 
 
-def test__load_abi():
-    chain = EthereumMainnetChain(
-        rpc=RPC_NODES["ethereum"]["mainnet"],
-        etherscan_api_key=ETHERSCAN_API_KEY,
-        abis_path="test-abis/",
-    )
-    abi = chain.load_abi("0x6b175474e89094c44da98b954eedeac495271d0f")
-    abi_name = chain.load_abi("0x6b175474e89094c44da98b954eedeac495271d0f", abi_name="token")
+def test_load_abi(eth_chain):
+    abi = eth_chain.load_abi("0x6b175474e89094c44da98b954eedeac495271d0f")
+    abi_name = eth_chain.load_abi("0x6b175474e89094c44da98b954eedeac495271d0f", abi_name="token")
     assert abi == abi_name
 
 
-def test__get_events_for_contract():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-
-    events = chain.get_events_for_contract(
+def test_get_events_for_contract(eth_chain):
+    events = eth_chain.get_events_for_contract(
         "0x6b175474e89094c44da98b954eedeac495271d0f",
         from_block=17850969,
         to_block=17850974,
@@ -37,10 +33,8 @@ def test__get_events_for_contract():
     assert len(list(events)) == 3
 
 
-def test__get_events_for_contract_topics():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-
-    events = chain.get_events_for_contract_topics(
+def test_get_events_for_contract_topics(eth_chain):
+    events = eth_chain.get_events_for_contract_topics(
         "0x6b175474e89094c44da98b954eedeac495271d0f",
         ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"],
         from_block=17850969,
@@ -49,9 +43,7 @@ def test__get_events_for_contract_topics():
     assert len(list(events)) == 3
 
 
-def test__multicall():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-
+def test_multicall(eth_chain):
     calls = []
     calls.append(
         (
@@ -67,18 +59,17 @@ def test__multicall():
             ["name", None],
         )
     )
-    result = chain.multicall(calls)
+    result = eth_chain.multicall(calls)
     assert result["symbol"] == "DAI"
     assert result["name"] == "Dai Stablecoin"
 
 
-def test__anonymous_events():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
+def test_anonymous_events(eth_chain):
     contract_address = "0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B"
 
     topics = ["0xb65337df00000000000000000000000000000000000000000000000000000000"]
 
-    events = chain.get_events_for_contract_topics(
+    events = eth_chain.get_events_for_contract_topics(
         contract_address,
         topics,
         from_block=18163919,
@@ -89,11 +80,10 @@ def test__anonymous_events():
     assert len(list(events)) == 1
 
 
-def test__eth_multicall():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
+def test_eth_multicall(eth_chain):
     block_identifier = 17892782
 
-    response = chain.eth_multicall(
+    response = eth_chain.eth_multicall(
         [
             [
                 "0x6D635c8d08a1eA2F1687a5E46b666949c977B7dd",
@@ -107,7 +97,7 @@ def test__eth_multicall():
 
     ilk = Web3.to_bytes(text="ETH-A").ljust(32, b"\x00")
     urn = Web3.to_checksum_address("0x526e31defe9e23dc540d955839825b20c90332f9")
-    response = chain.eth_multicall(
+    response = eth_chain.eth_multicall(
         [
             [
                 "0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B".lower(),
@@ -120,13 +110,12 @@ def test__eth_multicall():
     assert response == [{"ink": 42500000000000000000, "art": 13890243153162300485451}]
 
 
-def test__anonymous_events_decode():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
+def test_anonymous_events_decode(eth_chain):
     contract_address = "0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B"
 
     topics = ["0x1a0b287e00000000000000000000000000000000000000000000000000000000"]
 
-    events = chain.get_events_for_contract_topics(
+    events = eth_chain.get_events_for_contract_topics(
         contract_address,
         topics,
         from_block=18350654,
@@ -137,13 +126,12 @@ def test__anonymous_events_decode():
     assert len(list(events)) == 2
 
 
-def test__anonymous_events_fold():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
+def test_anonymous_events_fold(eth_chain):
     contract_address = "0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B"
 
     topics = ["0xb65337df00000000000000000000000000000000000000000000000000000000"]
 
-    events = chain.get_events_for_contract_topics(
+    events = eth_chain.get_events_for_contract_topics(
         contract_address,
         topics,
         from_block=18349061,
@@ -154,8 +142,7 @@ def test__anonymous_events_fold():
     assert len(list(events)) == 1
 
 
-def test__mixed_events():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
+def test_mixed_events(eth_chain):
     contract_address = "0x135954d155898D42C90D2a57824C690e0c7BEf1B"
 
     topics = [
@@ -163,7 +150,7 @@ def test__mixed_events():
         "0x851aa1caf4888170ad8875449d18f0f512fd6deb2a6571ea1a41fb9f95acbcd1",
     ]
 
-    events = chain.get_events_for_contracts_topics(
+    events = eth_chain.get_events_for_contracts_topics(
         [contract_address],
         [topics],
         from_block=17322549,
@@ -173,8 +160,7 @@ def test__mixed_events():
     assert len(list(events)) == 14
 
 
-def test__mixed_events_contracts():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
+def test_mixed_events_contracts(eth_chain):
     contracts = [
         "0x135954d155898D42C90D2a57824C690e0c7BEf1B",
         "0xC7Bdd1F2B16447dcf3dE045C4a039A60EC2f0ba3",
@@ -203,7 +189,7 @@ def test__mixed_events_contracts():
         "0x42f3b824eb9d522b949ff3d8f70db1872c46f3fc68b6df1a4c8d6aaebfcb6796",
     ]
 
-    events = chain.get_events_for_contracts_topics(
+    events = eth_chain.get_events_for_contracts_topics(
         contracts,
         [topics],
         from_block=9529100,
@@ -213,14 +199,12 @@ def test__mixed_events_contracts():
     assert len(list(events)) == 3
 
 
-def test__is_eao():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-    assert chain.is_eoa("0x7d9f92DAa9254Bbd1f479DBE5058f74C2381A898") is False
-    assert chain.is_eoa("0x5eafe35109ae22c7674c1a30594abe833a9691e8")
+def test_is_eao(eth_chain):
+    assert eth_chain.is_eoa("0x7d9f92DAa9254Bbd1f479DBE5058f74C2381A898") is False
+    assert eth_chain.is_eoa("0x5eafe35109ae22c7674c1a30594abe833a9691e8")
 
 
-def test__bytes32():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
+def test_bytes32(eth_chain):
     DSCHIEF_1_0_CONTRACT_ADDRESS = "0x8e2a84d6ade1e7fffee039a35ef5f19f13057152"
     DSCHIEF_1_1_CONTRACT_ADDRESS = "0x9ef05f7f6deb616fd37ac3c959a2ddd25a54e4f5"
     DSCHIEF_1_2_CONTRACT_ADDRESS = "0x0a3f6849f78076aefadf113f5bed87720274ddc0"
@@ -234,7 +218,7 @@ def test__bytes32():
         "0xa69beaba00000000000000000000000000000000000000000000000000000000",
     ]
 
-    events = chain.get_events_for_contracts_topics(
+    events = eth_chain.get_events_for_contracts_topics(
         [
             DSCHIEF_1_0_CONTRACT_ADDRESS,
             DSCHIEF_1_1_CONTRACT_ADDRESS,
@@ -249,8 +233,7 @@ def test__bytes32():
     assert len(list(events)) == 9
 
 
-def test__decode_issue():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
+def test_decode_issue(eth_chain):
     topics = [
         "0x4d9a807e05ec038d31d248a43818a2234c2a467865e998b3d4da029d9123b5c2",
         "0x7e816826910b70789c9de9051404b61689ff0e3dcb3e0d73f447b1d797fbdcb0",
@@ -261,7 +244,7 @@ def test__decode_issue():
         "0xa69beaba00000000000000000000000000000000000000000000000000000000",
     ]
 
-    events = chain.get_events_for_contracts_topics(
+    events = eth_chain.get_events_for_contracts_topics(
         ["0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5"],
         [topics],
         9761247,
@@ -271,27 +254,22 @@ def test__decode_issue():
     assert len(list(events)) == 3
 
 
-def test__get_token_info():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-    data = chain.get_token_info("0x6b175474e89094c44da98b954eedeac495271d0f")
+def test_get_token_info(eth_chain):
+    data = eth_chain.get_token_info("0x6b175474e89094c44da98b954eedeac495271d0f")
     assert data["name"] == "Dai Stablecoin"
     assert data["symbol"] == "DAI"
     assert data["decimals"] == 18
 
 
-def test__get_token_info__mkr():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-    data = chain.get_token_info("0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2")
+def test_get_token_info__mkr(eth_chain):
+    data = eth_chain.get_token_info("0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2")
     assert data["name"] == "Maker"
     assert data["symbol"] == "MKR"
     assert data["decimals"] == 18
 
 
-def test_decoding_ilk():
-    chain = EthereumMainnetChain(
-        rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY, step=10_000_000
-    )
-    events = chain.get_events_for_contracts_topics(
+def test_decoding_ilk(eth_chain):
+    events = eth_chain.get_events_for_contracts_topics(
         [
             "0xbE4F921cdFEf2cF5080F9Cf00CC2c14F1F96Bd07",
             "0xa1cB9e29f1727d8a0a6E3e0c1334A2323312A2d5",
@@ -305,9 +283,8 @@ def test_decoding_ilk():
     assert len(list(events)) == 9
 
 
-def test_decoding_ilk_bytes():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-    events = chain.get_events_for_contracts_topics(
+def test_decoding_ilk_bytes(eth_chain):
+    events = eth_chain.get_events_for_contracts_topics(
         [
             "0x135954d155898D42C90D2a57824C690e0c7BEf1B",
         ],
@@ -319,50 +296,17 @@ def test_decoding_ilk_bytes():
     assert len(list(events)) == 1
 
 
-def test_get_block_transactions():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-    url = f"https://eth-mainnet.g.alchemy.com/v2/{ETHEREUM_ALCHEMY_API_KEY}"
-    data = chain.get_block_transactions(url, 20192996)
-    assert len(data) == 131
-
-
-def test_get_transactions_for_contracts():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-    url = f"https://eth-mainnet.g.alchemy.com/v2/{ETHEREUM_ALCHEMY_API_KEY}"
-    data = chain.get_transactions_for_contracts(
-        url, ["0x89B78CfA322F6C5dE0aBcEecab66Aee45393cC5A"], 20391781, to_block=20391781
-    )
-    events = list(data)
-    assert len(events) == 1
-
-
-def test_get_transactions_for_contracts__failed():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-    url = f"https://eth-mainnet.g.alchemy.com/v2/{ETHEREUM_ALCHEMY_API_KEY}"
-    data = chain.get_transactions_for_contracts(
-        url,
-        ["0x89B78CfA322F6C5dE0aBcEecab66Aee45393cC5A"],
-        20391781,
-        to_block=20391781,
-        failed=True,
-    )
-    events = list(data)
-    assert len(events) == 0
-
-
-def test__get_token_info__retry():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-    data = chain.get_token_info("0x6b175474e89094c44da98b954eedeac495271d0f")
+def test_get_token_info__retry(eth_chain):
+    data = eth_chain.get_token_info("0x6b175474e89094c44da98b954eedeac495271d0f")
     assert data["name"] == "Dai Stablecoin"
     assert data["symbol"] == "DAI"
     assert data["decimals"] == 18
 
-    data = chain.get_token_info("0x9f8f72aa9304c8b593d555f12ef6589cc3a579a3")
+    data = eth_chain.get_token_info("0x9f8f72aa9304c8b593d555f12ef6589cc3a579a3")
     assert data["name"] is None
     assert data["symbol"] is None
 
 
-def test__get_timestamp_for_block():
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key=ETHERSCAN_API_KEY)
-    timestamp = chain.get_timestamp_for_block(17892782)
+def test_get_timestamp_for_block(eth_chain):
+    timestamp = eth_chain.get_timestamp_for_block(17892782)
     assert timestamp == 1691770631

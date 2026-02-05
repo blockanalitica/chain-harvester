@@ -23,7 +23,7 @@ format: ## Format code based on code quality tools.
 .PHONY: test
 test: ## Test the code with pytest
 	@echo "🚀 Testing code: Running pytest"
-	@uv run pytest tests
+	@uv run pytest tests/ integration_tests/
 
 .PHONY: tox
 tox: ## Test the code with pytest

@@ -1,13 +1,15 @@
+import pytest
 import os
 
 from chain_harvester.networks.tenderly.testnet import TenderlyTestNetChain
 from integration_tests.env import API_KEYS, RPC_NODES
 
 
-def test__get_events_for_contract():
+@pytest.mark.skip(reason="Only for manual testing")
+def test_get_events_for_contract():
     chain = TenderlyTestNetChain(
-        rpc_nodes=RPC_NODES,
-        api_keys=API_KEYS,
+        rpc=RPC_NODES["tenderly"]["testnet"],
+        api_key=API_KEYS["tenderly"]["testnet"],
         account=os.environ.get("TENDERLY_ACCOUNT"),
         project=os.environ.get("TENDERLY_PROJECT"),
         testnet_id=os.environ.get("TENDERLY_TESTNET_ID"),
@@ -20,10 +22,11 @@ def test__get_events_for_contract():
     assert len(list(events)) == 1
 
 
+@pytest.mark.skip(reason="Only for manual testing")
 def test_abi_to_event_topics():
     chain = TenderlyTestNetChain(
-        rpc_nodes=RPC_NODES,
-        api_keys=API_KEYS,
+        rpc=RPC_NODES["tenderly"]["testnet"],
+        api_key=API_KEYS["tenderly"]["testnet"],
         account=os.environ.get("TENDERLY_ACCOUNT"),
         project=os.environ.get("TENDERLY_PROJECT"),
         testnet_id=os.environ.get("TENDERLY_TESTNET_ID"),

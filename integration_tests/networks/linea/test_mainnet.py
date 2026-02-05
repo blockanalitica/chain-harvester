@@ -1,9 +1,9 @@
-from intregration_tests.env import API_KEYS, RPC_NODES
+from integration_tests.env import RPC_NODES
 from chain_harvester.networks.linea.mainnet import LineaMainnetChain
 
 
-def test__multicall():
-    chain = LineaMainnetChain(rpc_nodes=RPC_NODES, api_keys=API_KEYS)
+def test_multicall():
+    chain = LineaMainnetChain(rpc_nodes=RPC_NODES)
 
     calls = []
     calls.append(
