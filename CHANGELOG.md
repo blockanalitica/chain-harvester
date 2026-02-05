@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.11.3](https://github.com/blockanalitica/chain-harvester/compare/v2.11.2...v2.11.3) (2026-02-05)
+
+
+### Bug Fixes
+
+* monad network ([#262](https://github.com/blockanalitica/chain-harvester/issues/262)) ([b8e5cdd](https://github.com/blockanalitica/chain-harvester/commit/b8e5cdd985265fd55b569057ab30aef180767f02))
+
 ## [2.11.2](https://github.com/blockanalitica/chain-harvester/compare/v2.11.1...v2.11.2) (2026-02-05)
 
 
