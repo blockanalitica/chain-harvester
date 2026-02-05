@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.11.0](https://github.com/blockanalitica/chain-harvester/compare/v2.10.1...v2.11.0) (2026-02-05)
+
+
+### Features
+
+* add async support ([#255](https://github.com/blockanalitica/chain-harvester/issues/255)) ([4a20092](https://github.com/blockanalitica/chain-harvester/commit/4a20092c04a999bf7269dbcb891df865d62e44c6))
+
 ## [2.10.1](https://github.com/blockanalitica/chain-harvester/compare/v2.10.0...v2.10.1) (2026-01-22)
 
 
