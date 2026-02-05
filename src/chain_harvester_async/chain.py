@@ -56,14 +56,12 @@ class Chain:
         chain,
         network,
         rpc=None,
+        rpc_nodes=None,
         chain_id=None,
         abis_path=None,
         step=None,
         s3=None,
-        *args,
-        **kwargs,
     ):
-        super().__init__(*args, **kwargs)
         self._w3 = None
 
         self.chain = chain
@@ -71,7 +69,11 @@ class Chain:
         self.chain_id = chain_id or CHAINS[self.chain][self.network]
 
         rpc_env = f"{self.chain.upper()}_{self.network.upper()}_RPC"
-        self.rpc = rpc or env(rpc_env, None)
+        if rpc_nodes:
+            self.rpc = rpc_nodes[self.chain][self.network]
+        else:
+            self.rpc = rpc or env(rpc_env, None)
+
         if not self.rpc:
             raise ConfigError(
                 "Missing RPC configuration. Provide 'rpc' explicitly or set the "
