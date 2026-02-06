@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.12.0](https://github.com/blockanalitica/chain-harvester/compare/v2.11.3...v2.12.0) (2026-02-06)
+
+
+### Features
+
+* add async context manager support ([#264](https://github.com/blockanalitica/chain-harvester/issues/264)) ([beff82e](https://github.com/blockanalitica/chain-harvester/commit/beff82e8eed525915a4e780b72ae915d2a2d8e51))
+
 ## [2.11.3](https://github.com/blockanalitica/chain-harvester/compare/v2.11.2...v2.11.3) (2026-02-05)
 
 
