@@ -130,6 +130,12 @@ class Chain:
 
         await self._w3.provider.disconnect()
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.aclose()
+
     async def get_block_info(self, block_number):
         return await self.eth.get_block(block_number)
 

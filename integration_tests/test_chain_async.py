@@ -6,6 +6,15 @@ import aiofiles.ospath as ospath
 from web3 import Web3
 
 from integration_tests.constants import DEMO_ABI, USDS_CONTRACT
+from chain_harvester_async.helpers import get_chain
+
+
+async def test_chain_context_manager():
+    chain = get_chain("ethereum")
+    async with chain as c:
+        latest = await c.get_latest_block()
+        assert latest > 0
+        assert isinstance(latest, int)
 
 
 async def test_get_latest_block(chain):
