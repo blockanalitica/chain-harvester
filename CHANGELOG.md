@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.12.1](https://github.com/blockanalitica/chain-harvester/compare/v2.12.0...v2.12.1) (2026-03-09)
+
+
+### Bug Fixes
+
+* multicall error handling for Web3RPCError and change gas limit default ([#266](https://github.com/blockanalitica/chain-harvester/issues/266)) ([cbcd0bf](https://github.com/blockanalitica/chain-harvester/commit/cbcd0bfff7b6d093b0d8d2bb1ed72e98652c62fc))
+
 ## [2.12.0](https://github.com/blockanalitica/chain-harvester/compare/v2.11.3...v2.12.0) (2026-02-06)
 
 
