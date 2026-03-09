@@ -2,9 +2,9 @@ import logging
 
 import aiohttp
 from eth_utils import toolz
+from web3.exceptions import Web3RPCError
 
 from chain_harvester.constants import (
-    GAS_LIMIT,
     MULTICALL2_ADDRESSES,
     MULTICALL3_ADDRESSES,
     MULTICALL3_BYTECODE,
@@ -26,7 +26,7 @@ class Multicall:
         chain_id,
         block_identifier=None,
         require_success=True,
-        gas_limit=GAS_LIMIT,
+        gas_limit=None,
         origin=None,
     ):
         self.calls = calls
@@ -192,7 +192,7 @@ def _raise_or_proceed(e, calls_count, retries):
         log.warning(e)
     elif isinstance(e, TimeoutError):
         pass
-    elif isinstance(e, ValueError):
+    elif isinstance(e, (ValueError, Web3RPCError)):
         if "out of gas" not in str(e).lower():
             raise e
         if calls_count == 1:
