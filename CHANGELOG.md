@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.12.2](https://github.com/blockanalitica/chain-harvester/compare/v2.12.1...v2.12.2) (2026-03-11)
+
+
+### Bug Fixes
+
+* import async mixin for monad ([#268](https://github.com/blockanalitica/chain-harvester/issues/268)) ([4aad4c1](https://github.com/blockanalitica/chain-harvester/commit/4aad4c1b0bd5ec18f1be8fe8e7cf0a82c2fdaa58))
+
 ## [2.12.1](https://github.com/blockanalitica/chain-harvester/compare/v2.12.0...v2.12.1) (2026-03-09)
 
 
