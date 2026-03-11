@@ -1,5 +1,5 @@
 from chain_harvester_async.chain import Chain
-from chain_harvester.mixins import EtherscanMixin
+from chain_harvester_async.mixins import EtherscanMixin
 
 
 class MonadMainnetChain(EtherscanMixin, Chain):
