@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.13.0](https://github.com/blockanalitica/chain-harvester/compare/v2.12.2...v2.13.0) (2026-03-31)
+
+
+### Features
+
+* bump dependencies ([#271](https://github.com/blockanalitica/chain-harvester/issues/271)) ([ac26fc4](https://github.com/blockanalitica/chain-harvester/commit/ac26fc4d6e0780bdbc5088d567d4744f900c3b69))
+
 ## [2.12.2](https://github.com/blockanalitica/chain-harvester/compare/v2.12.1...v2.12.2) (2026-03-11)
 
 
