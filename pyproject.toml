@@ -13,14 +13,14 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "web3>=7.7.0,<8",
-    "requests>=2.31.0,<3",
-    "eth-abi>=5.1.0,<6",
+    "web3>=7.14.1,<8",
+    "requests>=2.33.0,<3",
+    "eth-abi>=5.2.0,<6",
     "multiproof>=0.1.10,<0.2",
-    "boto3>=1.40.33,<2",
+    "boto3>=1.42.0,<2",
     "aiofiles>=25.1.0",
-    "aiobotocore>=3.1.1",
-    "environs>=14.5.0",
+    "aiobotocore>=3.3.0",
+    "environs>=14.6.0",
 ]
 
 [project.urls]
