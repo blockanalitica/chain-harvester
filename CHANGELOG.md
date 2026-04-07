@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.14.0](https://github.com/blockanalitica/chain-harvester/compare/v2.13.0...v2.14.0) (2026-04-07)
+
+
+### Features
+
+* new interface for fetch_events and blocks from rpc and linting ([#273](https://github.com/blockanalitica/chain-harvester/issues/273)) ([1d1f029](https://github.com/blockanalitica/chain-harvester/commit/1d1f029f36cf866d84b60c8e4664008cbe87e170))
+
 ## [2.13.0](https://github.com/blockanalitica/chain-harvester/compare/v2.12.2...v2.13.0) (2026-03-31)
 
 
