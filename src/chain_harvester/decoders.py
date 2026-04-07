@@ -1,3 +1,4 @@
+# ruff: noqa: N806
 import binascii
 from collections.abc import Mapping
 

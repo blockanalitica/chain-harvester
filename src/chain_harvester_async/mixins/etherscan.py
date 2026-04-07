@@ -2,10 +2,10 @@ import json
 import logging
 import urllib.parse
 
-from chain_harvester_async.mixins.base import BaseExplorerMixin
 from environs import env
 
 from chain_harvester.exceptions import ChainException
+from chain_harvester_async.mixins.base import BaseExplorerMixin
 from chain_harvester_async.utils.http import retry_get_json
 
 log = logging.getLogger(__name__)

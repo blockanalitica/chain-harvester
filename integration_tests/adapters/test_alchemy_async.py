@@ -1,4 +1,5 @@
 import pytest
+
 from chain_harvester_async.adapters.alchemy import get_blocks
 from integration_tests.env import ALCHEMY_SUBGRAPH_QUERY_KEY
 

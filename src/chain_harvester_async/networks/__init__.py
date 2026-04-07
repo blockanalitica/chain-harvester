@@ -2,8 +2,7 @@ from .arbitrum import ArbitrumMainnetChain
 from .avalanche import AvalancheMainnetChain
 from .base import BaseMainnetChain
 from .blast import BlastMainnetChain
-from .ethereum import EthereumMainnetChain
-from .ethereum import EthereumSepoliaChain
+from .ethereum import EthereumMainnetChain, EthereumSepoliaChain
 from .filecoin import FilecoinMainnetChain
 from .gnosis import GnosisMainnetChain
 from .hemi import HemiMainnetChain

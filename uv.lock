@@ -425,7 +425,7 @@ requires-dist = [
     { name = "environs", specifier = ">=14.6.0" },
     { name = "eth-abi", specifier = ">=5.2.0,<6" },
     { name = "multiproof", specifier = ">=0.1.10,<0.2" },
-    { name = "requests", specifier = ">=2.33.0,<3" },
+    { name = "requests", specifier = ">=2.32.5,<3" },
     { name = "web3", specifier = ">=7.14.1,<8" },
 ]
 

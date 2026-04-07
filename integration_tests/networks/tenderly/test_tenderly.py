@@ -1,5 +1,6 @@
-import pytest
 import os
+
+import pytest
 
 from chain_harvester.networks.tenderly.testnet import TenderlyTestNetChain
 from integration_tests.env import API_KEYS, RPC_NODES

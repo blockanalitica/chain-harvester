@@ -1,10 +1,12 @@
 import json
-from chain_harvester.http import retry_get_json
-import requests
-import urllib.parse
 import logging
+import urllib.parse
+
+import requests
 from environs import env
+
 from chain_harvester.exceptions import ChainException
+from chain_harvester.http import retry_get_json
 
 log = logging.getLogger(__name__)
 

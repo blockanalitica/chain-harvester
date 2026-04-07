@@ -192,7 +192,7 @@ def _raise_or_proceed(e, calls_count, retries):
         log.warning(e)
     elif isinstance(e, TimeoutError):
         pass
-    elif isinstance(e, (ValueError, Web3RPCError)):
+    elif isinstance(e, ValueError | Web3RPCError):
         if "out of gas" not in str(e).lower():
             raise e
         if calls_count == 1:

@@ -1,3 +1,4 @@
+# ruff: noqa: N806
 from chain_harvester.constants import SECONDS_PER_YEAR
 from chain_harvester.utils.solidity_math import MathLib, from_wad, to_wad
 

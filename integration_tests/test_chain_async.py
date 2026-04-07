@@ -5,8 +5,8 @@ import aiofiles.os
 import aiofiles.ospath as ospath
 from web3 import Web3
 
-from integration_tests.constants import DEMO_ABI, USDS_CONTRACT
 from chain_harvester_async.helpers import get_chain
+from integration_tests.constants import DEMO_ABI, USDS_CONTRACT
 
 
 async def test_chain_context_manager():

@@ -18,13 +18,8 @@ from web3 import AsyncWeb3, Web3
 from web3._utils.rpc_abi import RPC
 from web3.exceptions import ContractLogicError, Web3RPCError
 from web3.middleware import ExtraDataToPOAMiddleware, validation
-from web3.providers.rpc.utils import (
-    REQUEST_RETRY_ALLOWLIST,
-    ExceptionRetryConfiguration,
-)
+from web3.providers.rpc.utils import REQUEST_RETRY_ALLOWLIST, ExceptionRetryConfiguration
 
-from chain_harvester_async.adapters import sink
-from chain_harvester_async.chainlink.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester.constants import CHAINS, MULTICALL3_ADDRESSES, NULL_ADDRESS
 from chain_harvester.decoders import (
     AnonymousEventLogDecoder,
@@ -34,11 +29,14 @@ from chain_harvester.decoders import (
 )
 from chain_harvester.exceptions import ChainException, ConfigError
 from chain_harvester.utils.codes import get_code_name
-from chain_harvester_async.utils.http import retry_post_json
-from chain_harvester_async.utils.s3 import fetch_abi_from_s3, save_abi_to_s3
-
+from chain_harvester_async.adapters import sink
+from chain_harvester_async.blocks import fetch_block_info
+from chain_harvester_async.chainlink.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester_async.multicall.call import Call
 from chain_harvester_async.multicall.multicall import Multicall
+from chain_harvester_async.utils.http import retry_post_json
+from chain_harvester_async.utils.s3 import fetch_abi_from_s3, save_abi_to_s3
+from chain_harvester_async.utils.tools import chunk_by_key
 
 log = logging.getLogger(__name__)
 
@@ -61,12 +59,14 @@ class Chain:
         abis_path=None,
         step=None,
         s3=None,
+        block_store=None,
     ):
         self._w3 = None
 
         self.chain = chain
         self.network = network
         self.chain_id = chain_id or CHAINS[self.chain][self.network]
+        self.block_store = block_store
 
         rpc_env = f"{self.chain.upper()}_{self.network.upper()}_RPC"
         if rpc_nodes:
@@ -952,3 +952,130 @@ class Chain:
     async def get_erc4626_info(self, address, block_identifier=None):
         info = await self.get_multiple_erc4626_info([address], block_identifier=block_identifier)
         return info[address]
+
+    #################
+    # New interface #
+    #################
+
+    async def _fetch_events_from_rpc(
+        self,
+        contract_addresses,
+        from_block,
+        to_block,
+        topics,
+        anonymous,
+        mixed,
+    ):
+        contracts = [
+            Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
+        ]
+        filters = {
+            "fromBlock": hex(from_block),
+            "toBlock": hex(to_block),
+            "address": contracts,
+        }
+        if topics:
+            filters["topics"] = topics
+
+        raw_logs = await self.eth.get_logs(filters)
+        for raw_log in raw_logs:
+            if (
+                HexBytes("0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b")
+                in raw_log["topics"]
+            ):
+                log.warning(
+                    "Skipping Upgraded event on proxy contract %s",
+                    raw_log["address"],
+                )
+                continue
+
+            if (
+                HexBytes("0x1cf3b03a6cf19fa2baba4df148e9dcabedea7f8a5c07840e207e5c089be95d3e")
+                in raw_log["topics"]
+            ):
+                log.warning(
+                    "Skipping BeaconUpgraded event on proxy contract %s",
+                    raw_log["address"],
+                )
+                continue
+
+            contract = await self.get_contract(raw_log["address"].lower())
+            try:
+                data = self._decode_raw_log(contract, raw_log, mixed, anonymous)
+            except MissingABIEventDecoderError:
+                log.warning(
+                    "Contract ABI (%s) is missing an event definition. Fetching a "
+                    "new ABI on block %s",
+                    raw_log["address"].lower(),
+                    raw_log["blockNumber"],
+                )
+                contract = await self.get_contract(
+                    raw_log["address"].lower(),
+                    refetch_on_block=raw_log["blockNumber"],
+                )
+                data = self._decode_raw_log(contract, raw_log, mixed, anonymous)
+            yield data
+
+    async def _fetch_enriched_events_from_rpc(
+        self,
+        contract_addresses,
+        from_block,
+        to_block,
+        topics,
+        anonymous,
+        mixed,
+    ):
+        events = self._fetch_events_from_rpc(
+            contract_addresses, from_block, to_block, topics, anonymous, mixed
+        )
+        chunks = chunk_by_key(events, 1000, lambda item: item["blockNumber"])
+        async for chunk in chunks:
+            block_numbers = {e["blockNumber"] for e in chunk}
+            blocks = await fetch_block_info(self, block_numbers)
+
+            for event in chunk:
+                block = blocks[event["blockNumber"]]
+                event["blockTimestamp"] = block["timestamp"]
+                event["blockDateTime"] = block["datetime"]
+                yield event
+
+    async def fetch_events(
+        self,
+        contract_addresses,
+        from_block,
+        to_block=None,
+        topics=None,
+        anonymous=False,
+        mixed=False,
+    ):
+        if not isinstance(contract_addresses, list):
+            raise TypeError(f"contract_addresses must be a list, got {type(contract_addresses)}")
+
+        if topics and not isinstance(topics, list):
+            raise TypeError(f"topics must be a list, got {type(topics)}")
+
+        if not isinstance(from_block, int) or from_block < 0:
+            raise ValueError(
+                "from_block must be a non-negative integer, "
+                f"got {type(from_block)} with value {from_block}"
+            )
+
+        if to_block is not None and (not isinstance(to_block, int) or to_block < 0):
+            raise ValueError(
+                "to_block must be a non-negative integer or None, "
+                f"got {type(to_block)} with value {to_block}"
+            )
+
+        if to_block is not None and from_block > to_block:
+            raise ValueError(
+                f"from_block ({from_block}) must be less than or equal to to_block ({to_block})"
+            )
+
+        if not to_block:
+            to_block = await self.get_latest_block()
+
+        events = self._fetch_enriched_events_from_rpc(
+            contract_addresses, from_block, to_block, topics, anonymous, mixed
+        )
+        async for event in events:
+            yield event

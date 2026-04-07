@@ -1,4 +1,5 @@
 import pytest
+
 from chain_harvester.exceptions import ConfigError
 from chain_harvester_async.helpers import get_chain
 
@@ -21,4 +22,4 @@ async def test_get_chain(monkeypatch):
 
     with pytest.raises(ConfigError):
         chain = get_chain("ethereum")
-        assert chain.chain == "ethereum"
+    assert chain.chain == "ethereum"
