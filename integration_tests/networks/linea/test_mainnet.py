@@ -1,5 +1,5 @@
-from integration_tests.env import RPC_NODES
 from chain_harvester.networks.linea.mainnet import LineaMainnetChain
+from integration_tests.env import RPC_NODES
 
 
 def test_multicall():

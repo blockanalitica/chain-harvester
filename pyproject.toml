@@ -14,7 +14,7 @@ classifiers = [
 ]
 dependencies = [
     "web3>=7.14.1,<8",
-    "requests>=2.33.0,<3",
+    "requests>=2.32.5,<3",
     "eth-abi>=5.2.0,<6",
     "multiproof>=0.1.10,<0.2",
     "boto3>=1.42.0,<2",
@@ -61,50 +61,48 @@ indent-width = 4
 fixable = ["ALL"]
 unfixable = []
 select = [
-    # flake8-2020
-    "YTT",
-    # flake8-bandit
-    "S",
-    # flake8-bugbear
-    "B",
-    # flake8-builtins
-    "A",
-    # flake8-comprehensions
-    "C4",
-    # flake8-debugger
-    "T10",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
-    # mccabe
-    "C90",
-    # pycodestyle
-    "E", "W",
-    # pyflakes
-    "F",
-    # pygrep-hooks
-    "PGH",
-    # pyupgrade
-    "UP",
-    # ruff
-    "RUF",
-    # tryceratops
-    "TRY",
-    "T201",
+    "YTT", # flake8-2020
+    "S", # flake8-bandit
+    "B", # flake8-bugbear
+    "A", # flake8-builtins
+    "C4", # flake8-comprehensions
+    "T10", # flake8-debugger
+    "T20", # flake8-print
+    "SIM", # flake8-simplify
+    "PIE", # flake8-pie
+    "COM", # flake8-commas
+    "PYI", # flake8-pyi
+    "PT", # flake8-pytest-style
+    "DTZ", # flake8-datetimez
+    "I", # isort
+    "C90", # mccabe
+    "E", # pycodestyle
+    "W", # pycodestyle
+    "F", # pyflakes
+    "PGH", # pygrep-hooks
+    "UP", # pyupgrade
+    "RUF", # ruff
+    "TRY", # tryceratops
+    "N", # pep8-naming
+    "PERF", # Perflint
+    "TID", # flake8-tidy-imports
 ]
 ignore = [
-    # DoNotAssignLambda
+    "C901",
+    "COM812",
     "E731",
-    "TRY300",
-    "TRY003",
+    "PERF401",
+    "PYI024",
     "RUF012",
     "S108",
-    "TRY002",
-    "C901",
-    "UP038",
+    "S608",
     "SIM108",
-    "I001",
+    "TRY002",
+    "TRY003",
+    "TRY300",
+    "S105",
+    "SIM110",
+    "N818",
 ]
 
 [tool.ruff.lint.per-file-ignores]

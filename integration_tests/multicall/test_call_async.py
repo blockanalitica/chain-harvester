@@ -1,5 +1,7 @@
-import pytest
 from types import SimpleNamespace
+
+import pytest
+
 from chain_harvester.constants import Network
 from chain_harvester_async.multicall.call import Call
 from chain_harvester_async.multicall.exceptions import StateOverrideNotSupportedError

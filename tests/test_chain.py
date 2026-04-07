@@ -3,9 +3,8 @@ import os
 import tempfile
 from unittest.mock import patch
 
-
-import pytest
 import boto3
+import pytest
 from moto import mock_aws
 
 from chain_harvester.chain import Chain

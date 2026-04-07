@@ -1,4 +1,5 @@
 import pytest
+
 from chain_harvester.networks.hyperliquid.mainnet import HyperliquidMainnetChain
 from integration_tests.env import RPC_NODES
 

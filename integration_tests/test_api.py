@@ -1,5 +1,6 @@
-import pytest
 import types
+
+import pytest
 
 from chain_harvester.api import get_events_for_contracts, get_transactions_for_contracts
 from integration_tests.env import API_KEYS, RPC_NODES
