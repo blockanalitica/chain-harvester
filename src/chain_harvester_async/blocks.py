@@ -80,7 +80,7 @@ async def fetch_blocks_from_rpc(rpc, block_numbers):
     return blocks
 
 
-async def fetch_block_info(chain, block_numbers):
+async def fetch_blocks(chain, block_numbers):
     block_numbers = set(block_numbers)
 
     if chain.block_store and isinstance(chain.block_store, BlockStore):

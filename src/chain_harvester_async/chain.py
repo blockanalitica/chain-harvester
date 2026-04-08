@@ -29,8 +29,8 @@ from chain_harvester.decoders import (
 )
 from chain_harvester.exceptions import ChainException, ConfigError
 from chain_harvester.utils.codes import get_code_name
-from chain_harvester_async.adapters import sink
-from chain_harvester_async.blocks import fetch_block_info
+from chain_harvester_async.adapters import envio, sink
+from chain_harvester_async.blocks import fetch_blocks
 from chain_harvester_async.chainlink.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester_async.multicall.call import Call
 from chain_harvester_async.multicall.multicall import Multicall
@@ -60,6 +60,8 @@ class Chain:
         step=None,
         s3=None,
         block_store=None,
+        hypersync_api_key=None,
+        use_hypersync=False,
     ):
         self._w3 = None
 
@@ -67,6 +69,8 @@ class Chain:
         self.network = network
         self.chain_id = chain_id or CHAINS[self.chain][self.network]
         self.block_store = block_store
+        self.hypersync_api_key = hypersync_api_key
+        self.use_hypersync = use_hypersync
 
         rpc_env = f"{self.chain.upper()}_{self.network.upper()}_RPC"
         if rpc_nodes:
@@ -1031,7 +1035,7 @@ class Chain:
         chunks = chunk_by_key(events, 1000, lambda item: item["blockNumber"])
         async for chunk in chunks:
             block_numbers = {e["blockNumber"] for e in chunk}
-            blocks = await fetch_block_info(self, block_numbers)
+            blocks = await fetch_blocks(self, block_numbers)
 
             for event in chunk:
                 block = blocks[event["blockNumber"]]
@@ -1074,8 +1078,13 @@ class Chain:
         if not to_block:
             to_block = await self.get_latest_block()
 
-        events = self._fetch_enriched_events_from_rpc(
-            contract_addresses, from_block, to_block, topics, anonymous, mixed
-        )
+        if self.use_hypersync:
+            events = envio.fetch_enriched_events(
+                self, contract_addresses, from_block, to_block, topics, anonymous, mixed
+            )
+        else:
+            events = self._fetch_enriched_events_from_rpc(
+                contract_addresses, from_block, to_block, topics, anonymous, mixed
+            )
         async for event in events:
             yield event
