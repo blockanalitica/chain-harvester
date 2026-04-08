@@ -203,3 +203,39 @@ class TenderlyMixin:
 
         abi = data["data"]["raw_abi"]
         return abi
+
+
+class TempoMixin:
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+        self.api = "https://contracts.tempo.xyz/v2"
+        super().__init__(*args, **kwargs)
+
+    async def get_abi_from_source(self, contract_address):
+        url = f"{self.api}/contract/{self.chain_id}/{contract_address}?fields=abi"
+
+        try:
+            data = retry_get_json(url, timeout=5)
+        except requests.exceptions.Timeout:
+            log.exception(
+                "Timeout when get abi from tenderly", extra={"contract_address": contract_address}
+            )
+            raise
+
+        if data.get("match") != "exact_match":
+            raise ChainException(f"Request to {self.api} failed: {data['message']}")
+
+        abi = data["abi"]
+        return abi
+
+    def get_block_for_timestamp_fallback(self, timestamp):
+        """
+        Tempo API does not support fetching blocks by timestamp.
+        Implemented to satisfy mixin interface.
+        """
+        raise NotImplementedError(
+            "TempoMixin: fetching a block by timestamp is not supported by Tempo API"
+        )
