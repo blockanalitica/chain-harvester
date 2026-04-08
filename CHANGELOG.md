@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.15.0](https://github.com/blockanalitica/chain-harvester/compare/v2.14.0...v2.15.0) (2026-04-08)
+
+
+### Features
+
+* hypersync support for events fetching ([#276](https://github.com/blockanalitica/chain-harvester/issues/276)) ([3c2f0d2](https://github.com/blockanalitica/chain-harvester/commit/3c2f0d2612f7807c3feadbd2d67fd603180ce7e2))
+
 ## [2.14.0](https://github.com/blockanalitica/chain-harvester/compare/v2.13.0...v2.14.0) (2026-04-07)
 
 
