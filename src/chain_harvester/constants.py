@@ -31,6 +31,7 @@ class Network(IntEnum):
     Plume = 98866
     Plasma = 9745
     Monad = 143
+    Tempo = 4217
 
 
 MULTICALL_ADDRESSES = {
@@ -65,6 +66,7 @@ MULTICALL3_ADDRESSES = {
     Network.Plume: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Plasma: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Monad: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Tempo: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -128,6 +130,9 @@ CHAINS = {
     },
     "monad": {
         "mainnet": Network.Monad,
+    },
+    "tempo": {
+        "mainnet": Network.Tempo,
     },
 }
 
