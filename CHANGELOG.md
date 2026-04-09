@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.16.1](https://github.com/blockanalitica/chain-harvester/compare/v2.16.0...v2.16.1) (2026-04-09)
+
+
+### Bug Fixes
+
+* send non zero-padded hex block number to RPC ([#279](https://github.com/blockanalitica/chain-harvester/issues/279)) ([8915a9f](https://github.com/blockanalitica/chain-harvester/commit/8915a9fb25850e35ea252d31b9bde10fc7b007b5))
+
 ## [2.16.0](https://github.com/blockanalitica/chain-harvester/compare/v2.15.0...v2.16.0) (2026-04-09)
 
 
