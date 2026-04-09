@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.16.0](https://github.com/blockanalitica/chain-harvester/compare/v2.15.0...v2.16.0) (2026-04-09)
+
+
+### Features
+
+* support for tempo network ([#275](https://github.com/blockanalitica/chain-harvester/issues/275)) ([b2ec618](https://github.com/blockanalitica/chain-harvester/commit/b2ec6186d1ad20855d3466f51215b053cabd5aa9))
+
 ## [2.15.0](https://github.com/blockanalitica/chain-harvester/compare/v2.14.0...v2.15.0) (2026-04-08)
 
 
