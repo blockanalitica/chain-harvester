@@ -17,6 +17,7 @@ class BlockStore:
 
 
 async def fetch_blocks_from_rpc(rpc, block_numbers):
+    block_numbers = set(block_numbers)
     log.debug("Fetching %s blocks from RPC", len(block_numbers))
 
     if len(block_numbers) > 1000:
@@ -26,12 +27,14 @@ async def fetch_blocks_from_rpc(rpc, block_numbers):
 
     payload = []
     for block_number in block_numbers:
+        # Use `hex` instead of HexBytes, as we need to send non zero-padded hex number
+        hex_block_number = hex(block_number)
         payload.append(
             {
                 "jsonrpc": "2.0",
                 "id": block_number,
                 "method": "eth_getBlockByNumber",
-                "params": [HexBytes(block_number).to_0x_hex(), False],
+                "params": [hex_block_number, False],
             }
         )
 
