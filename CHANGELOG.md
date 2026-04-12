@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.16.2](https://github.com/blockanalitica/chain-harvester/compare/v2.16.1...v2.16.2) (2026-04-12)
+
+
+### Bug Fixes
+
+* rpc retry ([#281](https://github.com/blockanalitica/chain-harvester/issues/281)) ([77bf728](https://github.com/blockanalitica/chain-harvester/commit/77bf728fa0f5c46df2cd0f528169532e55359d06))
+
 ## [2.16.1](https://github.com/blockanalitica/chain-harvester/compare/v2.16.0...v2.16.1) (2026-04-09)
 
 
