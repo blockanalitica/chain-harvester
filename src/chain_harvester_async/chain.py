@@ -961,28 +961,76 @@ class Chain:
     # New interface #
     #################
 
-    async def _fetch_events_from_rpc(
-        self,
-        contract_addresses,
-        from_block,
-        to_block,
-        topics,
-        anonymous,
-        mixed,
-    ):
+    async def _fetch_logs_from_rpc(self, contract_addresses, from_block, to_block, topics=None):
         contracts = [
             Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
         ]
         filters = {
-            "fromBlock": hex(from_block),
-            "toBlock": hex(to_block),
             "address": contracts,
         }
         if topics:
             filters["topics"] = topics
 
-        raw_logs = await self.eth.get_logs(filters)
-        for raw_log in raw_logs:
+        retries = 0
+        step = self.step
+
+        while True:
+            end_block = min(from_block + step - 1, to_block)
+            log.debug(
+                "Fetching events from %s to %s with step %s",
+                from_block,
+                end_block,
+                step,
+            )
+            filters["fromBlock"] = hex(from_block)
+            filters["toBlock"] = hex(end_block)
+            try:
+                raw_logs = await self.eth.get_logs(filters)
+            except Web3RPCError as e:
+                # We're catching Web3RPCError as the limit for each response is either
+                # 2000 blocks or 10k logs. Since our step is bigger than 2k blocks, we
+                # catch the errors, and retry with smaller step
+
+                err_code = e.rpc_response["error"]["code"]
+                if err_code in [-32602, -32005, -32000]:
+                    if retries > 5:
+                        raise
+
+                    if step >= 10000:
+                        step /= 5
+                    else:
+                        step /= 2
+
+                    if step < 1:
+                        step = 1
+
+                    retries += 1
+                    log.info("Retrying `get_logs` with step: %s", step)
+                    continue
+                else:
+                    raise
+            else:
+                for raw_log in raw_logs:
+                    yield raw_log
+
+            if end_block >= to_block:
+                break
+
+            from_block += step
+            # Reset step back to self.step in case we did a retry
+            step = self.step
+
+    async def _fetch_events_from_rpc(
+        self,
+        contract_addresses,
+        from_block,
+        to_block,
+        topics=None,
+        anonymous=False,
+        mixed=False,
+    ):
+        raw_logs = self._fetch_logs_from_rpc(contract_addresses, from_block, to_block, topics)
+        async for raw_log in raw_logs:
             if (
                 HexBytes("0xbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b")
                 in raw_log["topics"]
