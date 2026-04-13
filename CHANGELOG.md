@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.17.0](https://github.com/blockanalitica/chain-harvester/compare/v2.16.2...v2.17.0) (2026-04-13)
+
+
+### Features
+
+* dynamic log step size ([#283](https://github.com/blockanalitica/chain-harvester/issues/283)) ([07cd67d](https://github.com/blockanalitica/chain-harvester/commit/07cd67de6f92183e3b1399835e20931c311fc81c))
+
 ## [2.16.2](https://github.com/blockanalitica/chain-harvester/compare/v2.16.1...v2.16.2) (2026-04-12)
 
 
