@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 from collections import defaultdict
 
 import aiofiles
@@ -9,6 +10,7 @@ import aiofiles.os
 import aiofiles.ospath as ospath
 import aiohttp
 import eth_abi
+from aiohttp import ClientSession, TCPConnector
 from botocore.exceptions import ClientError
 from environs import env
 from eth_abi.exceptions import InvalidPointer
@@ -37,6 +39,7 @@ from chain_harvester_async.multicall.multicall import Multicall
 from chain_harvester_async.utils.http import retry_post_json
 from chain_harvester_async.utils.s3 import fetch_abi_from_s3, save_abi_to_s3
 from chain_harvester_async.utils.tools import chunk_by_key
+from chain_harvester_async.w3_provider import CustomAsyncHTTPProvider
 
 log = logging.getLogger(__name__)
 
@@ -104,29 +107,15 @@ class Chain:
 
     @property
     def w3(self):
-        if not self._w3:
-            timeout = aiohttp.ClientTimeout(total=60)
-
-            exception_retry_config = ExceptionRetryConfiguration(
-                errors=(ClientError, asyncio.TimeoutError),
-                retries=3,
-                backoff_factor=0.5,
-                method_allowlist=REQUEST_RETRY_ALLOWLIST,
-            )
-
-            self._w3 = AsyncWeb3(
-                AsyncWeb3.AsyncHTTPProvider(
-                    self.rpc,
-                    request_kwargs={"timeout": timeout},
-                    exception_retry_configuration=exception_retry_config,
-                )
-            )
-            self._w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
         return self._w3
 
     @property
     def eth(self):
-        return self.w3.eth
+        return self._w3.eth
+
+    async def aenter(self):
+        await self._setup_w3()
+        return self
 
     async def aclose(self):
         if not self._w3:
@@ -135,10 +124,35 @@ class Chain:
         await self._w3.provider.disconnect()
 
     async def __aenter__(self):
+        await self.aenter()
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         await self.aclose()
+
+    async def _setup_w3(self):
+        timeout = aiohttp.ClientTimeout(total=60)
+
+        exception_retry_config = ExceptionRetryConfiguration(
+            errors=(ClientError, asyncio.TimeoutError),
+            retries=3,
+            backoff_factor=0.5,
+            method_allowlist=REQUEST_RETRY_ALLOWLIST,
+        )
+
+        self._w3 = AsyncWeb3(
+            CustomAsyncHTTPProvider(
+                self.rpc,
+                request_kwargs={"timeout": timeout},
+                exception_retry_configuration=exception_retry_config,
+            )
+        )
+        self._w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
+        session = ClientSession(
+            raise_for_status=False,
+            connector=TCPConnector(force_close=True, enable_cleanup_closed=True),
+        )
+        await self._w3.provider.cache_async_session(session)
 
     async def get_block_info(self, block_number):
         return await self.eth.get_block(block_number)
@@ -962,6 +976,12 @@ class Chain:
     #################
 
     async def _fetch_logs_from_rpc(self, contract_addresses, from_block, to_block, topics=None):
+        # Retries per different error code
+        max_retries = {
+            -32600: 2,
+            -32602: 10,  # increase retries as retries in this case mean lowering the step size
+        }
+
         contracts = [
             Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
         ]
@@ -971,8 +991,8 @@ class Chain:
         if topics:
             filters["topics"] = topics
 
-        retries = 0
-        step = self.step
+        retries = defaultdict(int)
+        step = to_block - from_block
 
         while True:
             end_block = min(from_block + step - 1, to_block)
@@ -987,28 +1007,29 @@ class Chain:
             try:
                 raw_logs = await self.eth.get_logs(filters)
             except Web3RPCError as e:
-                # We're catching Web3RPCError as the limit for each response is either
-                # 2000 blocks or 10k logs. Since our step is bigger than 2k blocks, we
-                # catch the errors, and retry with smaller step
+                code = e.rpc_response["error"]["code"]
+                msg = e.rpc_response["error"]["message"]
+                log.debug("Got Web3RPCError: %s", e)
 
-                err_code = e.rpc_response["error"]["code"]
-                if err_code in [-32602, -32005, -32000]:
-                    if retries > 5:
-                        raise
-
-                    if step >= 10000:
-                        step /= 5
-                    else:
-                        step /= 2
-
-                    if step < 1:
-                        step = 1
-
-                    retries += 1
-                    log.info("Retrying `get_logs` with step: %s", step)
-                    continue
-                else:
+                if retries[code] > max_retries.get(code, 5):
                     raise
+                retries[code] += 1
+
+                if code == -32600 and "free tier plan" in msg.lower():
+                    step = 10
+
+                if code == -32602 and "log response size exceeded" in msg.lower():
+                    try:
+                        hex_values = re.findall(r"0x[0-9a-fA-F]+", msg)
+                        step = int(hex_values[1], 16) - int(hex_values[0], 16)
+                    except Exception as e:
+                        log.warning("Couldn't extract step size from msg: %s", msg)
+                        step = max(step // 2, 10)
+
+                log.info("Retrying `get_logs` with step: %s", step)
+                continue
+            except Exception:
+                raise
             else:
                 for raw_log in raw_logs:
                     yield raw_log
@@ -1017,8 +1038,6 @@ class Chain:
                 break
 
             from_block += step
-            # Reset step back to self.step in case we did a retry
-            step = self.step
 
     async def _fetch_events_from_rpc(
         self,
