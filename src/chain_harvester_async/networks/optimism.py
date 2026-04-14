@@ -1,8 +1,8 @@
 from chain_harvester_async.chain import Chain
-from chain_harvester_async.mixins import EtherscanMixin
+from chain_harvester_async.mixins import BlockscoutMixin
 
 
-class OptimismMainnetChain(EtherscanMixin, Chain):
+class OptimismMainnetChain(BlockscoutMixin, Chain):
     latest_block_offset = 30
 
     def __init__(self, *args, **kwargs):
