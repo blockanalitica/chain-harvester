@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.19.0](https://github.com/blockanalitica/chain-harvester/compare/v2.18.0...v2.19.0) (2026-04-14)
+
+
+### Features
+
+* Blockscout v2, switch op and base to it ([#287](https://github.com/blockanalitica/chain-harvester/issues/287)) ([e621005](https://github.com/blockanalitica/chain-harvester/commit/e621005821d3e81a760016ef1a9c19ec06855c5d))
+
 ## [2.18.0](https://github.com/blockanalitica/chain-harvester/compare/v2.17.0...v2.18.0) (2026-04-14)
 
 
