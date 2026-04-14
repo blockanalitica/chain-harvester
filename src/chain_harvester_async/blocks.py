@@ -15,6 +15,9 @@ class BlockStore:
     async def save_blocks(self, chain_id, blocks):
         raise NotImplementedError
 
+    async def get_block_by_number(self, chain_id, block_number):
+        raise NotImplementedError
+
 
 async def fetch_blocks_from_rpc(rpc, block_numbers):
     block_numbers = set(block_numbers)
@@ -86,27 +89,22 @@ async def fetch_blocks_from_rpc(rpc, block_numbers):
 async def fetch_blocks(chain, block_numbers):
     block_numbers = set(block_numbers)
 
-    if chain.block_store and isinstance(chain.block_store, BlockStore):
-        store = chain.block_store
+    if chain.block_store:
+        # TODO: validate that we get blocks in correct format
+        blocks = await chain.block_store.get_blocks_by_numbers(chain.chain_id, block_numbers)
+        missing_blocks = block_numbers - set(blocks.keys())
     else:
-        store = None
         log.warning(
             "Block store is not set or not of correct type, "
             "always fetching fresh blocks info from RPC"
         )
-
-    if store:
-        # TODO: validate that we get blocks in correct format
-        blocks = await store.get_blocks_by_numbers(chain.chain_id, block_numbers)
-        missing_blocks = block_numbers - set(blocks.keys())
-    else:
         blocks = {}
         missing_blocks = block_numbers
 
     if missing_blocks:
         rpc_blocks = await fetch_blocks_from_rpc(chain.rpc, missing_blocks)
         blocks.update(rpc_blocks)
-        if store:
-            await store.save_blocks(chain.chain_id, rpc_blocks.values())
+        if chain.block_store:
+            await chain.block_store.save_blocks(chain.chain_id, rpc_blocks.values())
 
     return blocks

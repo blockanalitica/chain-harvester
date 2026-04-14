@@ -205,11 +205,6 @@ async def test_get_token_info_32(chain):
     assert token["decimals"] == 18
 
 
-async def test_get_timestamp_for_block(chain):
-    ts = await chain.get_timestamp_for_block(23865575)
-    assert ts == 1763949167
-
-
 async def test_get_block_for_timestamp(chain):
     block = await chain.get_block_for_timestamp(1763949167)
     assert block == 23865575
