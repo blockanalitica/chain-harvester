@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.18.0](https://github.com/blockanalitica/chain-harvester/compare/v2.17.0...v2.18.0) (2026-04-14)
+
+
+### Features
+
+* change block fetching from block store ([#285](https://github.com/blockanalitica/chain-harvester/issues/285)) ([e7adfa0](https://github.com/blockanalitica/chain-harvester/commit/e7adfa09ec1de2c818c3d77c45148c9dc5919d42))
+
 ## [2.17.0](https://github.com/blockanalitica/chain-harvester/compare/v2.16.2...v2.17.0) (2026-04-13)
 
 
