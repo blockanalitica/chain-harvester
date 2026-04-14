@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.19.1](https://github.com/blockanalitica/chain-harvester/compare/v2.19.0...v2.19.1) (2026-04-14)
+
+
+### Bug Fixes
+
+* Allow self hosted blockscout instances in mixin ([#289](https://github.com/blockanalitica/chain-harvester/issues/289)) ([d001f88](https://github.com/blockanalitica/chain-harvester/commit/d001f88c76ed4592e797143003f4ab29f2863b6a))
+
 ## [2.19.0](https://github.com/blockanalitica/chain-harvester/compare/v2.18.0...v2.19.0) (2026-04-14)
 
 
