@@ -3,7 +3,9 @@ import json
 import logging
 import os
 import re
+import warnings
 from collections import defaultdict
+from datetime import UTC, date, datetime
 
 import aiofiles
 import aiofiles.os
@@ -32,7 +34,7 @@ from chain_harvester.decoders import (
 from chain_harvester.exceptions import ChainException, ConfigError
 from chain_harvester.utils.codes import get_code_name
 from chain_harvester_async.adapters import envio, sink
-from chain_harvester_async.blocks import fetch_blocks
+from chain_harvester_async.blocks import BlockStore, fetch_blocks
 from chain_harvester_async.chainlink.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester_async.multicall.call import Call
 from chain_harvester_async.multicall.multicall import Multicall
@@ -71,9 +73,14 @@ class Chain:
         self.chain = chain
         self.network = network
         self.chain_id = chain_id or CHAINS[self.chain][self.network]
-        self.block_store = block_store
+
         self.hypersync_api_key = hypersync_api_key
         self.use_hypersync = use_hypersync
+
+        if block_store and isinstance(block_store, BlockStore):
+            self.block_store = block_store
+        else:
+            log.debug("Block store not set: %s", self.block_store)
 
         rpc_env = f"{self.chain.upper()}_{self.network.upper()}_RPC"
         if rpc_nodes:
@@ -153,24 +160,6 @@ class Chain:
             connector=TCPConnector(force_close=True, enable_cleanup_closed=True),
         )
         await self._w3.provider.cache_async_session(session)
-
-    async def get_block_info(self, block_number):
-        return await self.eth.get_block(block_number)
-
-    async def get_latest_block(self, offset=None):
-        """
-        Return the latest block number adjusted by an offset.
-
-        If `offset` is provided, it is used directly. Otherwise the chain's
-        predefined `latest_block_offset` value is applied. This is useful for
-        chains whose RPC endpoints lag behind the true latest block and require
-        querying a safely-confirmed block height instead.
-
-        Returns the block number after subtracting the effective offset.
-        """
-        effective_offset = offset if offset is not None else self.latest_block_offset
-        latest_block = await self.eth.get_block_number()
-        return latest_block - effective_offset
 
     async def get_abi_from_source(self, contract_address):
         raise NotImplementedError
@@ -702,51 +691,6 @@ class Chain:
     def chainlink_price_feed_for_asset_symbol(self, symbol):
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
 
-    async def get_timestamp_for_block(self, block_number):
-        block_info = None
-        if sink.supports_chain(self.chain):
-            try:
-                block_info = await sink.fetch_block_info(self.chain, block_number)
-            except Exception:
-                log.exception(
-                    "Couldn't fetch block info from sink. Block number: %s chain: %s",
-                    block_number,
-                    self.chain,
-                )
-            if block_info:
-                return block_info["timestamp"]
-        return self.get_block_info(block_number).timestamp
-
-    async def get_block_for_timestamp_fallback(self, timestamp):
-        raise NotImplementedError
-
-    async def get_block_for_timestamp(self, timestamp):
-        """
-        Fetches the block number for a given timestamp.
-
-        Args:
-            timestamp (int): The timestamp for which to fetch the block number.
-
-        Returns:
-            int: The block number.
-        """
-        nearest_block = None
-        # First try to fetch the block from sink.
-        if sink.supports_chain(self.chain):
-            try:
-                nearest_block = await sink.fetch_nearest_block(self.chain, timestamp)
-            except Exception:
-                log.exception(
-                    "Couldn't fetch nearest block from sink. Timestamp: %s chain: %s",
-                    timestamp,
-                    self.chain,
-                )
-
-        # As a fallback use etherscan or other similar apis
-        if not nearest_block:
-            nearest_block = await self.get_block_for_timestamp_fallback(timestamp)
-        return nearest_block
-
     async def get_owners_for_proxies(self, addresses, code):
         code_name = get_code_name(code)
 
@@ -1155,3 +1099,103 @@ class Chain:
             )
         async for event in events:
             yield event
+
+    async def get_latest_block(self, offset=None):
+        # TODO: remove this method
+        warnings.warn(
+            "get_latest_block() is deprecated; use get_latest_block_number() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return await self.get_latest_block_number(offset=offset)
+
+    async def get_latest_block_number(self, offset=None):
+        """
+        Return the latest block number adjusted by an offset.
+
+        If `offset` is provided, it is used directly. Otherwise the chain's
+        predefined `latest_block_offset` value is applied. This is useful for
+        chains whose RPC endpoints lag behind the true latest block and require
+        querying a safely-confirmed block height instead.
+
+        Returns the block number after subtracting the effective offset.
+        """
+        effective_offset = offset if offset is not None else self.latest_block_offset
+        latest_block = await self.eth.get_block_number()
+        return latest_block - effective_offset
+
+    async def get_block_info(self, block_number):
+        block = None
+        if self.block_store:
+            block = await self.block_store.get_block_by_number(self.chain_id, block_number)
+
+        if not block:
+            rpc_block = await self.eth.get_block(block_number)
+            block = {
+                "number": rpc_block.number,
+                "hash": rpc_block.hash,
+                "timestamp": rpc_block.timestamp,
+                "datetime": datetime.fromtimestamp(rpc_block.timestamp, tz=UTC),
+            }
+            if self.block_store:
+                self.block_store.save_blocks(self.chain_id, [block])
+
+        return block
+
+    async def get_block_for_timestamp_fallback(self, timestamp):
+        raise NotImplementedError
+
+    async def get_block_for_timestamp(self, timestamp):
+        # TODO: remove this method
+        """
+        Fetches the block number for a given timestamp.
+
+        Args:
+            timestamp (int): The timestamp for which to fetch the block number.
+
+        Returns:
+            int: The block number.
+        """
+        warnings.warn(
+            "get_block_for_timestamp() is deprecated; use get_closing_block_info() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        nearest_block = None
+        # First try to fetch the block from sink.
+        if sink.supports_chain(self.chain):
+            try:
+                nearest_block = await sink.fetch_nearest_block(self.chain, timestamp)
+            except Exception:
+                log.exception(
+                    "Couldn't fetch nearest block from sink. Timestamp: %s chain: %s",
+                    timestamp,
+                    self.chain,
+                )
+
+        # As a fallback use etherscan or other similar apis
+        if not nearest_block:
+            nearest_block = await self.get_block_for_timestamp_fallback(timestamp)
+        return nearest_block
+
+    async def get_closing_block_info(self, for_date):
+        """
+        Fetches the last block info for the date.
+        Args:
+            for_date (datetime.date): The date for which to fetch closing block.
+        """
+        if not isinstance(for_date, date):
+            raise TypeError("for_date must be a datetime.date object")
+
+        block = None
+        if self.block_store:
+            block = await self.block_store.get_closing_block(self.chain_id, for_date)
+
+        if not block:
+            timestamp = int(datetime.combine(for_date, datetime.max.time(), tzinfo=UTC).timestamp())
+            # TODO: find a fallback of a "fallback" in case etherscan or others fall down, we can
+            # use defillama or some other thing
+            block_number = await self.get_block_for_timestamp_fallback(timestamp)
+            block = await self.get_block_info(block_number)
+            await self.block_store.save_closing_block(self.chain_id, block)
+        return block

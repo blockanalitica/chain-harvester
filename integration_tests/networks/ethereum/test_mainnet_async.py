@@ -274,8 +274,3 @@ async def test_decoding_ilk_bytes(eth_chain):
         mixed=False,
     )
     assert len([e async for e in events]) == 1
-
-
-async def test_get_timestamp_for_block(eth_chain):
-    timestamp = await eth_chain.get_timestamp_for_block(17892782)
-    assert timestamp == 1691770631

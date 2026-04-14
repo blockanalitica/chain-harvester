@@ -106,8 +106,6 @@ class Call:
         )
 
         result = Call.decode_output(output, self.signature, self.returns)
-
-        log.debug("%s returned %s", self, result)
         return result
 
 
