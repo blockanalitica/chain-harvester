@@ -10,11 +10,16 @@ log = logging.getLogger(__name__)
 
 
 class BlockscoutMixin(BaseExplorerMixin):
-    def __init__(self, blockscout_api_key=None, *args, **kwargs):
+    def __init__(self, blockscout_api_key=None, blockscout_url=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.blockscout_api_key = blockscout_api_key or env("BLOCKSCOUT_API_KEY", None)
-        self.blockscout_url = f"https://api.blockscout.com/{self.chain_id}/api"
-        self.headers = {"Authorization": f"Bearer {self.blockscout_api_key}"}
+        # set blockscout_url if it's self hosted instead of blockscout hosted
+        if blockscout_url:
+            self.blockscout_url = f"{blockscout_url}/api"
+            self.headers = None
+        else:
+            self.blockscout_url = f"https://api.blockscout.com/{self.chain_id}/api"
+            self.headers = {"Authorization": f"Bearer {self.blockscout_api_key}"}
 
     async def get_abi_from_source(self, contract_address):
         url = f"{self.blockscout_url}/v2/smart-contracts/{contract_address.lower()}"
@@ -27,7 +32,6 @@ class BlockscoutMixin(BaseExplorerMixin):
                 extra={"contract_address": contract_address},
             )
             raise
-
         return data["abi"]
 
     async def get_block_for_timestamp_fallback(self, timestamp):
