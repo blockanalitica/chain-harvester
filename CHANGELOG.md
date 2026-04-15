@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.20.0](https://github.com/blockanalitica/chain-harvester/compare/v2.19.1...v2.20.0) (2026-04-15)
+
+
+### Features
+
+* closing block fallback to defillama ([#291](https://github.com/blockanalitica/chain-harvester/issues/291)) ([094b4e5](https://github.com/blockanalitica/chain-harvester/commit/094b4e515b357b85962ab849a184b4e5e0f73cf4))
+
 ## [2.19.1](https://github.com/blockanalitica/chain-harvester/compare/v2.19.0...v2.19.1) (2026-04-14)
 
 
