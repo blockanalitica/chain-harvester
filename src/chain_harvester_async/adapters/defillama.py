@@ -1,9 +1,12 @@
+import logging
 from decimal import Decimal
 
 from chain_harvester.utils import chunks
 from chain_harvester_async.utils.http import retry_get_json
 
 LLAMA_COINS_API_URL = "https://coins.llama.fi/"
+
+log = logging.getLogger(__name__)
 
 
 async def fetch_current_price(coins):
@@ -119,3 +122,25 @@ async def get_tokens_price(addresses, timestamp, network="ethereum"):
         results = await get_tokens_price_for_timestamp(chunk, timestamp, network=network)
         prices.update(results)
     return prices
+
+
+async def get_closest_block_before_timestamp(chain, timestamp):
+    url = f"{LLAMA_COINS_API_URL}block/{chain.chain}/{timestamp}"
+    response = await retry_get_json(url)
+    block_number = response["height"]
+    block_ts = response["timestamp"]
+    tries = 0
+    while block_ts > timestamp:
+        if tries > 5:
+            log.error(
+                "Couldn't find closest block before %s. Using %s as closest alternative",
+                timestamp,
+                block_number,
+            )
+            break
+        block_number -= 1
+        block = await chain.get_block_info(block_number)
+        block_ts = block["timestamp"]
+        tries += 1
+
+    return block_number

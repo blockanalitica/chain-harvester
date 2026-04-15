@@ -33,7 +33,7 @@ from chain_harvester.decoders import (
 )
 from chain_harvester.exceptions import ChainException, ConfigError
 from chain_harvester.utils.codes import get_code_name
-from chain_harvester_async.adapters import envio, sink
+from chain_harvester_async.adapters import defillama, envio, sink
 from chain_harvester_async.blocks import BlockStore, fetch_blocks
 from chain_harvester_async.chainlink.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester_async.multicall.call import Call
@@ -436,7 +436,7 @@ class Chain:
             raise TypeError("contract_addresses must be a list")
 
         if not to_block:
-            to_block = await self.get_latest_block()
+            to_block = await self.get_latest_block_number()
 
         contracts = [
             Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
@@ -476,7 +476,7 @@ class Chain:
             raise TypeError("topics must be a list")
 
         if not to_block:
-            to_block = await self.get_latest_block()
+            to_block = await self.get_latest_block_number()
 
         contracts = [
             Web3.to_checksum_address(contract_address) for contract_address in contract_addresses
@@ -493,7 +493,7 @@ class Chain:
             raise TypeError("topics must be a list")
 
         if not to_block:
-            to_block = await self.get_latest_block()
+            to_block = await self.get_latest_block_number()
 
         async def fetch_events_for_topics_func(from_block, to_block):
             filters = {
@@ -1087,7 +1087,7 @@ class Chain:
             )
 
         if not to_block:
-            to_block = await self.get_latest_block()
+            to_block = await self.get_latest_block_number()
 
         if self.use_hypersync:
             events = envio.fetch_enriched_events(
@@ -1138,11 +1138,21 @@ class Chain:
                 "datetime": datetime.fromtimestamp(rpc_block.timestamp, tz=UTC),
             }
             if self.block_store:
-                self.block_store.save_blocks(self.chain_id, [block])
+                await self.block_store.save_blocks(self.chain_id, [block])
 
         return block
 
     async def get_block_for_timestamp_fallback(self, timestamp):
+        # TODO: remove this method
+        warnings.warn(
+            "get_block_for_timestamp_fallback() is deprecated; use "
+            "get_closest_block_before_timestamp() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return await self.get_closest_block_before_timestamp(timestamp)
+
+    async def get_closest_block_before_timestamp(self, timestamp):
         raise NotImplementedError
 
     async def get_block_for_timestamp(self, timestamp):
@@ -1175,7 +1185,7 @@ class Chain:
 
         # As a fallback use etherscan or other similar apis
         if not nearest_block:
-            nearest_block = await self.get_block_for_timestamp_fallback(timestamp)
+            nearest_block = await self.get_closest_block_before_timestamp(timestamp)
         return nearest_block
 
     async def get_closing_block_info(self, for_date):
@@ -1193,9 +1203,16 @@ class Chain:
 
         if not block:
             timestamp = int(datetime.combine(for_date, datetime.max.time(), tzinfo=UTC).timestamp())
-            # TODO: find a fallback of a "fallback" in case etherscan or others fall down, we can
-            # use defillama or some other thing
-            block_number = await self.get_block_for_timestamp_fallback(timestamp)
+            try:
+                block_number = await self.get_closest_block_before_timestamp(timestamp)
+            except Exception:
+                log.exception(
+                    "Failed to retrieve closest block before timestamp %s. Using defillama as "
+                    "fallback",
+                    timestamp,
+                )
+                block_number = await defillama.get_closest_block_before_timestamp(self, timestamp)
+
             block = await self.get_block_info(block_number)
             await self.block_store.save_closing_block(self.chain_id, block)
         return block

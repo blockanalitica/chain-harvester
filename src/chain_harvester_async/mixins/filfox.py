@@ -29,7 +29,7 @@ class FilfoxMixin(BaseExplorerMixin):
         abi = json.loads(data["abi"])
         return abi
 
-    async def get_block_for_timestamp_fallback(self, timestamp):
+    async def get_closest_block_before_timestamp(self, timestamp):
         """
         Filfox API does not support fetching blocks by timestamp.
         Implemented to satisfy mixin interface.
