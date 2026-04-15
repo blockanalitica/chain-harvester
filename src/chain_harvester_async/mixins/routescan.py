@@ -36,7 +36,7 @@ class RoutescanMixin(BaseExplorerMixin):
         abi = json.loads(data["result"])
         return abi
 
-    async def get_block_for_timestamp_fallback(self, timestamp):
+    async def get_closest_block_before_timestamp(self, timestamp):
         query_params = {
             "module": "block",
             "action": "getblocknobytime",
