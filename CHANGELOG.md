@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.20.1](https://github.com/blockanalitica/chain-harvester/compare/v2.20.0...v2.20.1) (2026-04-19)
+
+
+### Bug Fixes
+
+* increase blockscout timeout ([#293](https://github.com/blockanalitica/chain-harvester/issues/293)) ([bd4f4b1](https://github.com/blockanalitica/chain-harvester/commit/bd4f4b1a4d034491ca34ef2cad0fc537b64244c3))
+
 ## [2.20.0](https://github.com/blockanalitica/chain-harvester/compare/v2.19.1...v2.20.0) (2026-04-15)
 
 
