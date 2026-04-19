@@ -24,7 +24,7 @@ class BlockscoutMixin(BaseExplorerMixin):
     async def get_abi_from_source(self, contract_address):
         url = f"{self.blockscout_url}/v2/smart-contracts/{contract_address.lower()}"
         try:
-            data = await retry_get_json(url, headers=self.headers, timeout=5)
+            data = await retry_get_json(url, headers=self.headers, timeout=45)
         except TimeoutError:
             log.exception(
                 "Timeout when get abi from %s",
@@ -43,6 +43,6 @@ class BlockscoutMixin(BaseExplorerMixin):
             "closest": "before",
         }
         url = f"{self.blockscout_url}/?{urllib.parse.urlencode(query_params)}"
-        data = await retry_get_json(url, headers=self.headers, timeout=5)
+        data = await retry_get_json(url, headers=self.headers, timeout=45)
         result = int(data["result"]["blockNumber"])
         return result
