@@ -25,8 +25,5 @@ class DummyChain(EtherscanMixin, Chain):
 
 @pytest.fixture
 async def chain():
-    chain = DummyChain()
-    try:
+    async with DummyChain() as chain:
         yield chain
-    finally:
-        await chain.aclose()

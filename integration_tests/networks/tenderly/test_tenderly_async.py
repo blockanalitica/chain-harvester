@@ -12,10 +12,8 @@ async def t_chain():
         project=os.environ.get("TENDERLY_PROJECT"),
         testnet_id=os.environ.get("TENDERLY_TESTNET_ID"),
     )
-    try:
-        yield chain
-    finally:
-        await chain.aclose()
+    async with chain as c:
+        yield c
 
 
 @pytest.mark.skip(reason="Only for manual testing")

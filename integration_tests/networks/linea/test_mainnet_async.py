@@ -8,10 +8,8 @@ async def linea_chain():
     chain = LineaMainnetChain(
         abis_path="integration_tests/abis/linea/",
     )
-    try:
-        yield chain
-    finally:
-        await chain.aclose()
+    async with chain as c:
+        yield c
 
 
 async def test_multicall(linea_chain):

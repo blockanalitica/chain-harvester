@@ -10,10 +10,8 @@ async def eth_chain():
     chain = EthereumMainnetChain(
         abis_path="integration_tests/abis/ethereum/",
     )
-    try:
-        yield chain
-    finally:
-        await chain.aclose()
+    async with chain as c:
+        yield c
 
 
 async def test_call_contract_function(eth_chain):
