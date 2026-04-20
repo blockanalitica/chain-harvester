@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.21.0](https://github.com/blockanalitica/chain-harvester/compare/v2.20.1...v2.21.0) (2026-04-20)
+
+
+### Features
+
+* use etherscan to fetch abi for base ([#295](https://github.com/blockanalitica/chain-harvester/issues/295)) ([6651f93](https://github.com/blockanalitica/chain-harvester/commit/6651f93b043b831db194c5f0fe77e651fd0ac95d))
+
 ## [2.20.1](https://github.com/blockanalitica/chain-harvester/compare/v2.20.0...v2.20.1) (2026-04-19)
 
 
