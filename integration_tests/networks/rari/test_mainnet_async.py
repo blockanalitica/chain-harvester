@@ -8,10 +8,8 @@ async def rari_chain():
     chain = RariMainnetChain(
         abis_path="integration_tests/abis/rari/",
     )
-    try:
-        yield chain
-    finally:
-        await chain.aclose()
+    async with chain as c:
+        yield c
 
 
 async def test_multicall(rari_chain):

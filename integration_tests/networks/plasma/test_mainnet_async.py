@@ -8,10 +8,8 @@ async def plasma_chain():
     chain = PlasmaMainnetChain(
         abis_path="integration_tests/abis/plasma/",
     )
-    try:
-        yield chain
-    finally:
-        await chain.aclose()
+    async with chain as c:
+        yield c
 
 
 async def test_latest_block(plasma_chain):

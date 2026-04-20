@@ -8,10 +8,8 @@ async def gnosis_chain():
     chain = GnosisMainnetChain(
         abis_path="integration_tests/abis/gnosis/",
     )
-    try:
-        yield chain
-    finally:
-        await chain.aclose()
+    async with chain as c:
+        yield c
 
 
 async def test_call_contract_function(gnosis_chain):

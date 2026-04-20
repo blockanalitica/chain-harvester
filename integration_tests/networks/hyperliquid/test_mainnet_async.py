@@ -8,10 +8,8 @@ async def hype_chain():
     chain = HyperliquidMainnetChain(
         abis_path="integration_tests/abis/hyperliquid/",
     )
-    try:
-        yield chain
-    finally:
-        await chain.aclose()
+    async with chain as c:
+        yield c
 
 
 async def test_latest_block(hype_chain):
