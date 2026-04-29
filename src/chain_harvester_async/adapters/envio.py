@@ -34,7 +34,7 @@ async def _decode_envio_log(chain, log_entry, mixed, anonymous):
     try:
         data = chain._decode_raw_log(contract, log_data, mixed, anonymous)
     except MissingABIEventDecoderError:
-        log_data.warning(
+        log.warning(
             "Contract ABI (%s) is missing an event definition. Fetching a new ABI on block %s",
             log_data["address"].lower(),
             log_data["blockNumber"],
