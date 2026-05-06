@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.21.1](https://github.com/blockanalitica/chain-harvester/compare/v2.21.0...v2.21.1) (2026-04-29)
+
+
+### Bug Fixes
+
+* envio warning ([#297](https://github.com/blockanalitica/chain-harvester/issues/297)) ([efd1caa](https://github.com/blockanalitica/chain-harvester/commit/efd1caa9c94b3f11385c8b21d7de22bb836a7379))
+
 ## [2.21.0](https://github.com/blockanalitica/chain-harvester/compare/v2.20.1...v2.21.0) (2026-04-20)
 
 
