@@ -165,8 +165,22 @@ class Chain:
         raise NotImplementedError
 
     async def _fetch_abi_from_web(self, contract_address, refetch_on_block=None):
-        proxy_contract = await self.get_implementation_address(contract_address, refetch_on_block)
-        abi_address = contract_address if proxy_contract == NULL_ADDRESS else proxy_contract
+        # Walk the proxy chain. Some deployments stack multiple proxies
+        # (e.g. ARKIS: EIP-1167 clone -> ImmutableBeaconProxy -> impl), so we
+        # follow each hop until `get_implementation_address` returns
+        # NULL_ADDRESS. Capped at 5 hops as a safety against pathological
+        # cycles.
+        abi_address = contract_address
+        seen = {Web3.to_checksum_address(contract_address)}
+        for _ in range(5):
+            next_addr = await self.get_implementation_address(abi_address, refetch_on_block)
+            if next_addr == NULL_ADDRESS:
+                break
+            next_checksum = Web3.to_checksum_address(next_addr)
+            if next_checksum in seen:
+                break
+            seen.add(next_checksum)
+            abi_address = next_addr
         abi = await self.get_abi_from_source(abi_address)
         return abi
 
@@ -212,7 +226,7 @@ class Chain:
         # usually only used when backpopulating stuff and storing it to the file will
         # replace the current abi with an old one
         if refetch_on_block:
-            log.info(
+            log.error(
                 "Fetching new ABI on block %s without storing it to file",
                 refetch_on_block,
             )
@@ -243,34 +257,87 @@ class Chain:
         return abi
 
     async def get_implementation_address(self, contract_address, block_identifier=None):
-        # EIP-1967 storage slot
         contract_address = Web3.to_checksum_address(contract_address)
 
-        # Logic contract address
+        # 1. EIP-1967 standard implementation slot.
+        # Logic contract address is stored in the slot
+
         slot = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
         impl_address = await self.get_storage_at(contract_address, int(slot, 16), block_identifier)
-
         address = Web3.to_checksum_address(impl_address[-40:])
+        if address != NULL_ADDRESS:
+            return address
 
-        #  Beacon contract address
-        if address == NULL_ADDRESS:
-            try:
-                data = await self.multicall(
-                    [
-                        (
-                            contract_address,
-                            "implementation()(address)",
-                            ["address", None],
-                        ),
-                    ],
-                    block_identifier=block_identifier,
-                )
-                if data["address"]:
-                    address = Web3.to_checksum_address(data["address"])
-            except ContractLogicError:
-                pass
+        # 2. Pre-EIP-1967 OpenZeppelin "Zeppelinos" slot.
+        # Verified working for:
+        #   - USDC  ethereum 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 (Circle FiatTokenProxy)
+        #   - PYUSD ethereum 0x6c3ea9036406852006290770bedfcaba0e23a0e8 (Paxos proxy)
+        # public `implementation()` gated by `ifAdmin`, so external calls
+        # delegatecall through to the impl instead of returning the address —
+        legacy_slot = "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3"
+        impl_address = await self.get_storage_at(
+            contract_address, int(legacy_slot, 16), block_identifier
+        )
+        address = Web3.to_checksum_address(impl_address[-40:])
+        if address != NULL_ADDRESS:
+            return address
 
-        return address
+        # Bytecode-based heuristics from here on. Fetch once, reuse.
+        code = await self.eth.get_code(
+            contract_address, block_identifier=block_identifier or "latest"
+        )
+
+        # 5. EIP-1167 minimal proxy (a.k.a. clone). Implementation address is
+        # baked into the runtime bytecode as a `PUSH20 <addr>` between two
+        # canonical 10-byte and 15-byte opcode runs. No storage slot to read —
+        # we just match the 45-byte template and slice out the address.
+        # Verified working for:
+        #   - ARKIS ethereum 0x38464507e02c983f20428a6e8566693fe9e422a9
+        #     (ERC-4626 clone; first hop of clone -> ImmutableBeaconProxy
+        #     -> impl chain)
+        eip1167_prefix = bytes.fromhex("363d3d373d3d3d363d73")
+        eip1167_suffix = bytes.fromhex("5af43d82803e903d91602b57fd5bf3")
+        if len(code) == 45 and code.startswith(eip1167_prefix) and code.endswith(eip1167_suffix):
+            return Web3.to_checksum_address(code[10:30])
+
+        # 6. OpenZeppelin ImmutableBeaconProxy. The beacon address is set as a
+        # Solidity `immutable` and inlined by the compiler, so there's no
+        # storage slot to read. The contract calls `implementation()` (selector
+        # 0x5c60da1b) on the embedded beacon. We detect the proxy by looking
+        # for that selector together with the canonical immutable-address
+        # pattern: `PUSH20 0xff*20 PUSH32 <32 bytes> AND` (mask, push, mask
+        # against zero — Solidity's "clean an address" idiom). The 32-byte
+        # PUSH32 payload is a left-padded 20-byte beacon address.
+        # Verified working for:
+        #   - 0xe0a9a32de2589f478074843d277ceb7234ffbd49 ethereum
+        #     (second hop of ARKIS clone -> ImmutableBeaconProxy ->
+        #     beacon=0x7ad1dd2516f1499852aaeb95a33d7ec1ba31b5c3 -> impl)
+        impl_selector = b"\x5c\x60\xda\x1b"
+        addr_immutable_pattern = b"\x73" + b"\xff" * 20 + b"\x7f"
+        if impl_selector in code:
+            idx = code.find(addr_immutable_pattern)
+            if idx >= 0:
+                push32_payload = code[idx + 22 : idx + 54]
+                if len(push32_payload) == 32:
+                    beacon_address = Web3.to_checksum_address(push32_payload[12:32])
+                    if beacon_address != NULL_ADDRESS:
+                        try:
+                            data = await self.multicall(
+                                [
+                                    (
+                                        beacon_address,
+                                        "implementation()(address)",
+                                        ["address", None],
+                                    ),
+                                ],
+                                block_identifier=block_identifier,
+                            )
+                            if data["address"]:
+                                return Web3.to_checksum_address(data["address"])
+                        except ContractLogicError:
+                            pass
+
+        return NULL_ADDRESS
 
     async def get_contract(self, contract_address, refetch_on_block=None):
         # This function can be called many, many times, so we cache already instantiated
@@ -970,7 +1037,7 @@ class Chain:
                         log.warning("Couldn't extract step size from msg: %s", msg)
                         step = max(step // 2, 10)
 
-                log.info("Retrying `get_logs` with step: %s", step)
+                log.exception("Retrying `get_logs` with step: %s", step)
                 continue
             except Exception:
                 raise
