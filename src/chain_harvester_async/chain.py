@@ -337,6 +337,22 @@ class Chain:
                         except ContractLogicError:
                             pass
 
+        # 7. Generic `implementation()` fallback. Catches any proxy that
+        # exposes a public `implementation()` function but doesn't fit the
+        # storage-slot or bytecode patterns above (e.g. standard OZ
+        # BeaconProxy, EIP-897 DelegateProxy, custom proxies). Mirrors the
+        try:
+            data = await self.multicall(
+                [
+                    (contract_address, "implementation()(address)", ["address", None]),
+                ],
+                block_identifier=block_identifier,
+            )
+            if data["address"]:
+                return Web3.to_checksum_address(data["address"])
+        except ContractLogicError:
+            pass
+
         return NULL_ADDRESS
 
     async def get_contract(self, contract_address, refetch_on_block=None):
