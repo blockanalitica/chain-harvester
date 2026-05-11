@@ -226,7 +226,7 @@ class Chain:
         # usually only used when backpopulating stuff and storing it to the file will
         # replace the current abi with an old one
         if refetch_on_block:
-            log.error(
+            log.info(
                 "Fetching new ABI on block %s without storing it to file",
                 refetch_on_block,
             )
@@ -1037,7 +1037,7 @@ class Chain:
                         log.warning("Couldn't extract step size from msg: %s", msg)
                         step = max(step // 2, 10)
 
-                log.exception("Retrying `get_logs` with step: %s", step)
+                log.info("Retrying `get_logs` with step: %s", step)
                 continue
             except Exception:
                 raise
