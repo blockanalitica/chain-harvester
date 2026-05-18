@@ -4,9 +4,7 @@ from datetime import UTC, datetime
 from hexbytes import HexBytes
 from hypersync import (
     BlockField,
-    ClientConfig,
     FieldSelection,
-    HypersyncClient,
     JoinMode,
     LogField,
     LogSelection,
@@ -57,10 +55,6 @@ async def fetch_enriched_events(
     anonymous=False,
     mixed=False,
 ):
-    hypersync_url = f"https://{chain.chain_id}.hypersync.xyz"
-
-    client = HypersyncClient(ClientConfig(url=hypersync_url, bearer_token=chain.hypersync_api_key))
-
     call_count = 0
     while from_block < to_block:
         query = Query(
@@ -96,7 +90,7 @@ async def fetch_enriched_events(
             ),
         )
         log.debug("Fetching events for contracts topics from block %s to %s", from_block, to_block)
-        res = await client.get(query)
+        res = await chain.hypersync_client.get(query)
         call_count += 1
 
         from_block = res.next_block

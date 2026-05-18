@@ -18,6 +18,10 @@ from environs import env
 from eth_abi.exceptions import InvalidPointer
 from eth_utils.abi import event_abi_to_log_topic
 from hexbytes import HexBytes
+from hypersync import (
+    ClientConfig,
+    HypersyncClient,
+)
 from web3 import AsyncWeb3, Web3
 from web3._utils.rpc_abi import RPC
 from web3.exceptions import ContractLogicError, Web3RPCError
@@ -74,8 +78,12 @@ class Chain:
         self.network = network
         self.chain_id = chain_id or CHAINS[self.chain][self.network]
 
-        self.hypersync_api_key = hypersync_api_key
         self.use_hypersync = use_hypersync
+        if self.use_hypersync:
+            hypersync_url = f"https://{self.chain_id}.hypersync.xyz"
+            self.hypersync_client = HypersyncClient(
+                ClientConfig(url=hypersync_url, api_token=hypersync_api_key)
+            )
 
         if block_store and isinstance(block_store, BlockStore):
             self.block_store = block_store
@@ -1204,7 +1212,10 @@ class Chain:
         Returns the block number after subtracting the effective offset.
         """
         effective_offset = offset if offset is not None else self.latest_block_offset
-        latest_block = await self.eth.get_block_number()
+        if self.use_hypersync:
+            latest_block = await self.hypersync_client.get_height()
+        else:
+            latest_block = await self.eth.get_block_number()
         return latest_block - effective_offset
 
     async def get_block_info(self, block_number):
