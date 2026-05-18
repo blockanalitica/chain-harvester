@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.21.2](https://github.com/blockanalitica/chain-harvester/compare/v2.21.1...v2.21.2) (2026-05-18)
+
+
+### Bug Fixes
+
+* get implementation address ([#300](https://github.com/blockanalitica/chain-harvester/issues/300)) ([5eae279](https://github.com/blockanalitica/chain-harvester/commit/5eae27963fbd548b9c978ef70252efa71813dc52))
+* hypersync now get's latest block from hypersync instead of rpc ([#303](https://github.com/blockanalitica/chain-harvester/issues/303)) ([65862a6](https://github.com/blockanalitica/chain-harvester/commit/65862a6da9043ce8bf57f37d38200507a064a785))
+* lock dependencies ([#302](https://github.com/blockanalitica/chain-harvester/issues/302)) ([6e1ebf7](https://github.com/blockanalitica/chain-harvester/commit/6e1ebf7474985517b006f6fb2858fc78ca281b1b))
+
 ## [2.21.1](https://github.com/blockanalitica/chain-harvester/compare/v2.21.0...v2.21.1) (2026-04-29)
 
 
