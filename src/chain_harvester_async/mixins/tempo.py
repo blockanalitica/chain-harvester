@@ -53,7 +53,7 @@ class TempoMixin(BaseExplorerMixin):
 
         return low
 
-    async def _get_block_by_number(self, block_number: str) -> dict:
+    async def _get_block_by_number(self, block_number):
         payload = {
             "jsonrpc": "2.0",
             "method": "eth_getBlockByNumber",
