@@ -14,7 +14,7 @@ class TempoMixin(BaseExplorerMixin):
         **kwargs,
     ):
         self.api = "https://contracts.tempo.xyz/v2"
-        self.rpc_url = f"https://tempo-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}"
+        self.rpc_url = "https://rpc.tempo.xyz"
         super().__init__(*args, **kwargs)
 
     async def get_abi_from_source(self, contract_address):
@@ -37,21 +37,26 @@ class TempoMixin(BaseExplorerMixin):
         return abi
 
     async def get_closest_block_before_timestamp(self, timestamp):
-        latest_block = await self._get_block_by_number("latest")
-        low = 0
-        high = int(latest_block["number"], 16)
+        url = f"https://coins.llama.fi/block/tempo/{timestamp}"
+        response = await retry_get_json(url)
+        block_number = response["height"]
+        block_ts = response["timestamp"]
+        tries = 0
 
-        while low < high:
-            mid_block_number = (low + high + 1) // 2
-            mid_block = await self._get_block_by_number(hex(mid_block_number))
-            mid_block_timestamp = int(mid_block["timestamp"], 16)
+        while block_ts > timestamp:
+            if tries > 5:
+                log.error(
+                    "Couldn't find closest block before %s. Using %s as closest alternative",
+                    timestamp,
+                    block_number,
+                )
+                break
+            block_number -= 1
+            block = await self._get_block_by_number(hex(block_number))
+            block_ts = int(block["timestamp"], 16)
+            tries += 1
 
-            if mid_block_timestamp <= timestamp:
-                low = mid_block_number
-            else:
-                high = mid_block_number - 1
-
-        return low
+        return block_number
 
     async def _get_block_by_number(self, block_number):
         payload = {
