@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.22.0](https://github.com/blockanalitica/chain-harvester/compare/v2.21.2...v2.22.0) (2026-05-20)
+
+
+### Features
+
+* WIP ([#304](https://github.com/blockanalitica/chain-harvester/issues/304)) ([a069dd5](https://github.com/blockanalitica/chain-harvester/commit/a069dd52fad40f3295e10438046e62a29f0efd85))
+
 ## [2.21.2](https://github.com/blockanalitica/chain-harvester/compare/v2.21.1...v2.21.2) (2026-05-18)
 
 
