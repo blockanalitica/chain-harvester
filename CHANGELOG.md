@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.23.0](https://github.com/blockanalitica/chain-harvester/compare/v2.22.0...v2.23.0) (2026-05-26)
+
+
+### Features
+
+* hyperliquid to hyperevmscan, unpinned deps for other project usage ([#306](https://github.com/blockanalitica/chain-harvester/issues/306)) ([0e81215](https://github.com/blockanalitica/chain-harvester/commit/0e8121502fc98897cd6a1f6a20296677d27e26b6))
+
 ## [2.22.0](https://github.com/blockanalitica/chain-harvester/compare/v2.21.2...v2.22.0) (2026-05-20)
 
 
