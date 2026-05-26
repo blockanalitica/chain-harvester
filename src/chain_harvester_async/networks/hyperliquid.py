@@ -1,8 +1,8 @@
 from chain_harvester_async.chain import Chain
-from chain_harvester_async.mixins import BlockscoutMixin
+from chain_harvester_async.mixins import EtherscanMixin
 
 
-class HyperliquidMainnetChain(BlockscoutMixin, Chain):
+class HyperliquidMainnetChain(EtherscanMixin, Chain):
     latest_block_offset = 30
 
     def __init__(self, *args, **kwargs):
@@ -10,6 +10,5 @@ class HyperliquidMainnetChain(BlockscoutMixin, Chain):
             *args,
             chain="hyperliquid",
             network="mainnet",
-            blockscout_url="https://www.hyperscan.com",
             **kwargs,
         )
