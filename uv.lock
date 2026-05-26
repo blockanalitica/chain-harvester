@@ -2,6 +2,10 @@ version = 1
 revision = 3
 requires-python = ">=3.11, <4.0"
 
+[options]
+exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
+exclude-newer-span = "P7D"
+
 [[package]]
 name = "aiobotocore"
 version = "3.3.0"
@@ -421,29 +425,29 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiobotocore", specifier = "==3.3.0" },
-    { name = "aiofiles", specifier = "==25.1.0" },
-    { name = "boto3", specifier = "==1.42.70,<2" },
-    { name = "environs", specifier = "==14.6.0" },
-    { name = "eth-abi", specifier = "==5.2.0,<6" },
-    { name = "hexbytes", specifier = "==1.3.1" },
-    { name = "hypersync", specifier = "==1.0.0" },
-    { name = "multiproof", specifier = "==0.1.10,<0.2" },
-    { name = "requests", specifier = "==2.33.1,<3" },
-    { name = "web3", specifier = "==7.14.1,<8" },
+    { name = "aiobotocore", specifier = ">=3.3.0" },
+    { name = "aiofiles", specifier = ">=25.1.0" },
+    { name = "boto3", specifier = ">=1.42.70,<2" },
+    { name = "environs", specifier = ">=14.6.0" },
+    { name = "eth-abi", specifier = ">=5.2.0,<6" },
+    { name = "hexbytes", specifier = ">=1.3.1" },
+    { name = "hypersync", specifier = ">=1.0.0" },
+    { name = "multiproof", specifier = ">=0.1.10,<0.2" },
+    { name = "requests", specifier = ">=2.33.1,<3" },
+    { name = "web3", specifier = ">=7.14.1,<8" },
 ]
 
 [package.metadata.requires-dev]
-decv = [{ name = "pytest-asyncio", specifier = "==1.3.0" }]
+decv = [{ name = "pytest-asyncio", specifier = ">=1.3.0" }]
 dev = [
-    { name = "ipython", specifier = "==8.39.0,<9" },
-    { name = "moto", specifier = "==5.1.22,<6" },
-    { name = "pre-commit", specifier = "==4.5.1,<5" },
-    { name = "pytest", specifier = "==8.4.2,<9" },
+    { name = "ipython", specifier = ">=8.39.0,<9" },
+    { name = "moto", specifier = ">=5.1.22,<6" },
+    { name = "pre-commit", specifier = ">=4.5.1,<5" },
+    { name = "pytest", specifier = ">=8.4.2,<9" },
     { name = "pytest-asyncio", specifier = "==1.3.0" },
-    { name = "python-dotenv", specifier = "==1.2.2,<2" },
-    { name = "ruff", specifier = "==0.8.3,<0.9" },
-    { name = "tox", specifier = "==4.52.0,<5" },
+    { name = "python-dotenv", specifier = ">=1.2.2,<2" },
+    { name = "ruff", specifier = ">=0.8.3,<0.9" },
+    { name = "tox", specifier = ">=4.52.0,<5" },
 ]
 
 [[package]]
