@@ -27,9 +27,16 @@ class BlockscoutMixin(BaseExplorerMixin):
             data = await retry_get_json(url, headers=self.headers, timeout=45)
         except TimeoutError:
             log.exception(
-                "Timeout when get abi from %s",
+                "Timeout when get abi from %s for contract %s",
                 self.blockscout_url,
-                extra={"contract_address": contract_address},
+                contract_address,
+            )
+            raise
+        if "abi" not in data:
+            log.exception(
+                "ABI not present in response from %s for contract %s",
+                self.blockscout_url,
+                contract_address,
             )
             raise
         return data["abi"]
