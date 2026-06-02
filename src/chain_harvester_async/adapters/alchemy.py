@@ -83,13 +83,13 @@ async def get_token_price(address, network, dt):
         "endTime": end_time,
         "interval": "1d",
     }
-    response = await retry_post_json(url, json=payload, timeout=30, retries=3)
+    response = await retry_post_json(url, json=payload, timeout=10, retries=0)
     if not response:
         return
 
     data = response.get("data", [])
     if len(data) > 0:
-        price = Decimal(data["0"]["value"])
+        price = Decimal(data[0]["value"])
         return price
 
     return None
