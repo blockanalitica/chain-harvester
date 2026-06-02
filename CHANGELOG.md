@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.24.1](https://github.com/blockanalitica/chain-harvester/compare/v2.24.0...v2.24.1) (2026-06-02)
+
+
+### Bug Fixes
+
+* no retries and key value fix when fetching token prices from alchemy ([#310](https://github.com/blockanalitica/chain-harvester/issues/310)) ([8c7a088](https://github.com/blockanalitica/chain-harvester/commit/8c7a088bc3d2a31d243b9a8bef7ea93135442287))
+
 ## [2.24.0](https://github.com/blockanalitica/chain-harvester/compare/v2.23.0...v2.24.0) (2026-06-02)
 
 
