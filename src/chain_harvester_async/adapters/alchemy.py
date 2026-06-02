@@ -7,6 +7,10 @@ from chain_harvester_async.utils.http import retry_post_json
 ALCHEMY_API_KEY = os.environ.get("ALCHEMY_RPC_KEY", "")
 
 
+class AlchemyClientError(Exception):
+    pass
+
+
 def _get_blocks_query(to_block=None):
     base_query = """
         query ($first: Int!, $skip: Int!, $from_block: Int!{to_block_var}) {{
@@ -83,13 +87,28 @@ async def get_token_price(address, network, dt):
         "endTime": end_time,
         "interval": "1d",
     }
-    response = await retry_post_json(url, json=payload, timeout=10, retries=0)
-    if not response:
+    resp = await retry_post_json(
+        url,
+        json=payload,
+        timeout=10,
+        retries=0,
+        raise_for_status=False,
+        return_response=True,
+    )
+
+    if not resp:
         return
 
-    data = response.get("data", [])
+    resp_json = await resp.json()
+
+    if err := resp_json.get("error", {}).get("message"):
+        if "Token not found" in err:
+            return None
+        raise AlchemyClientError(err)
+
+    data = resp_json.get("data", [])
     if len(data) > 0:
         price = Decimal(data[0]["value"])
         return price
 
-    return None
+    return
