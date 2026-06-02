@@ -14,6 +14,7 @@ async def retry_request_json(
     backoff_factor=0.5,
     status_forcelist=(429, 500, 502, 503, 504),
     raise_for_status=True,
+    return_response=False,
     **kwargs,
 ):
     """
@@ -45,6 +46,10 @@ async def retry_request_json(
 
                     if raise_for_status:
                         resp.raise_for_status()
+
+                    if return_response:
+                        await resp.read()  # this is here so we can read json() after context ends
+                        return resp
                     return await resp.json()
             except (TimeoutError, aiohttp.ClientError) as e:
                 err_type = "TimeoutError" if isinstance(e, asyncio.TimeoutError) else "ClientError"
