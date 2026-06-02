@@ -1,4 +1,10 @@
+import os
+from datetime import UTC, datetime
+from decimal import Decimal
+
 from chain_harvester_async.utils.http import retry_post_json
+
+ALCHEMY_API_KEY = os.environ.get("ALCHEMY_RPC_KEY", "")
 
 
 def _get_blocks_query(to_block=None):
@@ -47,3 +53,43 @@ async def get_blocks(url, from_block, to_block=None, limit=10000, timeout=30, re
             yield block
 
         skip += first
+
+
+async def get_token_price(address, network, dt):
+    network_mapping = {
+        "ethereum": "eth-mainnet",
+        "arbitrum": "arb-mainnet",
+        "base": "base-mainnet",
+        "monad": "monad-mainnet",
+    }
+
+    alchemy_network = network_mapping.get(network)
+    if not alchemy_network:
+        raise ValueError(
+            f"Network '{network}' does not exists in our network mapping. "
+            f"Supported: {', '.join(network_mapping.keys())}"
+        )
+
+    url = f"https://api.g.alchemy.com/prices/v1/{ALCHEMY_API_KEY}/tokens/historical"
+
+    dt = datetime.combine(dt, datetime.min.time(), tzinfo=UTC)
+    start_time = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_time = start_time
+
+    payload = {
+        "address": address,
+        "network": alchemy_network,
+        "startTime": start_time,
+        "endTime": end_time,
+        "interval": "1d",
+    }
+    response = await retry_post_json(url, json=payload, timeout=30, retries=3)
+    if not response:
+        return
+
+    data = response.get("data", [])
+    if len(data) > 0:
+        price = Decimal(data["0"]["value"])
+        return price
+
+    return None
