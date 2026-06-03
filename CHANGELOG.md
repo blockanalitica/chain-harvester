@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.24.3](https://github.com/blockanalitica/chain-harvester/compare/v2.24.2...v2.24.3) (2026-06-03)
+
+
+### Bug Fixes
+
+* alchemy token price api doesnt support monad ([#314](https://github.com/blockanalitica/chain-harvester/issues/314)) ([2d8ac89](https://github.com/blockanalitica/chain-harvester/commit/2d8ac8938d1cae0123693772a88740397da203c7))
+
 ## [2.24.2](https://github.com/blockanalitica/chain-harvester/compare/v2.24.1...v2.24.2) (2026-06-03)
 
 
