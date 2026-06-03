@@ -67,6 +67,10 @@ async def get_token_price(address, network, dt):
         "monad": "monad-mainnet",
     }
 
+    if network == "monad":
+        # alchemy doesnt support monad ...
+        return
+
     alchemy_network = network_mapping.get(network)
     if not alchemy_network:
         raise ValueError(
