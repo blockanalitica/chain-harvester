@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.24.2](https://github.com/blockanalitica/chain-harvester/compare/v2.24.1...v2.24.2) (2026-06-03)
+
+
+### Bug Fixes
+
+* set retries and timeout for prices via alchemy ([#312](https://github.com/blockanalitica/chain-harvester/issues/312)) ([884f1bb](https://github.com/blockanalitica/chain-harvester/commit/884f1bb6c25ee6586c4d2665b5cce04b367827ea))
+
 ## [2.24.1](https://github.com/blockanalitica/chain-harvester/compare/v2.24.0...v2.24.1) (2026-06-02)
 
 
