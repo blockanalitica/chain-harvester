@@ -90,8 +90,8 @@ async def get_token_price(address, network, dt):
     resp = await retry_post_json(
         url,
         json=payload,
-        timeout=10,
-        retries=0,
+        timeout=30,
+        retries=3,
         raise_for_status=False,
         return_response=True,
     )
