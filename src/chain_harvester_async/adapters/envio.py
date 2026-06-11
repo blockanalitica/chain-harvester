@@ -12,6 +12,7 @@ from hypersync import (
 )
 
 from chain_harvester.decoders import MissingABIEventDecoderError
+from chain_harvester.exceptions import ArchiveHeightBehindError
 from chain_harvester_async.blocks import BlockStore
 
 log = logging.getLogger(__name__)
@@ -55,7 +56,6 @@ async def fetch_enriched_events(
     anonymous=False,
     mixed=False,
 ):
-    call_count = 0
     while from_block < to_block:
         query = Query(
             from_block=from_block,
@@ -91,14 +91,15 @@ async def fetch_enriched_events(
         )
         log.debug("Fetching events for contracts topics from block %s to %s", from_block, to_block)
         res = await chain.hypersync_client.get(query)
-        call_count += 1
 
         from_block = res.next_block
 
-        # Set to_block to res.archive_height on first request if it's bigger than
-        # res.archive_height to prevent infinte loop (especially on fast chains)
-        if call_count == 1 and to_block > res.archive_height:
-            to_block = res.archive_height
+        # The replica answering this query can lag behind the one that answered
+        # get_height(), so silently clamping to res.archive_height would skip
+        # (archive_height, to_block] while callers believe the whole range was
+        # covered (and checkpoint past it). Fail loudly so callers retry later.
+        if to_block > res.archive_height:
+            raise ArchiveHeightBehindError(to_block=to_block, archive_height=res.archive_height)
 
         blocks = {}
         for block in res.data.blocks:
