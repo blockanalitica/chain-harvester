@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.24.4](https://github.com/blockanalitica/chain-harvester/compare/v2.24.3...v2.24.4) (2026-06-11)
+
+
+### Bug Fixes
+
+* raise instead of silently clamping to_block to hypersync archive height ([#316](https://github.com/blockanalitica/chain-harvester/issues/316)) ([cb7a669](https://github.com/blockanalitica/chain-harvester/commit/cb7a669895ab666ffb7d3cc4d5e46b9973fe9391))
+
 ## [2.24.3](https://github.com/blockanalitica/chain-harvester/compare/v2.24.2...v2.24.3) (2026-06-03)
 
 
