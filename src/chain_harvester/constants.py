@@ -32,6 +32,7 @@ class Network(IntEnum):
     Plasma = 9745
     Monad = 143
     Tempo = 4217
+    Robinhood = 4663
 
 
 MULTICALL_ADDRESSES = {
@@ -67,6 +68,7 @@ MULTICALL3_ADDRESSES = {
     Network.Plasma: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Monad: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Tempo: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Robinhood: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -133,6 +135,9 @@ CHAINS = {
     },
     "tempo": {
         "mainnet": Network.Tempo,
+    },
+    "robinhood": {
+        "mainnet": Network.Robinhood,
     },
 }
 

@@ -14,6 +14,7 @@ from .plasma import PlasmaMainnetChain
 from .plume import PlumeMainnetChain
 from .polygon import PolygonMainnetChain
 from .rari import RariMainnetChain
+from .robinhood import RobinhoodMainnetChain
 from .scroll import ScrollMainnetChain
 from .tenderly import TenderlyTestnetChain
 from .unichain import UnichainMainnetChain
@@ -36,6 +37,7 @@ __all__ = [
     "PlumeMainnetChain",
     "PolygonMainnetChain",
     "RariMainnetChain",
+    "RobinhoodMainnetChain",
     "ScrollMainnetChain",
     "TenderlyTestnetChain",
     "UnichainMainnetChain",
