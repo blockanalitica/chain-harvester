@@ -1052,6 +1052,13 @@ class Chain:
 
                 if code == -32600 and "free tier plan" in msg.lower():
                     step = 10
+                elif code == -32600:
+                    try:
+                        hex_values = re.findall(r"0x[0-9a-fA-F]+", msg)
+                        step = int(hex_values[1], 16) - int(hex_values[0], 16)
+                    except Exception:
+                        log.warning("Couldn't extract step size from msg: %s", msg)
+                        step = max(step // 2, 10)
 
                 if code == -32602 and "log response size exceeded" in msg.lower():
                     try:
