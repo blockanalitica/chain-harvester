@@ -60,6 +60,9 @@ RPC_NODES = {
     "tempo": {
         "mainnet": os.environ.get("TEMPO_MAINNET_RPC"),
     },
+    "robinhood": {
+        "mainnet": os.environ.get("ROBINHOOD_MAINNET_RPC"),
+    },
 }
 
 ETHEREUM_ALCHEMY_API_KEY = os.environ.get("ETHEREUM_ALCHEMY_API_KEY")
