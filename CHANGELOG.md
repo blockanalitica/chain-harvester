@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.25.0](https://github.com/blockanalitica/chain-harvester/compare/v2.24.4...v2.25.0) (2026-07-02)
+
+
+### Features
+
+* add Robinhood chain ([#318](https://github.com/blockanalitica/chain-harvester/issues/318)) ([5a12cee](https://github.com/blockanalitica/chain-harvester/commit/5a12cee6cd659875399793278414aaa710a18ed4))
+
 ## [2.24.4](https://github.com/blockanalitica/chain-harvester/compare/v2.24.3...v2.24.4) (2026-06-11)
 
 
