@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.25.1](https://github.com/blockanalitica/chain-harvester/compare/v2.25.0...v2.25.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* shrink get_logs step on block-range RPC errors ([#320](https://github.com/blockanalitica/chain-harvester/issues/320)) ([1b3e1b8](https://github.com/blockanalitica/chain-harvester/commit/1b3e1b8768c3939c7b05681fc069932509e6498f))
+
 ## [2.25.0](https://github.com/blockanalitica/chain-harvester/compare/v2.24.4...v2.25.0) (2026-07-02)
 
 
