@@ -1027,7 +1027,9 @@ class Chain:
             filters["topics"] = topics
 
         retries = defaultdict(int)
-        step = to_block - from_block
+        # Seed from the chain's configured step so callers can bound the initial
+        # request (e.g. ROBINHOOD_RPC_STEP) instead of always asking for the full range.
+        step = min(self.step, to_block - from_block) if self.step else to_block - from_block
 
         while True:
             end_block = min(from_block + step - 1, to_block)
@@ -1063,10 +1065,14 @@ class Chain:
                 if code == -32602 and "log response size exceeded" in msg.lower():
                     try:
                         hex_values = re.findall(r"0x[0-9a-fA-F]+", msg)
-                        step = int(hex_values[1], 16) - int(hex_values[0], 16)
-                    except Exception as e:
+                        suggested = int(hex_values[1], 16) - int(hex_values[0], 16)
+                    except Exception:
                         log.warning("Couldn't extract step size from msg: %s", msg)
-                        step = max(step // 2, 10)
+                        suggested = step
+                    # The suggested range is block-count based; on log-dense chains it can
+                    # equal the current step (too many logs, not too many blocks), which would
+                    # loop forever. Always make progress by halving if it doesn't shrink.
+                    step = suggested if suggested < step else max(step // 2, 10)
 
                 log.info("Retrying `get_logs` with step: %s", step)
                 continue
