@@ -1027,9 +1027,15 @@ class Chain:
             filters["topics"] = topics
 
         retries = defaultdict(int)
-        # Seed from the chain's configured step so callers can bound the initial
-        # request (e.g. ROBINHOOD_RPC_STEP) instead of always asking for the full range.
-        step = min(self.step, to_block - from_block) if self.step else to_block - from_block
+        # Hypersync paginates arbitrarily large ranges natively; chunking it into
+        # self.step-sized windows makes it far slower than the RPC it replaces.
+        # So only bound the initial request for plain-RPC chains (e.g. Alchemy wants
+        # a max step, see ROBINHOOD_RPC_STEP); hypersync always asks for the full range.
+        full_range = to_block - from_block
+        if self.use_hypersync or not self.step:
+            step = full_range
+        else:
+            step = min(self.step, full_range)
 
         while True:
             end_block = min(from_block + step - 1, to_block)
