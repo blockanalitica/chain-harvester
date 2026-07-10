@@ -88,6 +88,7 @@ class Chain:
         if block_store and isinstance(block_store, BlockStore):
             self.block_store = block_store
         else:
+            self.block_store = None
             log.debug("Block store not set: %s", block_store)
 
         rpc_env = f"{self.chain.upper()}_{self.network.upper()}_RPC"

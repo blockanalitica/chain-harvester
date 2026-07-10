@@ -205,6 +205,64 @@ class TenderlyMixin:
         return abi
 
 
+class OKLinkMixin:
+    def __init__(
+        self,
+        oklink_chain_short_name,
+        oklink_api_key=None,
+        *args,
+        **kwargs,
+    ):
+        self.oklink_chain_short_name = oklink_chain_short_name
+        self.oklink_api_key = oklink_api_key or env("OKLINK_API_KEY", None)
+        self.oklink_url = "https://www.oklink.com/api/v5/explorer"
+        super().__init__(*args, **kwargs)
+
+    def get_abi_from_source(self, contract_address):
+        query_params = {
+            "chainShortName": self.oklink_chain_short_name,
+            "contractAddress": contract_address,
+        }
+        query = urllib.parse.urlencode(query_params)
+        url = f"{self.oklink_url}/contract/verify-contract-info?{query}"
+        headers = {"Ok-Access-Key": self.oklink_api_key} if self.oklink_api_key else None
+
+        try:
+            data = retry_get_json(url, timeout=5, headers=headers)
+        except requests.exceptions.Timeout:
+            log.exception(
+                "Timeout when getting abi from oklink",
+                extra={"contract_address": contract_address},
+            )
+            raise
+
+        if data["code"] != "0" or not data["data"]:
+            raise ChainException("Request to oklink failed: {}".format(data["msg"]))
+
+        abi = json.loads(data["data"][0]["contractAbi"])
+        return abi
+
+    def get_block_for_timestamp_fallback(self, timestamp):
+        data = retry_get_json(f"https://coins.llama.fi/block/{self.chain}/{timestamp}")
+        block_number = data["height"]
+        block_ts = data["timestamp"]
+        tries = 0
+
+        while block_ts > timestamp:
+            if tries > 5:
+                log.error(
+                    "Couldn't find closest block before %s. Using %s as closest alternative",
+                    timestamp,
+                    block_number,
+                )
+                break
+            block_number -= 1
+            block_ts = self.get_block_info(block_number).timestamp
+            tries += 1
+
+        return block_number
+
+
 class TempoMixin:
     def __init__(
         self,
