@@ -71,7 +71,11 @@ class EventRawLogDecoder:
 class EventLogDecoder:
     def __init__(self, contract):
         self._contract = contract
-        event_abis = [abi for abi in self._contract.abi if abi["type"] == "event"]
+        # some explorers (e.g. OKLink) strip the "anonymous" field from event
+        # entries, but web3's event decoder requires it
+        event_abis = [
+            {"anonymous": False, **abi} for abi in self._contract.abi if abi["type"] == "event"
+        ]
         self._signed_abis = {event_abi_to_log_topic(abi): abi for abi in event_abis}
 
     def decode_log(self, log_entry):
