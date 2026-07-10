@@ -18,6 +18,7 @@ from .robinhood import RobinhoodMainnetChain
 from .scroll import ScrollMainnetChain
 from .tenderly import TenderlyTestnetChain
 from .unichain import UnichainMainnetChain
+from .xlayer import XLayerMainnetChain
 
 __all__ = [
     "ArbitrumMainnetChain",
@@ -41,4 +42,5 @@ __all__ = [
     "ScrollMainnetChain",
     "TenderlyTestnetChain",
     "UnichainMainnetChain",
+    "XLayerMainnetChain",
 ]
