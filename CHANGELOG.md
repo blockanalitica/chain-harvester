@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.26.1](https://github.com/blockanalitica/chain-harvester/compare/v2.26.0...v2.26.1) (2026-07-10)
+
+
+### Bug Fixes
+
+* tolerate event ABI entries without the anonymous field ([#325](https://github.com/blockanalitica/chain-harvester/issues/325)) ([84d6269](https://github.com/blockanalitica/chain-harvester/commit/84d62694cd6885dddf9adf0e90abc70de34fc414))
+
 ## [2.26.0](https://github.com/blockanalitica/chain-harvester/compare/v2.25.1...v2.26.0) (2026-07-10)
 
 
