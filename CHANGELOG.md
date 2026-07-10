@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.26.0](https://github.com/blockanalitica/chain-harvester/compare/v2.25.1...v2.26.0) (2026-07-10)
+
+
+### Features
+
+* add X Layer chain ([#323](https://github.com/blockanalitica/chain-harvester/issues/323)) ([4172127](https://github.com/blockanalitica/chain-harvester/commit/41721275fe0f45e5c0e4c0328d9b16b37cb98422))
+
 ## [2.25.1](https://github.com/blockanalitica/chain-harvester/compare/v2.25.0...v2.25.1) (2026-07-02)
 
 
