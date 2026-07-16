@@ -42,6 +42,9 @@ class Multicall:
             MULTICALL3_ADDRESSES if self.chain_id in MULTICALL3_ADDRESSES else MULTICALL2_ADDRESSES
         )
         self.multicall_address = multicall_map[self.chain_id]
+        # Per-instance so one flaky RPC call can't shrink the batch size for every
+        # other multicall in the process.
+        self.batcher = NotSoBrightBatcher()
 
     def __await__(self):
         return self.coroutine().__await__()
@@ -78,7 +81,7 @@ class Multicall:
         batches = await gather_raise(
             (
                 self.fetch_outputs(batch, cid=str(i))
-                for i, batch in enumerate(batcher.batch_calls(self.calls, batcher.step))
+                for i, batch in enumerate(self.batcher.batch_calls(self.calls, self.batcher.step))
             )
         )
         return dict(toolz.mapcat(dict.items, toolz.concat(batches)))
@@ -115,7 +118,7 @@ class Multicall:
         batch_results = await gather_raise(
             (
                 self.fetch_outputs(chunk, retries + 1, f"{cid}_{i}")
-                for i, chunk in enumerate(batcher.rebatch(calls))
+                for i, chunk in enumerate(self.batcher.rebatch(calls))
             )
         )
 
@@ -139,13 +142,10 @@ class NotSoBrightBatcher:
         """
         batches = []
         start = 0
-        done = len(calls) - 1
-        while True:
-            end = start + step
-            batches.append(calls[start:end])
-            if end >= done:
-                return batches
-            start = end
+        while start < len(calls):
+            batches.append(calls[start : start + step])
+            start += step
+        return batches
 
     def split_calls(self, calls, unused=None):
         """
@@ -174,12 +174,13 @@ class NotSoBrightBatcher:
         return self.split_calls(calls, self.step)
 
 
-batcher = NotSoBrightBatcher()
-
-
 def _raise_or_proceed(e, calls_count, retries):
     """Depending on the exception, either raises or ignores and allows `batcher`
     to rebatch."""
+    # A single call can't be split any further, so rebatching would just retry
+    # it forever (and shrink the step to 0).
+    if calls_count == 1:
+        raise e
     strings = ()
     if isinstance(e, aiohttp.ClientOSError):
         if "broken pipe" not in str(e).lower():
@@ -194,8 +195,6 @@ def _raise_or_proceed(e, calls_count, retries):
         pass
     elif isinstance(e, ValueError | Web3RPCError):
         if "out of gas" not in str(e).lower():
-            raise e
-        if calls_count == 1:
             raise e
         log.warning(e)
     else:
