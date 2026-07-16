@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.26.2](https://github.com/blockanalitica/chain-harvester/compare/v2.26.1...v2.26.2) (2026-07-16)
+
+
+### Bug Fixes
+
+* async multicall batcher — stop one RPC timeout from poisoning all multicalls ([#327](https://github.com/blockanalitica/chain-harvester/issues/327)) ([5629a53](https://github.com/blockanalitica/chain-harvester/commit/5629a5357090862d0811b68fa2ee65b7de835c61))
+
 ## [2.26.1](https://github.com/blockanalitica/chain-harvester/compare/v2.26.0...v2.26.1) (2026-07-10)
 
 
