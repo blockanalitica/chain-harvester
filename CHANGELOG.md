@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.26.3](https://github.com/blockanalitica/chain-harvester/compare/v2.26.2...v2.26.3) (2026-07-24)
+
+
+### Bug Fixes
+
+* raise HTTP error statuses with non-JSON bodies instead of JSONDecodeError ([#329](https://github.com/blockanalitica/chain-harvester/issues/329)) ([1350727](https://github.com/blockanalitica/chain-harvester/commit/1350727e00a1178cb86a631e0012e55ec25c063e))
+
 ## [2.26.2](https://github.com/blockanalitica/chain-harvester/compare/v2.26.1...v2.26.2) (2026-07-16)
 
 
