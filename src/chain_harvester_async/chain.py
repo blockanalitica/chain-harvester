@@ -1028,7 +1028,19 @@ class Chain:
             filters["topics"] = topics
 
         retries = defaultdict(int)
-        step = to_block - from_block
+        # Hypersync paginates arbitrarily large ranges natively; chunking it into
+        # self.step-sized windows makes it far slower than the RPC it replaces.
+        # So only bound the initial request for plain-RPC chains (e.g. Alchemy wants
+        # a max step, see ROBINHOOD_RPC_STEP); hypersync always asks for the full range.
+        # Inclusive block count: from_block == to_block is a 1-block range. The old
+        # `to_block - from_block` yielded step 0 there, making end_block an inverted
+        # range and `from_block += step` a no-op — an infinite loop on RPCs that
+        # answer an inverted range with an empty result instead of an error.
+        full_range = to_block - from_block + 1
+        if self.use_hypersync or not self.step:
+            step = full_range
+        else:
+            step = min(self.step, full_range)
 
         while True:
             end_block = min(from_block + step - 1, to_block)
@@ -1056,7 +1068,9 @@ class Chain:
                 elif code == -32600:
                     try:
                         hex_values = re.findall(r"0x[0-9a-fA-F]+", msg)
-                        step = int(hex_values[1], 16) - int(hex_values[0], 16)
+                        # A suggested [a, b] range is b - a + 1 blocks; also floors a
+                        # single-block suggestion at 1 instead of a stalling step 0.
+                        step = max(int(hex_values[1], 16) - int(hex_values[0], 16), 1)
                     except Exception:
                         log.warning("Couldn't extract step size from msg: %s", msg)
                         step = max(step // 2, 10)
@@ -1064,10 +1078,14 @@ class Chain:
                 if code == -32602 and "log response size exceeded" in msg.lower():
                     try:
                         hex_values = re.findall(r"0x[0-9a-fA-F]+", msg)
-                        step = int(hex_values[1], 16) - int(hex_values[0], 16)
-                    except Exception as e:
+                        suggested = max(int(hex_values[1], 16) - int(hex_values[0], 16), 1)
+                    except Exception:
                         log.warning("Couldn't extract step size from msg: %s", msg)
-                        step = max(step // 2, 10)
+                        suggested = step
+                    # The suggested range is block-count based; on log-dense chains it can
+                    # equal the current step (too many logs, not too many blocks), which would
+                    # loop forever. Always make progress by halving if it doesn't shrink.
+                    step = suggested if suggested < step else max(step // 2, 10)
 
                 log.info("Retrying `get_logs` with step: %s", step)
                 continue
@@ -1080,7 +1098,10 @@ class Chain:
             if end_block >= to_block:
                 break
 
-            from_block += step
+            # Advance past the window actually fetched — immune to whatever the
+            # retry branches did to `step` (unlike `from_block += step`, which
+            # stalls forever if step ever reaches 0).
+            from_block = end_block + 1
 
     async def _fetch_events_from_rpc(
         self,
