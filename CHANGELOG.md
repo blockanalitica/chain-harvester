@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.26.4](https://github.com/blockanalitica/chain-harvester/compare/v2.26.3...v2.26.4) (2026-07-24)
+
+
+### Bug Fixes
+
+* async get_logs step handling — infinite loops + hypersync full range ([#322](https://github.com/blockanalitica/chain-harvester/issues/322)) ([01df992](https://github.com/blockanalitica/chain-harvester/commit/01df992e00dbe0e634236ba9deff6d95b9523a7e))
+
 ## [2.26.3](https://github.com/blockanalitica/chain-harvester/compare/v2.26.2...v2.26.3) (2026-07-24)
 
 
