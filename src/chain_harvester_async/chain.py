@@ -1031,7 +1031,11 @@ class Chain:
         # self.step-sized windows makes it far slower than the RPC it replaces.
         # So only bound the initial request for plain-RPC chains (e.g. Alchemy wants
         # a max step, see ROBINHOOD_RPC_STEP); hypersync always asks for the full range.
-        full_range = to_block - from_block
+        # Inclusive block count: from_block == to_block is a 1-block range. The old
+        # `to_block - from_block` yielded step 0 there, making end_block an inverted
+        # range and `from_block += step` a no-op — an infinite loop on RPCs that
+        # answer an inverted range with an empty result instead of an error.
+        full_range = to_block - from_block + 1
         if self.use_hypersync or not self.step:
             step = full_range
         else:
@@ -1063,7 +1067,9 @@ class Chain:
                 elif code == -32600:
                     try:
                         hex_values = re.findall(r"0x[0-9a-fA-F]+", msg)
-                        step = int(hex_values[1], 16) - int(hex_values[0], 16)
+                        # A suggested [a, b] range is b - a + 1 blocks; also floors a
+                        # single-block suggestion at 1 instead of a stalling step 0.
+                        step = max(int(hex_values[1], 16) - int(hex_values[0], 16), 1)
                     except Exception:
                         log.warning("Couldn't extract step size from msg: %s", msg)
                         step = max(step // 2, 10)
@@ -1071,7 +1077,7 @@ class Chain:
                 if code == -32602 and "log response size exceeded" in msg.lower():
                     try:
                         hex_values = re.findall(r"0x[0-9a-fA-F]+", msg)
-                        suggested = int(hex_values[1], 16) - int(hex_values[0], 16)
+                        suggested = max(int(hex_values[1], 16) - int(hex_values[0], 16), 1)
                     except Exception:
                         log.warning("Couldn't extract step size from msg: %s", msg)
                         suggested = step
@@ -1091,7 +1097,10 @@ class Chain:
             if end_block >= to_block:
                 break
 
-            from_block += step
+            # Advance past the window actually fetched — immune to whatever the
+            # retry branches did to `step` (unlike `from_block += step`, which
+            # stalls forever if step ever reaches 0).
+            from_block = end_block + 1
 
     async def _fetch_events_from_rpc(
         self,
