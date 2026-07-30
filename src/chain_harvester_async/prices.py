@@ -7,3 +7,7 @@ async def get_tokens_price(addresses, timestamp, network="ethereum"):
 
 async def get_alchemy_token_price(address, network, dt):
     return await alchemy.get_token_price(address, network, dt)
+
+
+async def get_alchemy_token_price_series(address, network, start_date, end_date):
+    return await alchemy.get_token_price_series(address, network, start_date, end_date)
