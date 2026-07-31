@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.27.0](https://github.com/blockanalitica/chain-harvester/compare/v2.26.4...v2.27.0) (2026-07-31)
+
+
+### Features
+
+* alchemy historical price series + the 5 reserve networks ([#332](https://github.com/blockanalitica/chain-harvester/issues/332)) ([79657de](https://github.com/blockanalitica/chain-harvester/commit/79657de8dd92253c098f155686835717b67ec133))
+
 ## [2.26.4](https://github.com/blockanalitica/chain-harvester/compare/v2.26.3...v2.26.4) (2026-07-24)
 
 
