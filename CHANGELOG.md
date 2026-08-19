@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.27.1](https://github.com/blockanalitica/chain-harvester/compare/v2.27.0...v2.27.1) (2026-08-19)
+
+
+### Bug Fixes
+
+* robinhood async chain uses hosted Blockscout gateway ([#334](https://github.com/blockanalitica/chain-harvester/issues/334)) ([6235cc1](https://github.com/blockanalitica/chain-harvester/commit/6235cc116241cc8c3b26c16ed644c6a0cb226232))
+
 ## [2.27.0](https://github.com/blockanalitica/chain-harvester/compare/v2.26.4...v2.27.0) (2026-07-31)
 
 
