@@ -175,10 +175,26 @@ class Chain:
         Skips the local file, S3 and explorer lookups entirely. Meant for contracts
         deployed from a shared factory bytecode (e.g. Morpho VaultV2) where the
         explorer may not have matched the source yet.
+
+        The ABI is persisted the same way an explorer-fetched one is (local abis file,
+        and S3 when configured), so later runs find it without asking the explorer.
         """
         contract_address = contract_address.lower()
         self._abis[contract_address] = abi
         self._contracts.pop(Web3.to_checksum_address(contract_address), None)
+
+        file_path = os.path.join(self.abis_path, f"{contract_address}.json")
+        with open(file_path, "w") as f:
+            json.dump(abi, f)
+
+        if self.s3:
+            key = f"{self.s3_dir}/{self.chain}/{self.network}/{contract_address}.json"
+            self.s3.put_object(
+                Bucket=self.s3_bucket_name,
+                Key=key,
+                Body=json.dumps(abi),
+                ContentType="application/json",
+            )
 
     def load_abi(self, contract_address, refetch_on_block=None, **kwargs):
         contract_address = contract_address.lower()

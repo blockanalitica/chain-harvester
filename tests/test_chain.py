@@ -1,7 +1,7 @@
 import json
 import os
 import tempfile
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import boto3
 import pytest
@@ -149,13 +149,15 @@ def test_upload_and_fetch_abi(chain_with_s3):
     assert chain._abis[address] == fake_abi
 
 
-def test__register_abi__skips_lookup():
+def test__register_abi__skips_lookup(tmp_path):
     # A registered ABI must be served from the cache without touching local
     # storage, S3, or the explorer — the whole point is that the explorer may
     # not have matched the contract yet.
     contract_address = "0x19D55F7Fe2d3962796F5825cbdaE2dD493Be0986"
     sample_abi = [{"type": "event", "name": "Deposit", "inputs": [], "anonymous": False}]
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key="1234")
+    chain = EthereumMainnetChain(
+        rpc_nodes=RPC_NODES, etherscan_api_key="1234", abis_path=str(tmp_path)
+    )
 
     chain.register_abi(contract_address, sample_abi)
 
@@ -165,9 +167,49 @@ def test__register_abi__skips_lookup():
         fetch.assert_not_called()
 
 
-def test__register_abi__evicts_cached_contract():
+def test__register_abi__persists_to_local_file(tmp_path):
     contract_address = "0x19D55F7Fe2d3962796F5825cbdaE2dD493Be0986"
-    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key="1234")
+    sample_abi = [{"type": "event", "name": "Deposit", "inputs": [], "anonymous": False}]
+    chain = EthereumMainnetChain(
+        rpc_nodes=RPC_NODES, etherscan_api_key="1234", abis_path=str(tmp_path)
+    )
+
+    chain.register_abi(contract_address, sample_abi)
+
+    assert json.loads((tmp_path / f"{contract_address.lower()}.json").read_text()) == sample_abi
+    fresh = EthereumMainnetChain(
+        rpc_nodes=RPC_NODES, etherscan_api_key="1234", abis_path=str(tmp_path)
+    )
+    with patch.object(fresh, "_fetch_abi_from_chain") as fetch:
+        assert fresh.load_abi(contract_address) == sample_abi
+        fetch.assert_not_called()
+
+
+def test__register_abi__persists_to_s3(tmp_path):
+    contract_address = "0x19D55F7Fe2d3962796F5825cbdaE2dD493Be0986"
+    sample_abi = [{"type": "event", "name": "Deposit", "inputs": [], "anonymous": False}]
+    chain = EthereumMainnetChain(
+        rpc_nodes=RPC_NODES, etherscan_api_key="1234", abis_path=str(tmp_path)
+    )
+    chain.s3 = MagicMock()
+    chain.s3_bucket_name = "bucket"
+    chain.s3_dir = "app"
+
+    chain.register_abi(contract_address, sample_abi)
+
+    chain.s3.put_object.assert_called_once_with(
+        Bucket="bucket",
+        Key=f"app/ethereum/mainnet/{contract_address.lower()}.json",
+        Body=json.dumps(sample_abi),
+        ContentType="application/json",
+    )
+
+
+def test__register_abi__evicts_cached_contract(tmp_path):
+    contract_address = "0x19D55F7Fe2d3962796F5825cbdaE2dD493Be0986"
+    chain = EthereumMainnetChain(
+        rpc_nodes=RPC_NODES, etherscan_api_key="1234", abis_path=str(tmp_path)
+    )
     chain._contracts[Web3.to_checksum_address(contract_address)] = "stale"
 
     chain.register_abi(contract_address, [])
