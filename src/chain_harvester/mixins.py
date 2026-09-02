@@ -65,35 +65,49 @@ class EtherscanMixin:
 class BlockscoutMixin:
     def __init__(
         self,
-        blockscout_url,
+        blockscout_url=None,
+        blockscout_api_key=None,
         *args,
         **kwargs,
     ):
-        self.blockscout_url = blockscout_url
         super().__init__(*args, **kwargs)
+        self.blockscout_api_key = blockscout_api_key or env("BLOCKSCOUT_API_KEY", None)
+        # set blockscout_url if it's self hosted instead of blockscout hosted
+        if blockscout_url:
+            self.blockscout_url = f"{blockscout_url}/api"
+            self.headers = None
+        else:
+            self.blockscout_url = f"https://api.blockscout.com/{self.chain_id}/api"
+            self.headers = {"Authorization": f"Bearer {self.blockscout_api_key}"}
 
     def get_abi_from_source(self, contract_address):
-        url = f"{self.blockscout_url}/api/v2/smart-contracts/{contract_address}"
+        url = f"{self.blockscout_url}/v2/smart-contracts/{contract_address.lower()}"
         try:
-            data = retry_get_json(url, timeout=5)
+            data = retry_get_json(url, headers=self.headers, timeout=15)
         except requests.exceptions.Timeout:
             log.exception(
-                "Timeout when get abi from Blockscout",
-                extra={"contract_address": contract_address},
+                "Timeout when get abi from %s for contract %s",
+                self.blockscout_url,
+                contract_address,
             )
             raise
-
+        if "abi" not in data:
+            raise ChainException(
+                f"ABI not present in response from {self.blockscout_url} "
+                f"for contract {contract_address}"
+            )
         return data["abi"]
 
     def get_block_for_timestamp_fallback(self, timestamp):
         query_params = {
+            "chainid": self.chain_id,
             "module": "block",
             "action": "getblocknobytime",
             "timestamp": timestamp,
             "closest": "before",
         }
-        url = f"{self.blockscout_url}/api?{urllib.parse.urlencode(query_params)}"
-        data = retry_get_json(url)
+        url = f"{self.blockscout_url}?{urllib.parse.urlencode(query_params)}"
+        data = retry_get_json(url, headers=self.headers)
         result = int(data["result"]["blockNumber"])
         return result
 
