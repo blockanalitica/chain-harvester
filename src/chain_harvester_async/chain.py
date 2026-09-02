@@ -104,6 +104,8 @@ class Chain:
             )
 
         self.abis_path = abis_path or f"abis/{self.chain.lower()}/{self.network.lower()}/"
+        # Create the abis_path if it doesn't exist yet
+        os.makedirs(self.abis_path, exist_ok=True)
 
         self.s3_config = None
         if s3 and s3.get("bucket_name") and s3.get("dir"):
@@ -228,6 +230,28 @@ class Chain:
             await f.write(json.dumps(abi))
         return abi
 
+    async def register_abi(self, contract_address, abi):
+        """Seed the ABI cache for a contract whose ABI is already known.
+
+        Skips the local file, S3 and explorer lookups entirely. Meant for contracts
+        deployed from a shared factory bytecode (e.g. Morpho VaultV2) where the
+        explorer may not have matched the source yet.
+
+        The ABI is persisted the same way an explorer-fetched one is (local abis file,
+        and S3 when configured), so later runs find it without asking the explorer.
+        """
+        contract_address = contract_address.lower()
+        self._abis[contract_address] = abi
+        self._contracts.pop(Web3.to_checksum_address(contract_address), None)
+
+        file_path = os.path.join(self.abis_path, f"{contract_address}.json")
+        async with aiofiles.open(file_path, "w") as f:
+            await f.write(json.dumps(abi))
+
+        if self.s3_config:
+            log.debug("Saving registered ABI for contract %s to S3", contract_address)
+            await save_abi_to_s3(self.s3_config, contract_address, abi)
+
     async def load_abi(self, contract_address, refetch_on_block=None, **kwargs):
         contract_address = contract_address.lower()
 
@@ -254,9 +278,6 @@ class Chain:
             abi = json.loads(data)
             self._abis[contract_address] = abi
             return abi
-        else:
-            # Create the abis_path if it doesn't exist yet
-            await aiofiles.os.makedirs(self.abis_path, exist_ok=True)
 
         if self.s3_config:
             abi = await self._handle_abi_s3(contract_address, file_path)
