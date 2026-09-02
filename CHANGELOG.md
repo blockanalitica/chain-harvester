@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.28.0](https://github.com/blockanalitica/chain-harvester/compare/v2.27.1...v2.28.0) (2026-09-02)
+
+
+### Features
+
+* register_abi to seed the abi cache for known contracts ([#336](https://github.com/blockanalitica/chain-harvester/issues/336)) ([e1c7963](https://github.com/blockanalitica/chain-harvester/commit/e1c796361eff3728e43b4458bf4c0915e0e06bd9))
+
 ## [2.27.1](https://github.com/blockanalitica/chain-harvester/compare/v2.27.0...v2.27.1) (2026-08-19)
 
 
