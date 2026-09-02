@@ -228,6 +228,17 @@ class Chain:
             await f.write(json.dumps(abi))
         return abi
 
+    def register_abi(self, contract_address, abi):
+        """Seed the ABI cache for a contract whose ABI is already known.
+
+        Skips the local file, S3 and explorer lookups entirely. Meant for contracts
+        deployed from a shared factory bytecode (e.g. Morpho VaultV2) where the
+        explorer may not have matched the source yet.
+        """
+        contract_address = contract_address.lower()
+        self._abis[contract_address] = abi
+        self._contracts.pop(Web3.to_checksum_address(contract_address), None)
+
     async def load_abi(self, contract_address, refetch_on_block=None, **kwargs):
         contract_address = contract_address.lower()
 

@@ -6,6 +6,7 @@ from unittest.mock import patch
 import boto3
 import pytest
 from moto import mock_aws
+from web3 import Web3
 
 from chain_harvester.chain import Chain
 from chain_harvester.networks.ethereum.mainnet import EthereumMainnetChain
@@ -146,3 +147,29 @@ def test_upload_and_fetch_abi(chain_with_s3):
         chain.load_abi(address)
         assert not mock_fetch.called
     assert chain._abis[address] == fake_abi
+
+
+def test__register_abi__skips_lookup():
+    # A registered ABI must be served from the cache without touching local
+    # storage, S3, or the explorer — the whole point is that the explorer may
+    # not have matched the contract yet.
+    contract_address = "0x19D55F7Fe2d3962796F5825cbdaE2dD493Be0986"
+    sample_abi = [{"type": "event", "name": "Deposit", "inputs": [], "anonymous": False}]
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key="1234")
+
+    chain.register_abi(contract_address, sample_abi)
+
+    with patch.object(chain, "_fetch_abi_from_chain") as fetch:
+        assert chain.load_abi(contract_address) == sample_abi
+        assert chain.load_abi(contract_address.lower()) == sample_abi
+        fetch.assert_not_called()
+
+
+def test__register_abi__evicts_cached_contract():
+    contract_address = "0x19D55F7Fe2d3962796F5825cbdaE2dD493Be0986"
+    chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key="1234")
+    chain._contracts[Web3.to_checksum_address(contract_address)] = "stale"
+
+    chain.register_abi(contract_address, [])
+
+    assert Web3.to_checksum_address(contract_address) not in chain._contracts
