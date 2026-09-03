@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.28.2](https://github.com/blockanalitica/chain-harvester/compare/v2.28.1...v2.28.2) (2026-09-03)
+
+
+### Bug Fixes
+
+* don't crash on Etherscan error status in get_closest_block_before_timestamp ([#340](https://github.com/blockanalitica/chain-harvester/issues/340)) ([539f9ef](https://github.com/blockanalitica/chain-harvester/commit/539f9ef92c963e0d5f31103c5f1c0f02f5bd48d6))
+* expose TempoMainnetChain in networks init ([#341](https://github.com/blockanalitica/chain-harvester/issues/341)) ([d995080](https://github.com/blockanalitica/chain-harvester/commit/d995080628e03937c80ab3484cb5292ca1b7accf))
+
 ## [2.28.1](https://github.com/blockanalitica/chain-harvester/compare/v2.28.0...v2.28.1) (2026-09-02)
 
 
