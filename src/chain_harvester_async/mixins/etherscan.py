@@ -59,5 +59,9 @@ class EtherscanMixin(BaseExplorerMixin):
         }
         url = f"{self.etherscan_url}/api?{urllib.parse.urlencode(query_params)}"
         data = await retry_get_json(url)
+
+        if data["status"] != "1":
+            raise ChainException(f"Request to {self.etherscan_url} failed: {data['result']}")
+
         result = int(data["result"])
         return result
