@@ -16,6 +16,7 @@ from .polygon import PolygonMainnetChain
 from .rari import RariMainnetChain
 from .robinhood import RobinhoodMainnetChain
 from .scroll import ScrollMainnetChain
+from .tempo import TempoMainnetChain
 from .tenderly import TenderlyTestnetChain
 from .unichain import UnichainMainnetChain
 from .xlayer import XLayerMainnetChain
@@ -40,6 +41,7 @@ __all__ = [
     "RariMainnetChain",
     "RobinhoodMainnetChain",
     "ScrollMainnetChain",
+    "TempoMainnetChain",
     "TenderlyTestnetChain",
     "UnichainMainnetChain",
     "XLayerMainnetChain",
