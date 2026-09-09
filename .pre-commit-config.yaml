@@ -1,9 +1,9 @@
 repos:
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.5.7"
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: "v0.8.6"
     hooks:
       - id: ruff
-        language_version: python3.11
+        language_version: python3.13
       - id: ruff-format
         args: [--check]
-        language_version: python3.11
+        language_version: python3.13

@@ -3,6 +3,8 @@ name = "chain_harvester"
 dynamic = ["version"]
 description = "A Python library designed to interface with various blockchain networks, enabling the retrieval of data."
 authors = [{ name = "0xCommanderKeen", email = "f91289621+0xCommanderKeen@users.noreply.github.com" }]
+license = "MIT"
+license-files = ["LICENSE*"]
 requires-python = ">=3.13,<4.0"
 readme = "README.md"
 classifiers = [
@@ -119,7 +121,7 @@ requires = ["hatchling>=1.32.0"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "src/chain_harvester_async/__init__.py"
+path = "src/chain_harvester/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/chain_harvester", "src/chain_harvester_async"]
@@ -129,5 +131,5 @@ include = ["src/**", "pyproject.toml", "README*", "LICENSE*"]
 
 [tool.semantic_release]
 commit_message = "chore(release): {version}"
-version_variables = ["src/chain_harvester_async/__init__.py:__version__"]
+version_variables = ["src/chain_harvester/__init__.py:__version__"]
 allow_zero_version = true

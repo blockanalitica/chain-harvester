@@ -25,11 +25,11 @@ jobs:
       - name: Setup | Checkout Repository on Release Branch
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
           token: ${{ secrets.GH_PAT }}
 
-      - name: Setup | Force release branch to be at workflow sha
+      - name: Setup | Reset release branch to successful CI SHA
         run: |
           git reset --hard "${{ github.event.workflow_run.head_sha }}"
 

@@ -1,6 +1,8 @@
 name: Publish
 
-concurrency: publish
+concurrency:
+  group: publish-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
 
 on:
   release:
@@ -8,21 +10,44 @@ on:
       - published
 
 jobs:
+  build:
+    name: Build distributions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v9
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Build distributions
+        run: uv build
+      - name: Upload distributions
+        uses: actions/upload-artifact@v7
+        with:
+          name: python-package-distributions
+          path: dist/
+          if-no-files-found: error
+          retention-days: 1
+
   publish:
-    name: Create Release
+    name: Publish to PyPI
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v7
+      - name: Download distributions
+        uses: actions/download-artifact@v8
         with:
-          python-version: 3.13
-          activate-environment: true
-      - name: Build
-        run: uv build
+          name: python-package-distributions
+          path: dist/
       - name: Publish to PyPI (OIDC)
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          skip-existing: true
