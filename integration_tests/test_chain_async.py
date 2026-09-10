@@ -2,7 +2,7 @@ import os
 
 import aiofiles
 import aiofiles.os
-import aiofiles.ospath as ospath
+from aiofiles import ospath
 from web3 import Web3
 
 from chain_harvester_async.helpers import get_chain
