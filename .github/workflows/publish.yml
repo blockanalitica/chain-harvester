@@ -44,10 +44,8 @@ jobs:
           retention-days: 1
 
   publish:
-    name: Publish ${{ needs.release.outputs.tag }} to PyPI
-    needs:
-      - release
-      - build
+    name: Publish ${{ inputs.tag }} to PyPI
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
