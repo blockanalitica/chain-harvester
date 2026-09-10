@@ -28,6 +28,7 @@ dependencies = [
 [project.urls]
 Repository = "https://github.com/blockanalitica/chain-harvester"
 Documentation = "https://blockanalitica.github.io/chain-harvester/"
+Changelog = "https://github.com/blockanalitica/chain-harvester/releases"
 
 [dependency-groups]
 dev = [
@@ -117,11 +118,11 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 
 [build-system]
-requires = ["hatchling>=1.32.0"]
+requires = ["hatchling>=1.32.0", "hatch-vcs>=0.5.0"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "src/chain_harvester/__init__.py"
+source = "vcs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/chain_harvester", "src/chain_harvester_async"]
@@ -130,6 +131,4 @@ packages = ["src/chain_harvester", "src/chain_harvester_async"]
 include = ["src/**", "pyproject.toml", "README*", "LICENSE*"]
 
 [tool.semantic_release]
-commit_message = "chore(release): {version}"
-version_variables = ["src/chain_harvester/__init__.py:__version__"]
 allow_zero_version = true
