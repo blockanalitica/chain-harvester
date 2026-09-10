@@ -9,9 +9,9 @@ from datetime import UTC, date, datetime
 
 import aiofiles
 import aiofiles.os
-import aiofiles.ospath as ospath
 import aiohttp
 import eth_abi
+from aiofiles import ospath
 from aiohttp import ClientSession, TCPConnector
 from botocore.exceptions import ClientError
 from environs import env

@@ -32,7 +32,7 @@ async def retry_request_json(
                             retry_after = resp.headers.get("Retry-After")
                             if retry_after is not None:
                                 log.warning(
-                                    ("Received 429 with Retry-After=%s on url %s. " "Sleeping..."),
+                                    ("Received 429 with Retry-After=%s on url %s. Sleeping..."),
                                     int(retry_after),
                                     url,
                                 )
@@ -56,10 +56,7 @@ async def retry_request_json(
                 if attempt < retries:
                     delay = backoff_factor * (2 ** (attempt))
                     log.warning(
-                        (
-                            "%s while requesting %s: %s. Retrying in %s seconds "
-                            "(attempt %s/%s)..."
-                        ),
+                        ("%s while requesting %s: %s. Retrying in %s seconds (attempt %s/%s)..."),
                         err_type,
                         url,
                         e,
