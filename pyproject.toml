@@ -53,7 +53,7 @@ indent-width = 4
 [tool.ruff.lint]
 fixable = ["ALL"]
 unfixable = []
-select = [
+extend-select = [
     "YTT", # flake8-2020
     "S", # flake8-bandit
     "B", # flake8-bugbear
@@ -66,7 +66,7 @@ select = [
     "COM", # flake8-commas
     "PYI", # flake8-pyi
     "PT", # flake8-pytest-style
-    "DTZ", # flake8-datetimez
+    "DTZ", #flake8-datetimez
     "I", # isort
     "C90", # mccabe
     "E", # pycodestyle
@@ -78,7 +78,6 @@ select = [
     "TRY", # tryceratops
     "N", # pep8-naming
     "PERF", # Perflint
-    "TID", # flake8-tidy-imports
 ]
 ignore = [
     "C901",
@@ -95,9 +94,7 @@ ignore = [
     "TRY300",
     "S105",
     "SIM110",
-    "N818",
-    "PT001",
-    "PT023",
+    "FURB157",
 ]
 
 [tool.ruff.lint.per-file-ignores]
