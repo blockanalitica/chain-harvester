@@ -15,10 +15,10 @@ check: ## Run code quality tools.
 format: ## Format code based on code quality tools.
 	@echo "🚀 Checking uv lock file consistency with 'pyproject.toml': Running uv lock --check"
 	@uv sync --check
-	@echo "🚀 Linting code: Running ruff format"
-	@uv run ruff format .
 	@echo "🚀 Linting code: Running ruff check"
 	@uv run ruff check --fix .
+	@echo "🚀 Linting code: Running ruff format"
+	@uv run ruff format .
 
 .PHONY: test
 test: ## Test the code with pytest
@@ -28,7 +28,7 @@ test: ## Test the code with pytest
 .PHONY: tox
 tox: ## Test the code with pytest
 	@echo "🚀 Testing code: Running tox"
-	@uv run tox 
+	@uv run tox
 
 .PHONY: build
 build: clean-build ## Build wheel file using uv

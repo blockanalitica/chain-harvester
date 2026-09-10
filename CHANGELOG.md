@@ -1,5 +1,7 @@
 # Changelog
 
+<!-- version list -->
+
 ## [2.28.2](https://github.com/blockanalitica/chain-harvester/compare/v2.28.1...v2.28.2) (2026-09-03)
 
 

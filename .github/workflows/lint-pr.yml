@@ -1,20 +1,21 @@
-name: Pull request format check
+name: Lint PR
 
 on:
   pull_request:
-    types: [ opened, reopened, synchronize, edited ]
-    branches:
-      - main
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
 
 jobs:
-  check-pull-request:
-    runs-on: blacksmith-2vcpu-ubuntu-2404-arm
+  main:
+    name: Validate PR title
+    runs-on: ubuntu-latest
     permissions:
       pull-requests: read
-
     steps:
-      - name: Pull Request - Title verification
-        uses: amannn/action-semantic-pull-request@v6
+      - uses: amannn/action-semantic-pull-request@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -34,7 +35,7 @@ jobs:
           subjectPattern: '^[A-Za-z].*[^.]$'
           subjectPatternError: 'Pull request title "{title}" must start its subject with a letter and must not end with a dot.'
 
-      - name: Pull Request - Title length validation
+      - name: Validate PR title length
         if: always()
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
