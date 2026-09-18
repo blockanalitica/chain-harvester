@@ -3,6 +3,7 @@ import urllib.parse
 
 from environs import env
 
+from chain_harvester.exceptions import ChainException
 from chain_harvester_async.mixins.base import BaseExplorerMixin
 from chain_harvester_async.utils.http import retry_get_json
 
@@ -33,12 +34,10 @@ class BlockscoutMixin(BaseExplorerMixin):
             )
             raise
         if "abi" not in data:
-            log.exception(
-                "ABI not present in response from %s for contract %s",
-                self.blockscout_url,
-                contract_address,
+            raise ChainException(
+                f"ABI not present in response from {self.blockscout_url} "
+                f"for contract {contract_address}"
             )
-            raise
         return data["abi"]
 
     async def get_closest_block_before_timestamp(self, timestamp):
