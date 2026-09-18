@@ -3,7 +3,14 @@ import logging
 
 import aiohttp
 
+from chain_harvester.utils.url import redact_credentials
+
 log = logging.getLogger(__name__)
+
+# Recoverable retries log at INFO, not WARNING: consumers install
+# sentry_sdk's LoggingIntegration(event_level=WARNING), so a WARNING here is a
+# Sentry event per retried call. Every interpolated value is redacted first --
+# both the URL and the exception, whose repr embeds the URL it was raised for.
 
 
 async def retry_request_json(
@@ -28,13 +35,13 @@ async def retry_request_json(
                 async with session.request(method, url, **kwargs) as resp:
                     if resp.status in status_forcelist:
                         # Handle Retry-After if present (mostly for 429)
-                        if resp.status == 429:
+                        if resp.status == 429 and attempt < retries:
                             retry_after = resp.headers.get("Retry-After")
                             if retry_after is not None:
-                                log.warning(
-                                    ("Received 429 with Retry-After=%s on url %s. Sleeping..."),
+                                log.info(
+                                    "Received 429 with Retry-After=%s on url %s. Sleeping...",
                                     int(retry_after),
-                                    url,
+                                    redact_credentials(url),
                                 )
                                 await asyncio.sleep(int(retry_after))
                                 continue
@@ -55,11 +62,11 @@ async def retry_request_json(
                 err_type = "TimeoutError" if isinstance(e, asyncio.TimeoutError) else "ClientError"
                 if attempt < retries:
                     delay = backoff_factor * (2 ** (attempt))
-                    log.warning(
-                        ("%s while requesting %s: %s. Retrying in %s seconds (attempt %s/%s)..."),
+                    log.info(
+                        "%s while requesting %s: %s. Retrying in %s seconds (attempt %s/%s)...",
                         err_type,
-                        url,
-                        e,
+                        redact_credentials(url),
+                        redact_credentials(e),
                         delay,
                         attempt + 1,
                         retries,
