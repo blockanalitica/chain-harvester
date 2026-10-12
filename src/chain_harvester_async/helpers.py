@@ -2,7 +2,6 @@ from chain_harvester_async.networks import (
     ArbitrumMainnetChain,
     AvalancheMainnetChain,
     BaseMainnetChain,
-    BlastMainnetChain,
     EthereumMainnetChain,
     EthereumSepoliaChain,
     FilecoinMainnetChain,
@@ -30,8 +29,6 @@ def get_chain(network, *args, **kwargs):
             return AvalancheMainnetChain(*args, **kwargs)
         case "base":
             return BaseMainnetChain(*args, **kwargs)
-        case "blast":
-            return BlastMainnetChain(*args, **kwargs)
         case "ethereum_core" | "ethereum_prime" | "ethereum_horizon" | "ethereum":
             return EthereumMainnetChain(*args, **kwargs)
         case "sepolia":

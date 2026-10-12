@@ -1,7 +1,6 @@
 from .arbitrum import ArbitrumMainnetChain
 from .avalanche import AvalancheMainnetChain
 from .base import BaseMainnetChain
-from .blast import BlastMainnetChain
 from .ethereum import EthereumMainnetChain, EthereumSepoliaChain
 from .filecoin import FilecoinMainnetChain
 from .gnosis import GnosisMainnetChain
@@ -25,7 +24,6 @@ __all__ = [
     "ArbitrumMainnetChain",
     "AvalancheMainnetChain",
     "BaseMainnetChain",
-    "BlastMainnetChain",
     "EthereumMainnetChain",
     "EthereumSepoliaChain",
     "FilecoinMainnetChain",
