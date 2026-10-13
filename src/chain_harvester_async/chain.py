@@ -1357,6 +1357,60 @@ class Chain:
                 )
                 block_number = await defillama.get_closest_block_before_timestamp(self, timestamp)
 
-            block = await self.get_block_info(block_number)
-            await self.block_store.save_closing_block(self.chain_id, block)
+            block = await self.find_closing_block(timestamp, block_number)
+            if self.block_store:
+                await self.block_store.save_closing_block(self.chain_id, block)
         return block
+
+    async def find_closing_block(self, timestamp, block_number):
+        """The last block at or before `timestamp`, searched outward from
+        `block_number`: the block whose successor is the first one after it.
+
+        A lookup source (an explorer's getblocknobytime, defillama) answers from
+        its own index, which can lag the chain — asked right after midnight it
+        returns its newest indexed block, minutes before the day's real last
+        one. Checking the successor costs one block lookup when the answer is
+        right; when it is not, the search doubles its step to bracket the
+        boundary, then bisects.
+        """
+        if await self._block_timestamp(block_number) > timestamp:
+            low, high, step = block_number - 1, block_number, 1
+            while await self._block_timestamp(low) > timestamp:
+                if low == 0:
+                    raise ChainException(f"No {self.chain} block at or before {timestamp}")
+                high = low
+                step *= 2
+                low = max(block_number - step, 0)
+        else:
+            low, high, step = block_number, block_number + 1, 1
+            latest_block = None
+            while await self._block_timestamp(high) <= timestamp:
+                low = high
+                if latest_block is None:
+                    latest_block = await self.get_latest_block_number(offset=0)
+                if low >= latest_block:
+                    raise ChainException(
+                        f"No {self.chain} block after {timestamp} yet: the day is not over"
+                    )
+                step *= 2
+                high = min(block_number + step, latest_block)
+
+        while high - low > 1:
+            middle = (low + high) // 2
+            if await self._block_timestamp(middle) <= timestamp:
+                low = middle
+            else:
+                high = middle
+
+        if low != block_number:
+            log.warning(
+                "Closest %s block before %s is %s, not %s as looked up",
+                self.chain,
+                timestamp,
+                low,
+                block_number,
+            )
+        return await self.get_block_info(low)
+
+    async def _block_timestamp(self, block_number):
+        return (await self.get_block_info(block_number))["timestamp"]
