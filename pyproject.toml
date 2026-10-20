@@ -22,7 +22,7 @@ dependencies = [
     "aiofiles>=25.1.0",
     "aiobotocore>=3.3.0",
     "environs>=14.6.0",
-    "hypersync>=1.0.0",
+    "hypersync>=1.2.1",
     "hexbytes>=1.3.1",
 ]
 
