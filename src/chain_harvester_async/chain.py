@@ -1032,6 +1032,18 @@ class Chain:
     # New interface #
     #################
 
+    async def fetch_raw_logs(self, contract_addresses, from_block, to_block, topics=None):
+        """Yield raw, undecoded logs for `contract_addresses` in [from_block, to_block].
+
+        No ABI needed, so it works for unverified contracts. `topics` is a standard
+        `eth_getLogs` topics filter, e.g. `[[topic0_a, topic0_b]]` to match any topic0.
+        The block range is inclusive and chunked/retried per the chain's step handling.
+        """
+        async for raw_log in self._fetch_logs_from_rpc(
+            contract_addresses, from_block, to_block, topics
+        ):
+            yield raw_log
+
     async def _fetch_logs_from_rpc(self, contract_addresses, from_block, to_block, topics=None):
         # Retries per different error code
         max_retries = {
