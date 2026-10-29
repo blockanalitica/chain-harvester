@@ -56,10 +56,12 @@ async def fetch_enriched_events(
     anonymous=False,
     mixed=False,
 ):
-    while from_block < to_block:
+    # `to_block` is inclusive, like the eth_getLogs path; hypersync's Query.to_block is
+    # exclusive, so ask for one block past it.
+    while from_block <= to_block:
         query = Query(
             from_block=from_block,
-            to_block=to_block,
+            to_block=to_block + 1,
             logs=[
                 LogSelection(
                     address=contract_addresses,
@@ -92,6 +94,10 @@ async def fetch_enriched_events(
         log.debug("Fetching events for contracts topics from block %s to %s", from_block, to_block)
         res = await chain.hypersync_client.get(query)
 
+        # With an inclusive bound the loop runs while from_block == to_block, so a server
+        # that cannot serve block to_block yet would answer the same next_block forever.
+        if res.next_block <= from_block:
+            raise ArchiveHeightBehindError(to_block=to_block, archive_height=res.archive_height)
         from_block = res.next_block
 
         # The replica answering this query can lag behind the one that answered
