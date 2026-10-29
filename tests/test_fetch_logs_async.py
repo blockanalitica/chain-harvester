@@ -54,3 +54,21 @@ async def test_fetch_logs_chunks_cover_full_inclusive_range(monkeypatch):
     await collect_logs(chain, 0, 24)
 
     assert seen == [(0, 9), (10, 19), (20, 24)]
+
+
+async def test_fetch_raw_logs_yields_undecoded_logs_with_filters(monkeypatch):
+    """Public API passes address + topics through and yields logs untouched."""
+    chain = make_chain()
+    topic = "0x" + "11" * 32
+    raw = [{"address": "0x" + "ab" * 20, "topics": [topic], "data": "0x"}]
+    get_logs = AsyncMock(return_value=raw)
+    eth = type("Eth", (), {"get_logs": get_logs})()
+    monkeypatch.setattr(chain, "_w3", type("W3", (), {"eth": eth})())
+
+    logs = [log async for log in chain.fetch_raw_logs(["0x" + "ab" * 20], 5, 7, topics=[[topic]])]
+
+    assert logs == raw
+    filters = get_logs.await_args.args[0]
+    assert filters["topics"] == [[topic]]
+    assert filters["fromBlock"] == hex(5)
+    assert filters["toBlock"] == hex(7)
