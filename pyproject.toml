@@ -40,7 +40,7 @@ dev = [
     "ruff>=0.16.5,<1",
     "ipython>=9.17.1,<10",
     "moto>=5.1.22,<6",
-    "pytest-asyncio==1.4.0",
+    "pytest-asyncio==1.4.1",
 ]
 
 [tool.uv]
