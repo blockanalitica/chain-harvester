@@ -1363,15 +1363,12 @@ class Chain:
         return block
 
     async def find_closing_block(self, timestamp, block_number):
-        """The last block at or before `timestamp`, searched outward from
-        `block_number`: the block whose successor is the first one after it.
+        """Return the last block at or before `timestamp`, searched outward from
+        `block_number`.
 
-        A lookup source (an explorer's getblocknobytime, defillama) answers from
-        its own index, which can lag the chain — asked right after midnight it
-        returns its newest indexed block, minutes before the day's real last
-        one. Checking the successor costs one block lookup when the answer is
-        right; when it is not, the search doubles its step to bracket the
-        boundary, then bisects.
+        Lookup sources (explorer getblocknobytime, defillama) answer from their
+        own index, which can lag the chain: asked right after midnight they
+        return their newest indexed block, minutes before the day's last one.
         """
         if await self._block_timestamp(block_number) > timestamp:
             low, high, step = block_number - 1, block_number, 1
