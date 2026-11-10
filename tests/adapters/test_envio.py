@@ -72,3 +72,42 @@ async def test_yields_events_when_archive_covers_range():
     assert len(events) == 1
     assert events[0]["event"] == "Staked"
     assert events[0]["blockTimestamp"] == 1700000000
+
+
+async def test_to_block_is_inclusive():
+    chain = make_chain([make_response(next_block=989, archive_height=1000)])
+
+    events = [event async for event in fetch_enriched_events(chain, ["0xabc"], 950, 988)]
+
+    assert events == []
+    query = chain.hypersync_client.get.call_args.args[0]
+    assert query.from_block == 950
+    assert query.to_block == 989
+
+
+async def test_single_block_range_is_fetched():
+    chain = make_chain([make_response(next_block=989, archive_height=1000)])
+
+    events = [event async for event in fetch_enriched_events(chain, ["0xabc"], 988, 988)]
+
+    assert events == []
+    assert chain.hypersync_client.get.call_count == 1
+    query = chain.hypersync_client.get.call_args.args[0]
+    assert query.from_block == 988
+    assert query.to_block == 989
+
+
+async def test_raises_when_server_makes_no_progress():
+    chain = make_chain(
+        [
+            make_response(next_block=988, archive_height=988),
+            make_response(next_block=988, archive_height=988),
+        ]
+    )
+
+    events = fetch_enriched_events(chain, ["0xabc"], 950, 988)
+
+    with pytest.raises(ArchiveHeightBehindError) as exc_info:
+        await anext(events)
+    assert exc_info.value.to_block == 988
+    assert chain.hypersync_client.get.call_count == 2
