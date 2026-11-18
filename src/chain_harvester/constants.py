@@ -33,6 +33,7 @@ class Network(IntEnum):
     Tempo = 4217
     Robinhood = 4663
     XLayer = 196
+    Elysium = 99901
 
 
 MULTICALL_ADDRESSES = {
@@ -69,6 +70,7 @@ MULTICALL3_ADDRESSES = {
     Network.Tempo: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.Robinhood: "0xcA11bde05977b3631167028862bE2a173976CA11",
     Network.XLayer: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    Network.Elysium: "0xcA11bde05977b3631167028862bE2a173976CA11",
 }
 
 CHAINS = {
@@ -138,6 +140,9 @@ CHAINS = {
     },
     "xlayer": {
         "mainnet": Network.XLayer,
+    },
+    "elysium": {
+        "mainnet": Network.Elysium,
     },
 }
 
