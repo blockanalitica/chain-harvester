@@ -37,7 +37,7 @@ from chain_harvester.decoders import (
 )
 from chain_harvester.exceptions import ChainException, ConfigError
 from chain_harvester.utils.codes import get_code_name
-from chain_harvester_async.adapters import defillama, envio, sink
+from chain_harvester_async.adapters import defillama, envio
 from chain_harvester_async.blocks import BlockStore, fetch_blocks
 from chain_harvester_async.chainlink.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester_async.multicall.call import Call
@@ -1327,22 +1327,7 @@ class Chain:
             DeprecationWarning,
             stacklevel=2,
         )
-        nearest_block = None
-        # First try to fetch the block from sink.
-        if sink.supports_chain(self.chain):
-            try:
-                nearest_block = await sink.fetch_nearest_block(self.chain, timestamp)
-            except Exception:
-                log.exception(
-                    "Couldn't fetch nearest block from sink. Timestamp: %s chain: %s",
-                    timestamp,
-                    self.chain,
-                )
-
-        # As a fallback use etherscan or other similar apis
-        if not nearest_block:
-            nearest_block = await self.get_closest_block_before_timestamp(timestamp)
-        return nearest_block
+        return await self.get_closest_block_before_timestamp(timestamp)
 
     async def get_closing_block_info(self, for_date):
         """

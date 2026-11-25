@@ -16,7 +16,6 @@ from web3._utils.rpc_abi import RPC
 from web3.exceptions import ContractLogicError, Web3RPCError
 from web3.middleware import ExtraDataToPOAMiddleware, validation
 
-from chain_harvester.adapters import sink
 from chain_harvester.chainlink import get_usd_price_feed_for_asset_symbol
 from chain_harvester.constants import CHAINS, MULTICALL3_ADDRESSES, NULL_ADDRESS
 from chain_harvester.decoders import (
@@ -669,18 +668,6 @@ class Chain:
         return get_usd_price_feed_for_asset_symbol(symbol, self.chain, self.network)
 
     def get_timestamp_for_block(self, block_number):
-        block_info = None
-        if sink.supports_chain(self.chain):
-            try:
-                block_info = sink.fetch_block_info(self.chain, block_number)
-            except Exception:
-                log.exception(
-                    "Couldn't fetch block info from sink. Block number: %s chain: %s",
-                    block_number,
-                    self.chain,
-                )
-            if block_info:
-                return block_info["timestamp"]
         return self.get_block_info(block_number).timestamp
 
     def get_block_for_timestamp(self, timestamp):
@@ -693,21 +680,7 @@ class Chain:
         Returns:
             int: The block number.
         """
-
-        # First try to fetch the block from sink.
-        if sink.supports_chain(self.chain):
-            try:
-                return sink.fetch_nearest_block(self.chain, timestamp)
-            except Exception:
-                log.exception(
-                    "Couldn't fetch nearest block from sink. Timestamp: %s chain: %s",
-                    timestamp,
-                    self.chain,
-                )
-
-        # As a fallback use etherscan or other similar apis
-        nearest_block = self.get_block_for_timestamp_fallback(timestamp)
-        return nearest_block
+        return self.get_block_for_timestamp_fallback(timestamp)
 
     def get_block_for_timestamp_fallback(self, timestamp):
         raise NotImplementedError
