@@ -158,14 +158,15 @@ class Multicall:
                 "('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
                 not in str(e)
                 or connerr_retries > 5
+                or len(calls) == 1
             ):
                 raise
         except requests.HTTPError as e:
-            if "request entity too large" not in str(e).lower():
+            if "request entity too large" not in str(e).lower() or len(calls) == 1:
                 raise
-        chunk_1, chunk_2 = split_calls(self.calls)
-        return list(self.fetch_outputs(chunk_1, ConnErr_retries=connerr_retries + 1)) + list(
-            self.fetch_outputs(chunk_2, ConnErr_retries=connerr_retries + 1)
+        chunk_1, chunk_2 = split_calls(calls)
+        return list(self.fetch_outputs(chunk_1, connerr_retries=connerr_retries + 1)) + list(
+            self.fetch_outputs(chunk_2, connerr_retries=connerr_retries + 1)
         )
 
     def get_args(self, calls):
