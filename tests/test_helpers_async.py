@@ -27,7 +27,7 @@ async def test_get_chain(monkeypatch):
     assert chain.chain == "ethereum"
 
 
-def test_get_elysium_chain_uses_hypersync_by_default(monkeypatch, tmp_path):
+def test_get_elysium_chain_uses_hypersync_when_enabled(monkeypatch, tmp_path):
     config = Mock()
     client = Mock()
     monkeypatch.setattr("chain_harvester_async.chain.ClientConfig", config)
@@ -37,6 +37,7 @@ def test_get_elysium_chain_uses_hypersync_by_default(monkeypatch, tmp_path):
         "elysium",
         rpc="http://localhost:8545",
         abis_path=tmp_path,
+        use_hypersync=True,
         hypersync_api_key=sentinel.api_key,
     )
 
@@ -45,9 +46,7 @@ def test_get_elysium_chain_uses_hypersync_by_default(monkeypatch, tmp_path):
     client.assert_called_once_with(config.return_value)
 
 
-def test_get_elysium_chain_can_disable_hypersync(tmp_path):
-    chain = get_chain(
-        "elysium", rpc="http://localhost:8545", abis_path=tmp_path, use_hypersync=False
-    )
+def test_get_elysium_chain_uses_rpc_by_default(tmp_path):
+    chain = get_chain("elysium", rpc="http://localhost:8545", abis_path=tmp_path)
 
     assert not chain.use_hypersync
