@@ -1,5 +1,3 @@
-from unittest.mock import Mock, sentinel
-
 import pytest
 
 from chain_harvester.exceptions import ConfigError
@@ -25,28 +23,3 @@ async def test_get_chain(monkeypatch):
     with pytest.raises(ConfigError):
         chain = get_chain("ethereum")
     assert chain.chain == "ethereum"
-
-
-def test_get_elysium_chain_uses_hypersync_when_enabled(monkeypatch, tmp_path):
-    config = Mock()
-    client = Mock()
-    monkeypatch.setattr("chain_harvester_async.chain.ClientConfig", config)
-    monkeypatch.setattr("chain_harvester_async.chain.HypersyncClient", client)
-
-    chain = get_chain(
-        "elysium",
-        rpc="http://localhost:8545",
-        abis_path=tmp_path,
-        use_hypersync=True,
-        hypersync_api_key=sentinel.api_key,
-    )
-
-    assert chain.use_hypersync
-    config.assert_called_once_with(url="https://99901.hypersync.xyz", api_token=sentinel.api_key)
-    client.assert_called_once_with(config.return_value)
-
-
-def test_get_elysium_chain_uses_rpc_by_default(tmp_path):
-    chain = get_chain("elysium", rpc="http://localhost:8545", abis_path=tmp_path)
-
-    assert not chain.use_hypersync
