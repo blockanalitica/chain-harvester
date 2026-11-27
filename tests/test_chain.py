@@ -9,6 +9,8 @@ from moto import mock_aws
 from web3 import Web3
 
 from chain_harvester.chain import Chain
+from chain_harvester.exceptions import ChainException
+from chain_harvester.networks.base.mainnet import BaseMainnetChain
 from chain_harvester.networks.ethereum.mainnet import EthereumMainnetChain
 
 RPC_NODES = {"ethereum": {"mainnet": "http://localhost:8545"}}
@@ -28,6 +30,44 @@ def test__rpc():
 def test__rpc_nodes():
     chain = EthereumMainnetChain(rpc_nodes=RPC_NODES, etherscan_api_key="1234")
     assert chain.rpc == RPC_NODES["ethereum"]["mainnet"]
+
+
+@pytest.mark.parametrize("timestamp", [1_719_999_999, 1_720_000_000])
+def test_base_get_block_for_timestamp_uses_defillama(tmp_path, timestamp):
+    chain = BaseMainnetChain(rpc="http://localhost:8545", abis_path=tmp_path)
+    with patch(
+        "chain_harvester.networks.base.mainnet.retry_get_json",
+        return_value={"height": 16_605_326, "timestamp": 1_719_999_999},
+    ) as lookup:
+        assert chain.get_block_for_timestamp(timestamp) == 16_605_326
+
+    lookup.assert_called_once_with(f"https://coins.llama.fi/block/base/{timestamp}", timeout=5)
+
+
+def test_base_get_block_for_timestamp_corrects_a_later_block(tmp_path):
+    chain = BaseMainnetChain(rpc="http://localhost:8545", abis_path=tmp_path)
+    with (
+        patch(
+            "chain_harvester.networks.base.mainnet.retry_get_json",
+            return_value={"height": 16_605_327, "timestamp": 1_720_000_001},
+        ),
+        patch.object(chain, "get_timestamp_for_block", return_value=1_719_999_999) as lookup,
+    ):
+        assert chain.get_block_for_timestamp(1_720_000_000) == 16_605_326
+
+    lookup.assert_called_once_with(16_605_326)
+
+
+def test_base_get_block_for_timestamp_before_genesis(tmp_path):
+    chain = BaseMainnetChain(rpc="http://localhost:8545", abis_path=tmp_path)
+    with (
+        patch(
+            "chain_harvester.networks.base.mainnet.retry_get_json",
+            return_value={"height": 0, "timestamp": 1_686_789_347},
+        ),
+        pytest.raises(ChainException, match="No base block at or before 1686789346"),
+    ):
+        chain.get_block_for_timestamp(1_686_789_346)
 
 
 def test__load_abi__abi():
